@@ -7,10 +7,10 @@ template <typename CrdT>
 Network<CrdT>::Network() {
     //default constructor
     nAtoms=0;
-    nGeomUnits=0;
+    nUnits=0;
     nRings=0;
     atoms.clear();
-    geomUnits.clear();
+    units.clear();
     rings.clear();
 }
 

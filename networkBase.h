@@ -4,27 +4,29 @@
 #include <iostream>
 #include <vector>
 #include <string>
-#include "netBaseUnits.h"
+#include "atom.h"
+#include "unit.h"
+#include "ring.h"
 
 using namespace std;
 
 template <typename CrdT>
 class Network {
-    //base class for network containing all atom, crystal unit and ring information
+    //base class for network containing all atom, unit and ring information
 
 protected:
     //key variables
-    int nAtoms, nGeomUnits, nRings; //number of atoms, geom units and rings
+    int nAtoms, nUnits, nRings; //number of atoms, units and rings
     vector< Atom<CrdT> > atoms; //atoms in network (both m and x)
-    vector< GeometricalUnit<CrdT> > geomUnits; //triangles in network
-    vector< Ring<CrdT> > rings; //rings in network
+    vector<Unit> units; //triangles in network
+    vector<Ring> rings; //rings in network
 
 public:
     //constructors
     Network();
 
     //write out
-    virtual void write(string prefix, Logfile &logfile)=0; //write network to files
+//    virtual void write(string prefix, Logfile &logfile)=0; //write network to files
 };
 
 #include "networkBase.tpp"

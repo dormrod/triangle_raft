@@ -1,4 +1,4 @@
-Simulation run: Wed Jun 27 13:56:02 2018
+Simulation run: Wed Jun 27 15:52:37 2018
 
 Grows MX2 Aperiodic Networks                    
 Written By: David OM, Wilson Group, 2018                    
@@ -6,17 +6,5 @@ Written By: David OM, Wilson Group, 2018
 Email bugs with snapshots and output files to:                     
 david.ormrodmorley@chem.ox.ac.uk                    
 ----------------------------------------------------------------------
-Loading network                         
-    Atoms read from:    ./input_files/6_atoms.out
-    Geometrical units read from: ./input_files/6_units.out
-    Rings read from:    ./input_files/6_rings.out
-Load complete                           
-----------------------------------------------------------------------
-Writing network                         
-    Atoms written to:   ./output_files/test_atoms.out
-    Units written to:   ./output_files/test_units.out
-    Rings written to:   ./output_files/test_rings.out
-Write complete                          
-----------------------------------------------------------------------
-Simulation complete: Wed Jun 27 13:56:02 2018
+Simulation complete: Wed Jun 27 15:52:37 2018
 

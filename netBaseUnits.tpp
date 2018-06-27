@@ -1,5 +1,6 @@
 #include "netBaseUnits.h"
 
+
 //##### ATOM #####
 template <typename CrdT>
 Atom<CrdT>::Atom() {
