@@ -1,6 +1,8 @@
 #include <iostream>
 #include "logfile.h"
 #include "netBaseUnits.h"
+#include "networkDerived.h"
+#include "crd.h"
 
 using namespace std;
 
@@ -14,8 +16,19 @@ int main(){
     logfile.log("david.ormrodmorley@chem.ox.ac.uk","","",0,true);
 
     //Open and read main input file
-//    ifstream inputFile("tang.inpt", ios::in);
-//    if(!inputFile.good()) logfile.errorlog("Cannot find input file","critical"); //exit if cannot find input file
+    ifstream inputFile("mx2.inpt", ios::in);
+    if(!inputFile.good()) logfile.errorlog("Cannot find input file","critical"); //exit if cannot find input file
+
+    //IO
+    string inputPrefix,outputPrefix;
+//    int rstFrequency;
+    readFileSkipLines(inputFile); //skip header
+    readFileValue(inputFile,inputPrefix); //for reading in files
+    readFileValue(inputFile,outputPrefix); //for writing to files
+//    readFileValue(inputFile,rstFrequency); //restart write out frequency
+
+    NetworkCart2D network(inputPrefix,logfile);
+    network.write(outputPrefix,logfile);
 
     return 0;
 }

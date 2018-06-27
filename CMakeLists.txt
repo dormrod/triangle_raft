@@ -9,4 +9,4 @@ file(GLOB SOURCE_FILES
         "*.tpp"
 )
 
-add_executable(mx2.x ${SOURCE_FILES} main.cpp)
+add_executable(mx2.x ${SOURCE_FILES})

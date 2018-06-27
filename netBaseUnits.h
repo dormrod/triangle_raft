@@ -1,5 +1,5 @@
-#ifndef MX2_CRD_H
-#define MX2_CRD_H
+#ifndef MX2_NETBASEUNITS_H
+#define MX2_NETBASEUNITS_H
 
 #include <iostream>
 #include <vector>
@@ -23,13 +23,16 @@ struct Atom{
     Atom(const Atom &source);
     ~Atom();
 
+    //setters
+    void setCoordinate(CrdT c);
+
     //overloaded operators
     Atom<CrdT>& operator=(const Atom<CrdT> &source);
 };
 
 template <typename CrdT>
-struct CrystalUnit{
-    //base unit of crystal e.g. triangle in 2D, tetrahedron in 3D
+struct GeometricalUnit{
+    //base geometry e.g. triangle in 2D, tetrahedron in 3D
 
     //key variables
     int id; //specific identifier
@@ -38,13 +41,17 @@ struct CrystalUnit{
     int *xAtoms; //ids of x atoms
 
     //constructors, destructors
-    CrystalUnit();
-    CrystalUnit(int initId, int initNX);
-    CrystalUnit(const CrystalUnit &source);
-    ~CrystalUnit();
+    GeometricalUnit();
+    GeometricalUnit(int initId, int initNX);
+    GeometricalUnit(const GeometricalUnit &source);
+    ~GeometricalUnit();
+
+    //setters
+    void setAtomM(int m);
+    void setAtomsX(vector<int> x);
 
     //overloaded operators
-    CrystalUnit<CrdT>& operator=(const CrystalUnit<CrdT> &source);
+    GeometricalUnit<CrdT>& operator=(const GeometricalUnit<CrdT> &source);
 };
 
 template <typename CrdT>
@@ -61,10 +68,14 @@ struct Ring{
     Ring(int initId, int initN);
     Ring(const Ring &source);
     ~Ring();
+
+    //setters
+    void setUnits(vector<int> u);
+
     //overloaded operators
     Ring<CrdT>& operator=(const Ring<CrdT> &source);
 };
 
 #include "netBaseUnits.tpp"
 
-#endif //MX2_CRD_H
+#endif //MX2_NETBASEUNITS_H

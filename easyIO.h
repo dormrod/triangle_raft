@@ -72,12 +72,12 @@ void writeFileVector(ofstream &file, vector<T> values, int width=10){
     file<<endl;
 }
 template <typename T>
-void writeFileArray(ofstream &file, T values, int n, int width=10){
+void writeFileArray(ofstream &file, T values, int n, bool endLine ,int width=10){
     //write array of values to file
     for(int i=0; i<n; ++i){
         file<<setw(width)<<left<<values[i];
     }
-    file<<endl;
+    if(endLine) file<<endl;
 }
 
 //#### reading from file ####

@@ -1,2 +1,4 @@
 .idea/*
 cmake-build-debug/*
+output_files/*
+input_files/*

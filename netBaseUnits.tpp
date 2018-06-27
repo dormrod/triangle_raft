@@ -26,6 +26,8 @@ Atom<CrdT>::Atom(const Atom &source) {
     //shallow copies
     id=source.id;
     element=source.element;
+    coordinate=source.coordinate;
+
 }
 
 template <typename CrdT>
@@ -36,20 +38,27 @@ Atom<CrdT>& Atom<CrdT>::operator=(const Atom<CrdT> &source) {
     //shallow copies
     id=source.id;
     element=source.element;
+    coordinate=source.coordinate;
 
     return *this;
 }
 
-//##### CRYSTAL UNIT #####
+template <typename CrdT>
+void Atom<CrdT>::setCoordinate(CrdT c) {
+    //set coordinate using given type
+    coordinate=c;
+}
+
+//##### GEOMETRICAL UNIT #####
 
 template <typename CrdT>
-CrystalUnit<CrdT>::CrystalUnit() {
+GeometricalUnit<CrdT>::GeometricalUnit() {
     //default constructor
     id=-1;
 }
 
 template <typename CrdT>
-CrystalUnit<CrdT>::CrystalUnit(int initId, int initNX) {
+GeometricalUnit<CrdT>::GeometricalUnit(int initId, int initNX) {
     //constructor
     id=initId;
     nX=initNX;
@@ -58,13 +67,13 @@ CrystalUnit<CrdT>::CrystalUnit(int initId, int initNX) {
 }
 
 template <typename CrdT>
-CrystalUnit<CrdT>::~CrystalUnit() {
+GeometricalUnit<CrdT>::~GeometricalUnit() {
     //destructor
     delete[] xAtoms;
 }
 
 template <typename CrdT>
-CrystalUnit<CrdT>::CrystalUnit(const CrystalUnit &source) {
+GeometricalUnit<CrdT>::GeometricalUnit(const GeometricalUnit &source) {
     //copy constructor
 
     //shallow copies
@@ -78,7 +87,7 @@ CrystalUnit<CrdT>::CrystalUnit(const CrystalUnit &source) {
 }
 
 template <typename CrdT>
-CrystalUnit<CrdT>& CrystalUnit<CrdT>::operator=(const CrystalUnit<CrdT> &source) {
+GeometricalUnit<CrdT>& GeometricalUnit<CrdT>::operator=(const GeometricalUnit<CrdT> &source) {
     //overload assigment operator
     if (this == &source) return *this;
 
@@ -92,6 +101,18 @@ CrystalUnit<CrdT>& CrystalUnit<CrdT>::operator=(const CrystalUnit<CrdT> &source)
     for(int i=0; i<nX; ++i) xAtoms[i]=source.xAtoms[i];
 
     return *this;
+}
+
+template <typename CrdT>
+void GeometricalUnit<CrdT>::setAtomM(int m) {
+    //set m atom id
+    mAtom=m;
+}
+
+template <typename CrdT>
+void GeometricalUnit<CrdT>::setAtomsX(vector<int> x) {
+    //set x atoms from vector
+    for(int i=0; i<nX; ++i) xAtoms[i]=x[i];
 }
 
 //##### RING #####
@@ -142,4 +163,10 @@ Ring<CrdT>& Ring<CrdT>::operator=(const Ring<CrdT> &source) {
     for(int i=0; i<n; ++i) units[i]=source.units[i];
 
     return *this;
+}
+
+template <typename CrdT>
+void Ring<CrdT>::setUnits(vector<int> u) {
+    //set units from vector
+    for(int i=0; i<n; ++i) units[i]=u[i];
 }
