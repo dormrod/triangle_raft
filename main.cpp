@@ -1,6 +1,6 @@
 #include <iostream>
 #include "logfile.h"
-#include "networkBase.h"
+#include "networkDerived.h"
 #include "crd.h"
 
 using namespace std;
@@ -26,7 +26,8 @@ int main(){
     readFileValue(inputFile,outputPrefix); //for writing to files
 //    readFileValue(inputFile,rstFrequency); //restart write out frequency
 
-    Network<Cart2D> network();
+    NetworkCart2D network(inputPrefix,logfile);
+    network.write(outputPrefix,logfile);
 
     return 0;
 }

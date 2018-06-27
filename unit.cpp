@@ -1,7 +1,20 @@
 #include "unit.h"
 
 //#####  UNIT #####
-Unit::Unit():Node() {} //default constructor
+Unit::Unit(){
+    //default constructor
+    id=-1;
+}
 
-Unit::Unit(int idValue, int maxAtomMCnxs, int maxAtomXCnxs, int maxUnitCnxs, int maxRingCnxs):
-        Node(idValue,maxAtomMCnxs,maxAtomXCnxs,maxUnitCnxs,maxRingCnxs) {} //constructor
+Unit::Unit(int idValue, int maxX, int maxU, int maxR) {
+    //constructor
+    id=idValue;
+    atomsX=Connector(maxX);
+    units=Connector(maxU);
+    rings=Connector(maxR);
+}
+
+void Unit::setAtomM(int m) {
+    //set id of metal atom
+    atomM=m;
+}

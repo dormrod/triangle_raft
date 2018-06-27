@@ -17,7 +17,7 @@ Logfile::~Logfile() {
     ofstream file(filename,ios::in|ios::app);
     string timeAndDate=currentTimeAndDate();
     string message="Simulation complete: "+timeAndDate;
-    writeFileValue(file,message);
+    writeFileValue(file,message,true);
     file.close();
 }
 
@@ -59,7 +59,7 @@ void Logfile::initialise(){
     ofstream file(filename,ios::in|ios::trunc);
     string timeAndDate=currentTimeAndDate();
     string message="Simulation run: "+timeAndDate;
-    writeFileValue(file,message);
+    writeFileValue(file,message,true);
     time0=chrono::high_resolution_clock::now();
     currentTime();
     file.close();
@@ -70,8 +70,8 @@ void Logfile::errorlog(string message, string errorType, int errorCode){
     ofstream file(filename,ios::in|ios::app);
     string errorMessage;
     if(errorType=="critical") errorMessage="Critical error at "+currentTime()+": "+message;
-    writeFileValue(file,errorMessage);
+    writeFileValue(file,errorMessage,true);
     if(errorType=="critical") exit(errorCode);
-    writeFileValue(file,message);
+    writeFileValue(file,message,true);
     file.close();
 }

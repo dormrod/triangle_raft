@@ -78,13 +78,15 @@ def get_data(prefix):
     data={}
     atoms=np.genfromtxt(atom_filename,dtype=float)
     elements=np.array(atoms[:,0],dtype=int)
-    crds=np.array(atoms[:,1:],dtype=float)
+    coordination=np.array(atoms[:,1],dtype=int)
+    crds=np.array(atoms[:,2:],dtype=float)
     units=np.genfromtxt(unit_filename,dtype=int)
 
     data["elements"]=elements
+    data["coordination"]=coordination
     data["crds"]=crds
-    data["unit_x"]=units[:,0:3]
-    data["unit_m"]=units[:,3]
+    data["unit_m"]=units[:,0]
+    data["unit_x"]=units[:,1:]
 
     return data
 

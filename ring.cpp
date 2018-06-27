@@ -1,7 +1,14 @@
 #include "ring.h"
 
 //#####  RING #####
-Ring::Ring():Node() {} //default constructor
+Ring::Ring(){
+    //default constructor
+    id=-1;
+}
 
-Ring::Ring(int idValue, int maxAtomMCnxs, int maxAtomXCnxs, int maxUnitCnxs, int maxRingCnxs):
-        Node(idValue,maxAtomMCnxs,maxAtomXCnxs,maxUnitCnxs,maxRingCnxs) {} //constructor
+Ring::Ring(int idValue, int maxU, int maxR) {
+    //constructor
+    id=idValue;
+    units=Connector(maxU);
+    rings=Connector(maxR);
+}

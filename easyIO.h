@@ -44,9 +44,10 @@ void writeFileDashedLine(ofstream &file, int n=70);
 void writeFileIndent(ofstream &file, int w=4);
 
 template <typename T>
-void writeFileValue(ofstream &file, T value){
+void writeFileValue(ofstream &file, T value, bool endLine, int width=10){
     //write single value to file
-    file<<value<<endl;
+    file<<setw(width)<<left<<value;
+    if(endLine) file<<endl;
 }
 template <typename S, typename T>
 void writeFileValue(ofstream &file, S value0, T value1, int width=20){

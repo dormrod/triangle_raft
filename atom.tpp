@@ -1,21 +1,17 @@
 #include "atom.h"
 
 template <typename CrdT>
-Atom<CrdT>::Atom():Node() {} //default constructor
-
-template <typename CrdT>
-Atom<CrdT>::Atom(int elem, int idValue, int maxAtomMCnxs, int maxAtomXCnxs, int maxUnitCnxs, int maxRingCnxs):
-        Node(idValue,maxAtomMCnxs,maxAtomXCnxs,maxUnitCnxs,maxRingCnxs){
-    //constructor
-    element=elem;
+Atom<CrdT>::Atom() {
+    //default constructor
+    id=-1;
 }
 
 template <typename CrdT>
-Atom<CrdT>::Atom(int elem, CrdT crd, int idValue, int maxAtomMCnxs, int maxAtomXCnxs, int maxUnitCnxs, int maxRingCnxs):
-        Node(idValue,maxAtomMCnxs,maxAtomXCnxs,maxUnitCnxs,maxRingCnxs) {
+Atom<CrdT>::Atom(int idValue, int elem, int cnd) {
     //constructor
+    id=idValue;
     element=elem;
-    coordinate=crd;
+    coordination=cnd;
 }
 
 template <typename CrdT>

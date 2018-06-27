@@ -3,6 +3,7 @@
 //##### CONNECTOR #####
 Connector::Connector() {
     //default constructor
+    n=0;
     max=0;
 }
 
@@ -16,7 +17,7 @@ Connector::Connector(int maxN){
 
 Connector::~Connector() {
     //destructor
-    delete[] cnxs;
+    if(max>0) delete[] cnxs;
 }
 
 Connector::Connector(const Connector &source) {
@@ -28,8 +29,10 @@ Connector::Connector(const Connector &source) {
     max=source.max;
 
     //deep copies
-    cnxs=new int[max]();
-    for(int i=0; i<n; ++i) cnxs[i]=source.cnxs[i];
+    if(max>0){
+        cnxs=new int[max]();
+        for(int i=0; i<n; ++i) cnxs[i]=source.cnxs[i];
+    }
 }
 
 Connector& Connector::operator=(const Connector &source) {
@@ -43,8 +46,10 @@ Connector& Connector::operator=(const Connector &source) {
     max=source.max;
 
     //deep copies
-    cnxs=new int[max]();
-    for(int i=0; i<n; ++i) cnxs[i]=source.cnxs[i];
+    if(max>0){
+        cnxs=new int[max]();
+        for(int i=0; i<n; ++i) cnxs[i]=source.cnxs[i];
+    }
 
     return *this;
 }
