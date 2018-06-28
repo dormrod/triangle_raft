@@ -22,7 +22,6 @@ protected:
     vector< Atom<CrdT> > atoms; //atoms in network (both m and x)
     vector<Unit> units; //triangles in network
     vector<Ring> rings; //rings in network
-    map<int,int> atomMap, unitMap, ringMap; //relate ids to references in array
 
     //Additional Variables
     //Geometry Optimisation

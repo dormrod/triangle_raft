@@ -216,49 +216,49 @@ void NetworkCart2D::geometryOptimise(vector<double> &potentialModel) {
     crds=getCrds();
 
     //loop over triangle units to get M-X, X-X bonds
-    int mRef0, xRef0, xRef1, xRef2;
+    int mId0, xId0, xId1, xId2;
     for(int i=0; i<nUnits; ++i){
-        mRef0=atomMap.at(units[i].atomM);
-        xRef0=atomMap.at(units[i].atomsX.ids[0]);
-        xRef1=atomMap.at(units[i].atomsX.ids[1]);
-        xRef2=atomMap.at(units[i].atomsX.ids[2]);
+        mId0=units[i].atomM;
+        xId0=units[i].atomsX.ids[0];
+        xId1=units[i].atomsX.ids[1];
+        xId2=units[i].atomsX.ids[2];
         //M-X
-        bonds.push_back(mRef0);
-        bonds.push_back(xRef0);
+        bonds.push_back(mId0);
+        bonds.push_back(xId0);
         bondK.push_back(potentialModel[0]);
         bondR0.push_back(potentialModel[1]);
-        bonds.push_back(mRef0);
-        bonds.push_back(xRef1);
+        bonds.push_back(mId0);
+        bonds.push_back(xId1);
         bondK.push_back(potentialModel[0]);
         bondR0.push_back(potentialModel[1]);
-        bonds.push_back(mRef0);
-        bonds.push_back(xRef2);
+        bonds.push_back(mId0);
+        bonds.push_back(xId2);
         bondK.push_back(potentialModel[0]);
         bondR0.push_back(potentialModel[1]);
         //X-X
-        bonds.push_back(xRef0);
-        bonds.push_back(xRef1);
+        bonds.push_back(xId0);
+        bonds.push_back(xId1);
         bondK.push_back(potentialModel[2]);
         bondR0.push_back(potentialModel[3]);
-        bonds.push_back(xRef0);
-        bonds.push_back(xRef2);
+        bonds.push_back(xId0);
+        bonds.push_back(xId2);
         bondK.push_back(potentialModel[2]);
         bondR0.push_back(potentialModel[3]);
-        bonds.push_back(xRef1);
-        bonds.push_back(xRef2);
+        bonds.push_back(xId1);
+        bonds.push_back(xId2);
         bondK.push_back(potentialModel[2]);
         bondR0.push_back(potentialModel[3]);
     }
 
     //loop over neighbour triangle units to get M-M
-    int mRef1;
+    int mId1;
     for(int i=0; i<nUnits; ++i){
-        mRef0=atomMap.at(units[i].atomM);
+        mId0=units[i].atomM;
         for(int j=0; j<units[i].units.n; ++j){
-            mRef1=atomMap.at(units[units[i].units.ids[j]].atomM);
-            if(mRef0<mRef1){//prevent double counting as reciprocal connections
-                bonds.push_back(mRef0);
-                bonds.push_back(mRef1);
+            mId1=units[units[i].units.ids[j]].atomM;
+            if(mId0<mId1){//prevent double counting as reciprocal connections
+                bonds.push_back(mId0);
+                bonds.push_back(mId1);
                 bondK.push_back(potentialModel[4]);
                 bondR0.push_back(potentialModel[5]);
             }
