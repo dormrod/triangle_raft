@@ -34,6 +34,7 @@ private:
 
     //Methods
     void loadNetwork(Logfile &logfile);
+    void growNetwork(Logfile &logfile);
     void writeNetwork(Logfile &logfile);
 
 public:

@@ -41,6 +41,9 @@ public:
     //Setters
     virtual void setGO(int it, double ls, double conv)=0; //virtual as set up optimiser with different potential types
 
+    //Getters
+    int getNRings();
+
     //Methods
     //Build Network
     void addAtom(Atom<CrdT> atom);

@@ -1,4 +1,4 @@
-Simulation run: Thu Jun 28 13:52:52 2018
+Simulation run: Thu Jun 28 14:06:35 2018
 
 Grows MX2 Aperiodic Networks                    
 Written By: David OM, Wilson Group, 2018                    
@@ -15,14 +15,14 @@ Initialising network parameters
 Intialisation complete                    
 ----------------------------------------------------------------------
 Loading network                         
-    Atoms read from:    ./input_files/10_atoms.out
-    Units read from:    ./input_files/10_units.out
-    Rings read from:    ./input_files/10_rings.out
-    Additional connections read from: ./input_files/10_connections.out
+    Atoms read from:    ./input_files/6_atoms.out
+    Units read from:    ./input_files/6_units.out
+    Rings read from:    ./input_files/6_rings.out
+    Additional connections read from: ./input_files/6_connections.out
 Load complete                           
 ----------------------------------------------------------------------
-Monte Carlo process begun                    
-Monte Carlo process complete                    
+Network growth begun after 0 seconds
+Network growth complete                    
 ----------------------------------------------------------------------
 Writing network                         
     Atoms written to:   ./output_files/test_atoms.out
@@ -31,5 +31,5 @@ Writing network
     Additional connections written to: ./output_files/test_connections.out
 Write complete                          
 ----------------------------------------------------------------------
-Simulation complete: Thu Jun 28 13:52:52 2018
+Simulation complete: Thu Jun 28 14:06:35 2018
 

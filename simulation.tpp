@@ -73,16 +73,12 @@ void Simulation<CrdT,NetT>::run(Logfile &logfile) {
 
     loadNetwork(logfile);
 
-
-
-    logfile.log("Monte Carlo process begun","","",0,false);
-
-
-    logfile.log("Monte Carlo process complete","","",0,true);
+    growNetwork(logfile);
 
     writeNetwork(logfile);
 }
 
+//##### LOAD #####
 template <typename CrdT, typename NetT>
 void Simulation<CrdT,NetT>::loadNetwork(Logfile &logfile) {
     //read in network from file
@@ -93,6 +89,36 @@ void Simulation<CrdT,NetT>::loadNetwork(Logfile &logfile) {
     if(globalPreGO) masterNetwork.geometryOptimise(potentialModel);
 }
 
+//##### GROW #####
+template <typename CrdT, typename NetT>
+void Simulation<CrdT,NetT>::growNetwork(Logfile &logfile) {
+    //grow network using monte carlo process
+    logfile.log("Network growth begun after","","sec",0,false);
+
+    int nRings=masterNetwork.getNRings();
+    if(nRings<nTargetRings){
+
+        ++nRings;
+    }
+
+    logfile.log("Network growth complete","","",0,true);
+}
+//template <typename CrdT, typename NetT>
+//Simulation<CrdT,NetT>::
+//template <typename CrdT, typename NetT>
+//Simulation<CrdT,NetT>::
+//template <typename CrdT, typename NetT>
+//Simulation<CrdT,NetT>::
+//template <typename CrdT, typename NetT>
+//Simulation<CrdT,NetT>::
+//template <typename CrdT, typename NetT>
+//Simulation<CrdT,NetT>::
+//template <typename CrdT, typename NetT>
+//Simulation<CrdT,NetT>::
+//template <typename CrdT, typename NetT>
+//Simulation<CrdT,NetT>::
+
+//##### WRITE #####
 template <typename CrdT, typename NetT>
 void Simulation<CrdT,NetT>::writeNetwork(Logfile &logfile) {
     //write network to file

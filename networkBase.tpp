@@ -20,6 +20,12 @@ Network<CrdT>::Network() {
 }
 
 template <typename CrdT>
+int Network<CrdT>::getNRings() {
+    //return number of rings in network
+    return nRings;
+}
+
+template <typename CrdT>
 void Network<CrdT>::addAtom(Atom<CrdT> atom) {
     //add atom to network and update map
     atoms.push_back(atom);
