@@ -12,9 +12,11 @@ Unit::Unit(int idValue, int maxX, int maxU, int maxR) {
     atomsX=Connector(maxX);
     units=Connector(maxU);
     rings=Connector(maxR);
+    flag=false;
 }
 
 void Unit::setAtomM(int m) {
     //set id of metal atom
     atomM=m;
 }
+

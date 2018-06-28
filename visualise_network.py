@@ -12,8 +12,12 @@ def main():
     # Get options for visualisation and unpack
     vis_options=get_options()
     vis_prefix=vis_options.get("prefix")
-    vis_tri=vis_options.get("triangle")
-    vis_ring=vis_options.get("ring")
+    vis_tri=vis_options.get("triangle",False)
+    vis_x=vis_options.get("x_atom",False)
+    vis_m=vis_options.get("m_atom",False)
+    vis_ring=vis_options.get("ring",False)
+    vis_atom_label=vis_options.get("atom_label",False)
+    vis_tri_label=vis_options.get("triangle_label",False)
     # vis_atom_label=vis_options.get("atom_label",False)
     # vis_ring_label=vis_options.get("ring_label",False)
     # vis_save_pdf=vis_options.get("save_pdf",False)
@@ -28,7 +32,7 @@ def main():
     # Get data and plot
     data=get_data(vis_prefix)
     if vis_tri:
-        plot_triangle_network(data,fig,ax)
+        plot_triangle_network(data,vis_x,vis_m,vis_atom_label,vis_tri_label,fig,ax)
 
     # if vis_atom:
     #     atom_data=get_atom_data(vis_prefix)
@@ -47,14 +51,21 @@ def get_options():
     options["prefix"]=sys.argv[1]
     if len(sys.argv)==2:
         options["triangle"]=True
+        options["x_atom"]=True
         options["ring"]=False
     else:
         if("t" in sys.argv[2]): options["triangle"]=True
         else: options["triangle"]=False
+        if("x" in sys.argv[2]): options["x_atom"]=True
+        else: options["x_atom"]=False
+        if("m" in sys.argv[2]): options["m_atom"]=True
+        else: options["m_atom"]=False
         if("r" in sys.argv[2]): options["ring"]=True
         else: options["ring"]=False
-        # if("l" in sys.argv[2]): options["atom_label"]=True
-        # if("L" in sys.argv[2]): options["ring_label"]=True
+        if("A" in sys.argv[2]): options["atom_label"]=True
+        else: options["atom_label"]=False
+        if("T" in sys.argv[2]): options["triangle_label"]=True
+        else: options["triangle_label"]=False
         # if("s" in sys.argv[2]): options["save_pdf"]=True
         # if("S" in sys.argv[2]): options["save_png"]=True
     return options
@@ -116,7 +127,7 @@ def get_atom_data(prefix):
     atomData["ring_sizes"]=ringSizes
     return atomData
 
-def plot_triangle_network(data,fig,ax):
+def plot_triangle_network(data,show_x,show_m,atom_label,tri_label,fig,ax):
     crds=data.get("crds")
     unit_x=data.get("unit_x")
     unit_m=data.get("unit_m")
@@ -131,9 +142,26 @@ def plot_triangle_network(data,fig,ax):
         path=Path(tri_crds, polygon_cmds[0])
         patch = patches.PathPatch(path, facecolor="gold", lw=1.0, alpha=1.0, zorder=1)
         ax.add_patch(patch)
+
     # Plot x atoms
-    x_crds=crds[unit_x.flatten()]
-    ax.scatter(x_crds[:,0],x_crds[:,1], facecolor="red", edgecolor="black", zorder=2)
+    if show_x:
+        x_crds=crds[unit_x.flatten()]
+        ax.scatter(x_crds[:,0],x_crds[:,1], facecolor="red", edgecolor="black", zorder=2)
+    # Plot m atoms
+    if show_m:
+        m_crds=crds[unit_m]
+        ax.scatter(m_crds[:,0],m_crds[:,1], facecolor="blue", edgecolor="black", zorder=2)
+
+    # Make labels
+    if atom_label:
+        for label, crd in enumerate(crds):
+            plt.text(crd[0], crd[1], label, zorder=2)
+
+    if tri_label:
+        for label,tri in enumerate(unit_x):
+            tri_crd_x=np.average(np.array([crds[a,0] for a in tri]))
+            tri_crd_y=np.average(np.array([crds[a,1] for a in tri]))
+            plt.text(tri_crd_x, tri_crd_y, label, zorder=2)
 
     # Set axes limits
     limLb=np.min(crds)*1.1

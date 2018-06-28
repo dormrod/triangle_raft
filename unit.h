@@ -12,6 +12,7 @@ struct Unit {
     int id; //unique identifier
     int atomM; //metal atom
     Connector atomsX, units, rings; //connections
+    bool flag; //generic flag
 
     Unit(); //constructor
     Unit(int idValue, int maxX, int maxU, int maxR); //constructor

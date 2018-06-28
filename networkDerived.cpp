@@ -81,6 +81,9 @@ NetworkCart2D::NetworkCart2D(string prefix, Logfile &logfile):Network<Cart2D>() 
         addRingRingCnx(pair[0],pair[1]);
     }
 
+    //calculate boundary
+    calculateBoundary();
+
     //close files
     atomFile.close();
     unitFile.close();

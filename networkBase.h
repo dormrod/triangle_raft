@@ -6,6 +6,7 @@
 #include <string>
 #include <map>
 #include "easyIO.h"
+#include "logfile.h"
 #include "atom.h"
 #include "unit.h"
 #include "ring.h"
@@ -24,14 +25,19 @@ protected:
     vector<Ring> rings; //rings in network
 
     //Additional Variables
+    //Structural
+    vector<int> boundaryUnits;
+    vector<int> boundaryStatus;
     //Geometry Optimisation
     int optIterations; //number of optimisation iterations
     double energy; //potential energy
 
-
     //Methods
     virtual vector<double> getCrds()=0; //get all atom coordinates - virtual as have different number of variables and will be faster
     virtual void setCrds(vector<double> &crds)=0; //set all atom coordinates - virtual as have different number of variables and will be faster
+    bool checkActiveUnit(int &uId, int sumCheck=12); //checks if active by summing associated atom coordination
+    bool checkEdgeUnit(int &uId, int ringCheck=3); //checks if edge by number of associated rings
+    void calculateBoundary(); //work out boundary units
 
 public:
     //Constructors
