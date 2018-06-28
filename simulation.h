@@ -32,10 +32,13 @@ private:
     //Additional variables
     NetT masterNetwork; //main global network for simulation
 
-    //Methods
+    //Key Methods
     void loadNetwork(Logfile &logfile);
     void growNetwork(Logfile &logfile);
     void writeNetwork(Logfile &logfile);
+
+    //Aux Methods
+    int selectActiveUnit(); //find unit to build new ring on
 
 public:
     //Constructors

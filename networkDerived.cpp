@@ -97,6 +97,57 @@ NetworkCart2D::NetworkCart2D(string prefix, Logfile &logfile):Network<Cart2D>() 
     logfile.log("Load complete","","",0,true);
 }
 
+int NetworkCart2D::getActiveUnit(string shape, double size) {
+    //find active unit within given shape, return -1 if cannot find
+
+    int unitId=-1;
+    int atomId; //id of atom with dangling bond
+
+    if(shape=="C") {//circle
+        double rsq = size * size;
+        for (int i = 0; i < boundaryUnits.size(); ++i) {
+            atomId = boundaryStatus[i];
+            if (atomId >= 0) {
+                if (atoms[atomId].coordinate.normSq() < rsq) {
+                    unitId = boundaryUnits[i];
+                    break;
+                }
+            }
+        }
+    }
+    else if(shape=="S"){
+        Cart2D c;
+        for (int i = 0; i < boundaryUnits.size(); ++i) {
+            atomId = boundaryStatus[i];
+            if (atomId >= 0) {
+                c=atoms[atomId].coordinate;
+                if (c.x < size && c.x > -size && c.y < size && c.y > - size) {
+                    unitId = boundaryUnits[i];
+                    break;
+                }
+            }
+        }
+    }
+    else if(shape=="H"){
+        Cart2D c;
+        double f;
+        for (int i = 0; i < boundaryUnits.size(); ++i) {
+            atomId = boundaryStatus[i];
+            if (atomId >= 0) {
+                c=atoms[atomId].coordinate;
+                c/=size;
+                f=c.x*c.x+pow((1.25*c.y-sqrt(fabs(c.x))),2);
+                if (f<1) {
+                    unitId = boundaryUnits[i];
+                    break;
+                }
+            }
+        }
+    }
+
+    return unitId;
+}
+
 void NetworkCart2D::write(string prefix, Logfile &logfile) {
     //write network information to output files
 

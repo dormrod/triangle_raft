@@ -96,15 +96,30 @@ void Simulation<CrdT,NetT>::growNetwork(Logfile &logfile) {
     logfile.log("Network growth begun after","","sec",0,false);
 
     int nRings=masterNetwork.getNRings();
-    if(nRings<nTargetRings){
-
-        ++nRings;
+    if(nRings<nTargetRings){//only if network needs growing
+        do{
+            int activeUnit = selectActiveUnit();
+            cout << activeUnit << endl;
+            ++nRings;
+        }while(nRings<nTargetRings);
     }
 
     logfile.log("Network growth complete","","",0,true);
 }
-//template <typename CrdT, typename NetT>
-//Simulation<CrdT,NetT>::
+
+template <typename CrdT, typename NetT>
+int Simulation<CrdT,NetT>::selectActiveUnit() {
+    //find unit within geometrical shape which has dangling bonds
+    int activeUnit;
+    double regionSize=1.0;
+    for(;;){
+        activeUnit=masterNetwork.getActiveUnit(growthGeometry,regionSize);
+        if(activeUnit==-1) regionSize+=1.0;
+        else break;
+    }
+    return activeUnit;
+}
+
 //template <typename CrdT, typename NetT>
 //Simulation<CrdT,NetT>::
 //template <typename CrdT, typename NetT>

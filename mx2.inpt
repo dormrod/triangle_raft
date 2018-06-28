@@ -3,7 +3,7 @@ IO
 ./output_files/test         output prefix
 -------------------------------------------------
 Network Properties
-10          number of rings
+2           number of rings
 4  10       basic ring size limits
 2DC         geometry code
 -------------------------------------------------

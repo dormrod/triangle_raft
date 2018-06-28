@@ -38,6 +38,7 @@ protected:
     bool checkActiveUnit(int &uId, int sumCheck=12); //checks if active by summing associated atom coordination
     bool checkEdgeUnit(int &uId, int ringCheck=3); //checks if edge by number of associated rings
     void calculateBoundary(); //work out boundary units
+    virtual int getActiveUnit(string shape, double size)=0; //find active unit within shape
 
 public:
     //Constructors

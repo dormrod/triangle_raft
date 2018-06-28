@@ -221,3 +221,17 @@ void Network<CrdT>::calculateBoundary() {
 
 }
 
+//template <typename CrdT>
+//Network<CrdT>::
+//template <typename CrdT>
+//Network<CrdT>::
+//template <typename CrdT>
+//Network<CrdT>::
+//template <typename CrdT>
+//Network<CrdT>::
+//template <typename CrdT>
+//Network<CrdT>::
+//template <typename CrdT>
+//Network<CrdT>::
+//template <typename CrdT>
+//Network<CrdT>::
