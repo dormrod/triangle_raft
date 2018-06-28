@@ -29,6 +29,13 @@ private:
     int goMaxIterations; //for descent algorithm
     double goLineSeachInc, goConvergence; //for descent algorithm
 
+    //Additional variables
+    NetT masterNetwork; //main global network for simulation
+
+    //Methods
+    void loadNetwork(Logfile &logfile);
+    void writeNetwork(Logfile &logfile);
+
 public:
     //Constructors
     Simulation();
@@ -41,6 +48,8 @@ public:
     void setPM(double kMX, double r0MX, double kXX, double a0XX, double kMM, double a0MM, Logfile &logfile);
     void setGO(bool global0, bool global1, int it, double ls, double conv, Logfile &logfile);
 
+    //methods
+    void run(Logfile &logfile);
 
 };
 

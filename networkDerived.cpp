@@ -1,6 +1,9 @@
 #include "networkDerived.h"
 
 //##### NETWORK CART 2D #####
+NetworkCart2D::NetworkCart2D() {
+    //default constructor
+}
 
 NetworkCart2D::NetworkCart2D(string prefix, Logfile &logfile):Network<Cart2D>() {
     //load network from files, except coordinate data
@@ -117,13 +120,13 @@ void NetworkCart2D::write(string prefix, Logfile &logfile) {
     //write unit atom ids
     for(int i=0; i<nUnits; ++i){
         writeFileValue(unitFile,units[i].atomM,false);
-        writeFileArray(unitFile,units[i].atomsX.cnxs,3,true);
+        writeFileArray(unitFile,units[i].atomsX.ids,3,true);
     }
     logfile.log("Units written to: ", unitFilename, "", 1, false);
 
     //write ring unit geometrical unit ids
     for(int i=0; i<nRings; ++i){
-        writeFileArray(ringFile,rings[i].units.cnxs,rings[i].units.n,false);
+        writeFileArray(ringFile,rings[i].units.ids,rings[i].units.n,false);
     }
     logfile.log("Rings written to: ", ringFilename, "", 1, false);
 
@@ -135,7 +138,7 @@ void NetworkCart2D::write(string prefix, Logfile &logfile) {
     for(int i=0; i<nUnits; ++i){
         p0=units[i].id;
         for(int j=0; j<units[i].units.n; ++j){
-            p1=units[units[i].units.cnxs[j]].id;
+            p1=units[units[i].units.ids[j]].id;
             if(p0<p1){
                 pair[0]=p0;
                 pair[1]=p1;
@@ -150,7 +153,7 @@ void NetworkCart2D::write(string prefix, Logfile &logfile) {
     for(int i=0; i<nRings; ++i){
         p0=rings[i].id;
         for(int j=0; j<rings[i].rings.n; ++j){
-            p1=rings[rings[i].rings.cnxs[j]].id;
+            p1=rings[rings[i].rings.ids[j]].id;
             if(p0<p1){
                 pair[0]=p0;
                 pair[1]=p1;
@@ -168,4 +171,104 @@ void NetworkCart2D::write(string prefix, Logfile &logfile) {
     ringFile.close();
     cnxFile.close();
     logfile.log("Write complete","","",0,true);
+}
+
+void NetworkCart2D::setGO(int it, double ls, double conv) {
+    //set up optimiser with geometry optimisation parameters
+    optimiser=SteepestDescent<HC2>(it,ls,conv);
+}
+
+vector<double> NetworkCart2D::getCrds() {
+    //get all atom coordinates collapsed onto 1d
+    vector<double> crds;
+    crds.clear();
+    for(int i=0; i<nAtoms; ++i){
+        crds.push_back(atoms[i].coordinate.x);
+        crds.push_back(atoms[i].coordinate.y);
+    }
+    return crds;
+}
+
+void NetworkCart2D::setCrds(vector<double> &crds) {
+    //set all atom coordinates
+    for(int i=0; i<nAtoms; ++i){
+        atoms[i].coordinate.x=crds[2*i];
+        atoms[i].coordinate.y=crds[2*i+1];
+    }
+}
+
+void NetworkCart2D::geometryOptimise(vector<double> &potentialModel) {
+    //set up harmonic potential before passing to derived class
+
+    //reset potential information - don't need angles for harmonic potential
+    vector<int> bonds, angles, fixedAtoms, interx;
+    vector<double>  bondK, bondR0, angleK, angleR0, crds;
+    bonds.clear();
+    angles.clear();
+    fixedAtoms.clear();
+    interx.clear();
+    bondK.clear();
+    bondR0.clear();
+    angleK.clear();
+    angleR0.clear();
+
+    //get all atom coordinates
+    crds=getCrds();
+
+    //loop over triangle units to get M-X, X-X bonds
+    int mRef0, xRef0, xRef1, xRef2;
+    for(int i=0; i<nUnits; ++i){
+        mRef0=atomMap.at(units[i].atomM);
+        xRef0=atomMap.at(units[i].atomsX.ids[0]);
+        xRef1=atomMap.at(units[i].atomsX.ids[1]);
+        xRef2=atomMap.at(units[i].atomsX.ids[2]);
+        //M-X
+        bonds.push_back(mRef0);
+        bonds.push_back(xRef0);
+        bondK.push_back(potentialModel[0]);
+        bondR0.push_back(potentialModel[1]);
+        bonds.push_back(mRef0);
+        bonds.push_back(xRef1);
+        bondK.push_back(potentialModel[0]);
+        bondR0.push_back(potentialModel[1]);
+        bonds.push_back(mRef0);
+        bonds.push_back(xRef2);
+        bondK.push_back(potentialModel[0]);
+        bondR0.push_back(potentialModel[1]);
+        //X-X
+        bonds.push_back(xRef0);
+        bonds.push_back(xRef1);
+        bondK.push_back(potentialModel[2]);
+        bondR0.push_back(potentialModel[3]);
+        bonds.push_back(xRef0);
+        bonds.push_back(xRef2);
+        bondK.push_back(potentialModel[2]);
+        bondR0.push_back(potentialModel[3]);
+        bonds.push_back(xRef1);
+        bonds.push_back(xRef2);
+        bondK.push_back(potentialModel[2]);
+        bondR0.push_back(potentialModel[3]);
+    }
+
+    //loop over neighbour triangle units to get M-M
+    int mRef1;
+    for(int i=0; i<nUnits; ++i){
+        mRef0=atomMap.at(units[i].atomM);
+        for(int j=0; j<units[i].units.n; ++j){
+            mRef1=atomMap.at(units[units[i].units.ids[j]].atomM);
+            if(mRef0<mRef1){//prevent double counting as reciprocal connections
+                bonds.push_back(mRef0);
+                bonds.push_back(mRef1);
+                bondK.push_back(potentialModel[4]);
+                bondR0.push_back(potentialModel[5]);
+            }
+        }
+    }
+
+    //set up model and optimise
+    HC2 harmonicPotential(bonds, angles, bondK, bondR0, angleK, angleR0, fixedAtoms, interx);
+    optimiser(harmonicPotential, energy, optIterations, crds);
+
+    //update coordinates
+    setCrds(crds);
 }

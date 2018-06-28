@@ -10,7 +10,7 @@ struct Connector {
 
     //container variables
     int n, max; //number of connections, maximum number of connections
-    int *cnxs; //list of connections
+    int *ids; //list of connections
     bool full; //whether container is full
 
     //constructors, destructors, overloaded operators

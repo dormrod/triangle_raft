@@ -79,5 +79,8 @@ int main(){
     simulation.setPM(kMX,r0MX,kXX,a0XX,kMM,a0MM,logfile);
     simulation.setGO(preOpt,postOpt,maxIt,lsInc,convTest,logfile);
 
+    //run simulation
+    simulation.run(logfile);
+
     return 0;
 }

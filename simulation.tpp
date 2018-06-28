@@ -1,5 +1,6 @@
 #include "simulation.h"
 
+//##### INITIALISATION #####
 template <typename CrdT, typename NetT>
 Simulation<CrdT,NetT>::Simulation() {
     //default constructor
@@ -65,6 +66,42 @@ void Simulation<CrdT,NetT>::setGO(bool global0, bool global1, int it, double ls,
     logfile.log("Initialised: ","geometry optimisation","",1,false);
 }
 
+//##### MAIN #####
+template <typename CrdT, typename NetT>
+void Simulation<CrdT,NetT>::run(Logfile &logfile) {
+    //main control of simulation
+
+    loadNetwork(logfile);
+
+
+
+    logfile.log("Monte Carlo process begun","","",0,false);
+
+
+    logfile.log("Monte Carlo process complete","","",0,true);
+
+    writeNetwork(logfile);
+}
+
+template <typename CrdT, typename NetT>
+void Simulation<CrdT,NetT>::loadNetwork(Logfile &logfile) {
+    //read in network from file
+
+    logfile.log("Intialisation complete","","",0,true);
+    masterNetwork=NetT(prefixIn,logfile);
+    masterNetwork.setGO(goMaxIterations,goLineSeachInc,goConvergence);
+    if(globalPreGO) masterNetwork.geometryOptimise(potentialModel);
+}
+
+template <typename CrdT, typename NetT>
+void Simulation<CrdT,NetT>::writeNetwork(Logfile &logfile) {
+    //write network to file
+    masterNetwork.write(prefixOut,logfile);
+}
+//template <typename CrdT, typename NetT>
+//Simulation<CrdT,NetT>::
+//template <typename CrdT, typename NetT>
+//Simulation<CrdT,NetT>::
 //template <typename CrdT, typename NetT>
 //Simulation<CrdT,NetT>::
 //template <typename CrdT, typename NetT>

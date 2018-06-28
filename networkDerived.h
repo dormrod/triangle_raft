@@ -6,18 +6,29 @@
 #include "logfile.h"
 #include "crd.h"
 #include "networkBase.h"
+#include "geom_opt_algs.h"
+#include "potentials.h"
 
 using namespace std;
 
 class NetworkCart2D: public Network<Cart2D> {
     //network class using two dimensional cartesian coordinate
-private:
+protected:
+    //Geometry Optimisation
+    SteepestDescent<HC2> optimiser;
+
+    //Virtual Methods To Define
+    vector<double> getCrds() override; //get all atom coordinates
+    void setCrds(vector<double> &crds) override; //set all atom coordinates
 
 public:
-    //constructors
+    //Constructors
+    NetworkCart2D();
     NetworkCart2D(string prefix, Logfile &logfile); //load network from files
 
-    //write out
+    //Virtual Methods To Define
+    void setGO(int it, double ls, double conv) override; //set up optimiser
+    void geometryOptimise(vector<double> &potentialModel) override; //optimise geometry with steepest descent
     void write(string prefix, Logfile &logfile) override; //write network to files
 };
 

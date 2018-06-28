@@ -1,5 +1,5 @@
 IO
-./input_files/6                       input prefix
+./input_files/10                       input prefix
 ./output_files/test         output prefix
 -------------------------------------------------
 Network Properties
@@ -14,7 +14,7 @@ Monte Carlo Process
 Harmonic Potential Model
 1.0     1.0     M-X (k,r0)
 1.0     120.0   X-X (k,a0)
-0.0     180.0   M-M (k,a0)
+1.0     180.0   M-M (k,a0)
 -------------------------------------------------
 Minimisation Control
 1 1     global optimisation before/after simulation

@@ -9,6 +9,8 @@ Network<CrdT>::Network() {
     nAtoms=0;
     nUnits=0;
     nRings=0;
+    energy=numeric_limits<double>::infinity();
+    optIterations=-1;
     atoms.clear();
     units.clear();
     rings.clear();
@@ -78,3 +80,4 @@ int Network<CrdT>::addRingRingCnx(int rId1, int rId2) {
     int status2=rings[rRef2].rings.add(rId1);
     return status1+status2;
 }
+

@@ -12,12 +12,12 @@ Connector::Connector(int maxN){
     n=0;
     full=false;
     max=maxN;
-    cnxs=new int[max]();
+    ids=new int[max]();
 }
 
 Connector::~Connector() {
     //destructor
-    if(max>0) delete[] cnxs;
+    if(max>0) delete[] ids;
 }
 
 Connector::Connector(const Connector &source) {
@@ -30,8 +30,8 @@ Connector::Connector(const Connector &source) {
 
     //deep copies
     if(max>0){
-        cnxs=new int[max]();
-        for(int i=0; i<n; ++i) cnxs[i]=source.cnxs[i];
+        ids=new int[max]();
+        for(int i=0; i<n; ++i) ids[i]=source.ids[i];
     }
 }
 
@@ -47,8 +47,8 @@ Connector& Connector::operator=(const Connector &source) {
 
     //deep copies
     if(max>0){
-        cnxs=new int[max]();
-        for(int i=0; i<n; ++i) cnxs[i]=source.cnxs[i];
+        ids=new int[max]();
+        for(int i=0; i<n; ++i) ids[i]=source.ids[i];
     }
 
     return *this;
@@ -59,7 +59,7 @@ int Connector::add(int cnx) {
 
     if(full) return 1;
     else{
-        cnxs[n]=cnx;
+        ids[n]=cnx;
         ++n;
         if(n==max) full=true;
     }
