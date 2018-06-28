@@ -218,11 +218,39 @@ void Network<CrdT>::calculateBoundary() {
 
     consoleVector(boundaryUnits);
     consoleVector(boundaryStatus);
-
 }
 
-//template <typename CrdT>
-//Network<CrdT>::
+template <typename CrdT>
+vector<int> Network<CrdT>::getBoundarySection(int startId, bool direction) {
+    //find section of unit boundary in given direction
+
+    //find position of id in boundary
+    int startPos = find(boundaryUnits.begin(), boundaryUnits.end(), startId) - boundaryUnits.begin();
+
+    vector<int> section;
+    section.clear();
+    section.push_back(startId);
+    int n=boundaryUnits.size();
+
+    //search in one of two directions, loop over perimeter until find next active unit
+    if(direction) {
+        int j;
+        for (int i = 1; i <= n; ++i) {
+            j=(startPos + i) % n;
+            section.push_back(boundaryUnits[j]);
+            if(boundaryStatus[j]>=0) break;
+        }
+    }
+    else{
+        int j;
+        for (int i = 1; i <= n; ++i) {
+            j = (startPos + n - i) % n;
+            section.push_back(boundaryUnits[j]);
+            if(boundaryStatus[j]>=0) break;
+        }
+    }
+    return section;
+}
 //template <typename CrdT>
 //Network<CrdT>::
 //template <typename CrdT>

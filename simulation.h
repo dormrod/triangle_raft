@@ -39,6 +39,7 @@ private:
 
     //Aux Methods
     int selectActiveUnit(); //find unit to build new ring on
+    vector<int> selectUnitPath(int activeUnit); //find path of units to build new ring on
 
 public:
     //Constructors

@@ -59,6 +59,8 @@ public:
     int addUnitRingCnx(int uId, int rId);
     int addUnitUnitCnx(int uId1, int uId2);
     int addRingRingCnx(int rId1, int rId2);
+    //Search Network
+    vector<int> getBoundarySection(int startId, bool direction); //find section of unit boundary in given direction
     //Optimise Network
     virtual void geometryOptimise(vector<double> &potentialModel)=0;
 

@@ -99,11 +99,11 @@ void Simulation<CrdT,NetT>::growNetwork(Logfile &logfile) {
     if(nRings<nTargetRings){//only if network needs growing
         do{
             int activeUnit = selectActiveUnit();
-            cout << activeUnit << endl;
+            vector<int> unitPath = selectUnitPath(activeUnit);
+            consoleVector(unitPath);
             ++nRings;
         }while(nRings<nTargetRings);
     }
-
     logfile.log("Network growth complete","","",0,true);
 }
 
@@ -120,8 +120,22 @@ int Simulation<CrdT,NetT>::selectActiveUnit() {
     return activeUnit;
 }
 
-//template <typename CrdT, typename NetT>
-//Simulation<CrdT,NetT>::
+template <typename CrdT, typename NetT>
+vector<int> Simulation<CrdT,NetT>::selectUnitPath(int activeUnit) {
+    //find both paths which could form new ring, choose one due to some criteria
+    vector<int> unitPath, unitPathL, unitPathR;
+
+    unitPathL=masterNetwork.getBoundarySection(activeUnit,false);
+    unitPathR=masterNetwork.getBoundarySection(activeUnit,true);
+
+    //for now pick longest if not longer than the basic ring size that can be made
+    if(unitPathL.size()>=basicMaxSize) unitPath=unitPathR;
+    else if(unitPathR.size()>=basicMaxSize) unitPath=unitPathL;
+    else if(unitPathL.size()>unitPathR.size()) unitPath=unitPathL;
+    else unitPath=unitPathR;
+
+    return unitPath;
+}
 //template <typename CrdT, typename NetT>
 //Simulation<CrdT,NetT>::
 //template <typename CrdT, typename NetT>
