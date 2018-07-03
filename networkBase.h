@@ -59,6 +59,7 @@ public:
     int addUnitRingCnx(int uId, int rId);
     int addUnitUnitCnx(int uId1, int uId2);
     int addRingRingCnx(int rId1, int rId2);
+    virtual void buildRing(int ringSize, vector<int> &unitPath, vector<double> &potentialModel)=0; //build a ring of given size
     //Search Network
     vector<int> getBoundarySection(int startId, bool direction); //find section of unit boundary in given direction
     //Optimise Network

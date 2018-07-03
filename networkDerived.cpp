@@ -144,8 +144,210 @@ int NetworkCart2D::getActiveUnit(string shape, double size) {
             }
         }
     }
-
     return unitId;
+}
+
+void NetworkCart2D::buildRing(int ringSize, vector<int> &unitPath, vector<double> &potentialModel) {
+    //build a ring of a given size to a starting path
+
+    //calculate number of new triangles and atoms needed
+    int nNewTriangles=ringSize-unitPath.size();
+    int nNewM=nNewTriangles;
+    int nNewX=3*nNewM-1-nNewM; //total x
+    int nNewX3=nNewTriangles; //3 cnd x
+    int nNewX4=nNewX-nNewX3; //4 cnd x
+    int nPrevAtoms=nAtoms;
+    int nPrevTriangles=nUnits;
+    int nPrevRings=nRings;
+
+    //make new atoms
+    for(int i=0; i<nNewM; ++i){//m
+        Atom<Cart2D> atom(nAtoms,14,3);
+        addAtom(atom);
+    }
+    for(int i=0; i<nNewX3; ++i){//x3
+        Atom<Cart2D> atom(nAtoms,8,3);
+        addAtom(atom);
+    }
+    for(int i=0; i<nNewX4; ++i){//x4
+        Atom<Cart2D> atom(nAtoms,8,4);
+        addAtom(atom);
+    }
+    //increase coordination of dangling atoms in unit path
+    int atomIdL = boundaryStatus[find(boundaryUnits.begin(), boundaryUnits.end(), unitPath[0]) - boundaryUnits.begin()];
+    int atomIdR = boundaryStatus[find(boundaryUnits.begin(), boundaryUnits.end(), unitPath.rbegin()[0]) - boundaryUnits.begin()];
+    ++atoms[atomIdL].coordination;
+    ++atoms[atomIdR].coordination;
+
+    //make new triangles
+    for(int i=0; i<nNewTriangles; ++i){
+        Unit triangle(nUnits,3,3,3);
+        addUnit(triangle);
+    }
+    //assign m atoms and x3 atoms
+    for(int i=0, j=nPrevTriangles, k=nPrevAtoms; i<nNewTriangles;++i,++j,++k){
+        units[j].setAtomM(k);
+        addUnitAtomXCnx(j,k+nNewM);
+    }
+    //assign x4 atoms
+    for(int i=0, j=nPrevTriangles, k=nPrevAtoms+nNewM+nNewX3; i<nNewTriangles; ++i,++j,++k){
+        if(i==0) addUnitAtomXCnx(j,atomIdL);
+        else addUnitAtomXCnx(j,k-1);
+        if(i==nNewX4) addUnitAtomXCnx(j,atomIdR);
+        else addUnitAtomXCnx(j,k);
+    }
+    //assign triangles
+    addUnitUnitCnx(nPrevTriangles,unitPath[0]);
+    for(int i=0, j=nPrevTriangles; i<nNewTriangles-1; ++i, ++j) addUnitUnitCnx(j,j+1);
+    addUnitUnitCnx(nPrevTriangles+nNewTriangles-1,unitPath.rbegin()[0]);
+
+    //make new ring
+    Ring ring(nRings,ringSize,ringSize);
+    addRing(ring);
+    //assign ring-units
+    for(int i=0; i<unitPath.size(); ++i) addUnitRingCnx(unitPath.rbegin()[i],nPrevRings);
+    for(int i=nPrevTriangles; i<nPrevTriangles+nNewTriangles; ++i) addUnitRingCnx(i,nPrevRings);
+    //assign ring-rings
+    vector<int> nbRings;
+    nbRings.clear();
+    for(int i=0; i<unitPath.size(); ++i){
+        for(int j=0; j<units[unitPath[i]].rings.n;++j){
+            nbRings.push_back(units[unitPath[i]].rings.ids[j]);
+        }
+    }
+    sort(nbRings.begin(), nbRings.end());
+    int prevRing=-1, currRing;
+    for(int i=0; i<nbRings.size(); ++i){
+        currRing=nbRings[i];
+        if(currRing!=prevRing && currRing!=nPrevRings){
+            addRingRingCnx(currRing,nPrevRings);
+            prevRing=currRing;
+        }
+
+    }
+
+    //generate new coordinates
+    //generate vectors
+    Cart2D uvPar, uvPer; //unit vectors parallel and perpendicular to L->R
+    uvPar=atoms[atomIdR].coordinate-atoms[atomIdL].coordinate;
+    Cart2D vClockwise(uvPar.y,-uvPar.x);
+    Cart2D vAntiClockwise(-uvPar.y,uvPar.x);
+    Cart2D dir=atoms[atomIdL].coordinate-atoms[units[unitPath[0]].atomM].coordinate;
+    if(vClockwise*dir>0) uvPer=vClockwise;
+    else uvPer=vAntiClockwise;
+    double perLen, parLen; //lengths of original perpendicular and parallel vectors
+    uvPar.normalise(parLen);
+    uvPer.normalise(perLen);
+
+//    if(nNewTriangles==1){
+//        //generate triangle with base as L->R vector
+//        Cart2D vx, vy;
+//        vx=uvPar*0.5*parLen;
+//        vy=uvPer*potentialModel[1];
+//        atoms[nPrevAtoms].coordinate=atoms[atomIdL].coordinate+vx+vy*0.5;
+//        atoms[nPrevAtoms+1].coordinate=atoms[atomIdL].coordinate+vx+vy*1.5;
+//    }
+    if (nNewTriangles%2==0){
+        //generate polygon of x4 atoms, and then m and x3 atoms
+        Cart2D vx, vy;
+        vx=uvPar*parLen;
+        vy=uvPer*potentialModel[3];
+        //X4
+        Cart2D crd=atoms[atomIdL].coordinate;
+        for(int i=0, j=nPrevAtoms+nNewM+nNewX3; i<(nNewX4-1)/2; ++i, ++j){
+            crd+=vy;
+            atoms[j].coordinate=crd;
+        }
+        crd+=vx*0.5+vy;
+        atoms[nPrevAtoms+nNewM+nNewX3+(nNewX4-1)/2].coordinate=crd;
+        crd+=vx*0.5-vy;
+        for(int i=0, j=nPrevAtoms+nNewM+nNewX3+(nNewX4-1)/2+1; i<nNewX4/2; ++i, ++j){
+            atoms[j].coordinate=crd;
+            crd-=vy;
+        }
+        //M
+        vx=uvPar*(parLen+potentialModel[1]);
+        crd=atoms[atomIdL].coordinate-uvPar*potentialModel[1]*0.5+vy*0.5;
+        for(int i=0, j=nPrevAtoms; i<nNewM/2-1; ++i, ++j){
+            atoms[j].coordinate=crd;
+            crd+=vy;
+        }
+        crd+=vy;
+        for(int i=0, j=nPrevAtoms+nNewM/2-1; i<2; ++i, ++j){
+            crd+=vx/3.0;
+            atoms[j].coordinate=crd;
+        }
+        crd+=vx/3.0-vy*2.0;
+        for(int i=0, j=nPrevAtoms+nNewM/2+1; i<nNewM/2-1; ++i, ++j){
+            atoms[j].coordinate=crd;
+            crd-=vy;
+        }
+        //X3
+        vx=uvPar*(parLen+potentialModel[1]*3.0);
+        crd=atoms[atomIdL].coordinate-uvPar*potentialModel[1]*1.5+vy*0.5;
+        for(int i=0, j=nPrevAtoms+nNewM; i<nNewX3/2-1; ++i, ++j){
+            atoms[j].coordinate=crd;
+            crd+=vy;
+        }
+        crd+=vy*2.0;
+        for(int i=0, j=nPrevAtoms+nNewM+nNewX3/2-1; i<2; ++i, ++j){
+            crd+=vx/3.0;
+            atoms[j].coordinate=crd;
+        }
+        crd+=vx/3.0-vy*3.0;
+        for(int i=0, j=nPrevAtoms+nNewM+nNewX3/2+1; i<nNewX3/2-1; ++i, ++j){
+            atoms[j].coordinate=crd;
+            crd-=vy;
+        }
+    }
+    else if (nNewTriangles%2==1){
+        //generate polygon of x4 atoms, and then m and x3 atoms
+        Cart2D vx, vy;
+        vx=uvPar*parLen;
+        vy=uvPer*potentialModel[3];
+        //X4
+        Cart2D crd=atoms[atomIdL].coordinate;
+        for(int i=0, j=nPrevAtoms+nNewM+nNewX3; i<nNewX4/2; ++i, ++j){
+            crd+=vy;
+            atoms[j].coordinate=crd;
+        }
+        crd+=vx;
+        for(int i=0, j=nPrevAtoms+nNewM+nNewX3+nNewX4/2; i<nNewX4/2; ++i, ++j){
+            atoms[j].coordinate=crd;
+            crd-=vy;
+        }
+        //M
+        vx=uvPar*(parLen+potentialModel[1]);
+        crd=atoms[atomIdL].coordinate-uvPar*potentialModel[1]*0.5+vy*0.5;
+        for(int i=0, j=nPrevAtoms; i<(nNewM-1)/2; ++i, ++j){
+            atoms[j].coordinate=crd;
+            crd+=vy;
+        }
+        crd+=vx*0.5;
+        atoms[nPrevAtoms+(nNewM-1)/2].coordinate=crd;
+        crd+=vx*0.5-vy;
+        for(int i=0, j=nPrevAtoms+(nNewM-1)/2+1; i<(nNewM-1)/2; ++i, ++j){
+            atoms[j].coordinate=crd;
+            crd-=vy;
+        }
+        //X3
+        vx=uvPar*(parLen+potentialModel[1]*3.0);
+        crd=atoms[atomIdL].coordinate-uvPar*potentialModel[1]*1.5+vy*0.5;
+        for(int i=0, j=nPrevAtoms+nNewM; i<(nNewX3-1)/2; ++i, ++j){
+            atoms[j].coordinate=crd;
+            crd+=vy;
+        }
+        crd+=vx*0.5+vy;
+        atoms[nPrevAtoms+nNewM+(nNewX3-1)/2].coordinate=crd;
+        crd+=vx*0.5-vy*2.0;
+        for(int i=0, j=nPrevAtoms+nNewM+(nNewX3-1)/2+1; i<(nNewM-1)/2; ++i, ++j){
+            atoms[j].coordinate=crd;
+            crd-=vy;
+        }
+
+
+    }
+
 }
 
 void NetworkCart2D::write(string prefix, Logfile &logfile) {
@@ -180,7 +382,7 @@ void NetworkCart2D::write(string prefix, Logfile &logfile) {
 
     //write ring unit geometrical unit ids
     for(int i=0; i<nRings; ++i){
-        writeFileArray(ringFile,rings[i].units.ids,rings[i].units.n,false);
+        writeFileArray(ringFile,rings[i].units.ids,rings[i].units.n,true);
     }
     logfile.log("Rings written to: ", ringFilename, "", 1, false);
 

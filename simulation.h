@@ -40,6 +40,7 @@ private:
     //Aux Methods
     int selectActiveUnit(); //find unit to build new ring on
     vector<int> selectUnitPath(int activeUnit); //find path of units to build new ring on
+    void addBasicRing(vector<int> unitPath); //add basic ring to network
 
 public:
     //Constructors

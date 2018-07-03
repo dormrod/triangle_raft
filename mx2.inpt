@@ -19,6 +19,6 @@ Harmonic Potential Model
 Minimisation Control
 1 1     global optimisation before/after simulation
 1000    maximum iterations
-0.1     line search increment
+0.01     line search increment
 1e-05   convergence test
 

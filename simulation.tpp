@@ -100,7 +100,7 @@ void Simulation<CrdT,NetT>::growNetwork(Logfile &logfile) {
         do{
             int activeUnit = selectActiveUnit();
             vector<int> unitPath = selectUnitPath(activeUnit);
-            consoleVector(unitPath);
+            addBasicRing(unitPath);
             ++nRings;
         }while(nRings<nTargetRings);
     }
@@ -136,8 +136,15 @@ vector<int> Simulation<CrdT,NetT>::selectUnitPath(int activeUnit) {
 
     return unitPath;
 }
-//template <typename CrdT, typename NetT>
-//Simulation<CrdT,NetT>::
+
+template <typename CrdT, typename NetT>
+void Simulation<CrdT,NetT>::addBasicRing(vector<int> unitPath) {
+    //calculate energy of adding basic rings to network, and select by monte carlo method
+
+    masterNetwork.buildRing(6,unitPath,potentialModel);
+    masterNetwork.geometryOptimise(potentialModel);
+
+}
 //template <typename CrdT, typename NetT>
 //Simulation<CrdT,NetT>::
 //template <typename CrdT, typename NetT>

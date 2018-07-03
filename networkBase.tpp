@@ -216,6 +216,9 @@ void Network<CrdT>::calculateBoundary() {
 
     }
 
+    //remove flag
+    for(int i=0; i<boundaryUnits.size(); ++i) units[boundaryUnits[i]].flag=false;
+
     consoleVector(boundaryUnits);
     consoleVector(boundaryStatus);
 }

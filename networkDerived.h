@@ -30,6 +30,7 @@ public:
     void setGO(int it, double ls, double conv) override; //set up optimiser
     void geometryOptimise(vector<double> &potentialModel) override; //optimise geometry with steepest descent
     int getActiveUnit(string shape, double size) override; //find active unit within shape
+    void buildRing(int ringSize, vector<int> &unitPath, vector<double> &potentialModel) override; //build a ring of given size
     void write(string prefix, Logfile &logfile) override; //write network to files
 };
 
