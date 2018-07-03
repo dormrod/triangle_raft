@@ -24,6 +24,12 @@ int Network<CrdT>::getNRings() {
 }
 
 template <typename CrdT>
+double Network<CrdT>::getEnergy() {
+    //return energy of network
+    return energy;
+}
+
+template <typename CrdT>
 void Network<CrdT>::addAtom(Atom<CrdT> atom) {
     //add atom to network and update map
     atoms.push_back(atom);
@@ -123,19 +129,24 @@ void Network<CrdT>::calculateBoundary() {
     bool active0=boundaryStatus.rbegin()[0], active1;
     bool complete=false;
     for(;;){
+        if(id0==16){
+            int a=0;
+        }
         if(active0){//only one possiblity - pick non-flagged path
             for(int i=0; i<2; ++i){
                 id1=units[id0].units.ids[i];
-                active1=checkActiveUnit(id1);
                 if(!units[id1].flag) break;
+                else if(id1==boundaryUnits[0] && boundaryUnits.size()>2) complete=true;
             }
-            if(id1==boundaryUnits[0]) complete=true;
         }
         else{
             //get ids of three connected units
             id1c=units[id0].units.ids[0];
             id1d=units[id0].units.ids[1];
             id1e=units[id0].units.ids[2];
+            if(id1c==boundaryUnits[0] && boundaryUnits.size()>2) complete=true;
+            if(id1d==boundaryUnits[0] && boundaryUnits.size()>2) complete=true;
+            if(id1e==boundaryUnits[0] && boundaryUnits.size()>2) complete=true;
             //keep ids of those which are not flagged
             id1a=-1;
             id1b=-1;
@@ -192,6 +203,7 @@ void Network<CrdT>::calculateBoundary() {
         }
         if (complete) break;
         else {
+            active1=checkActiveUnit(id1);
             boundaryUnits.push_back(id1);
             boundaryStatus.push_back(active1);
             units[id1].flag=true;

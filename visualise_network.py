@@ -164,7 +164,7 @@ def plot_triangle_network(data,show_x,show_m,atom_label,tri_label,fig,ax):
             plt.text(tri_crd_x, tri_crd_y, label, zorder=2)
 
     # Set axes limits
-    limLb=np.min(crds)*1.1
+    limLb=np.amax([np.amin(crds),np.amax(crds)])*1.1
     limUb=-limLb
     ax.set_xlim(limLb,limUb)
     ax.set_ylim(limLb,limUb)

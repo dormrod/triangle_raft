@@ -31,6 +31,7 @@ private:
 
     //Additional variables
     NetT masterNetwork; //main global network for simulation
+    int nBasicRingSizes; //number of basic ring sizes
 
     //Key Methods
     void loadNetwork(Logfile &logfile);

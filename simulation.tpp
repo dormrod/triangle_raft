@@ -26,6 +26,7 @@ void Simulation<CrdT,NetT>::setNP(int targRings, int basicMin, int basicMax, str
     nTargetRings=targRings;
     basicMinSize=basicMin;
     basicMaxSize=basicMax;
+    nBasicRingSizes=basicMax-basicMin+1;
     if(geom.substr(0,2)=="2D") dimensionality=2;
     else if(geom.substr(0,2)=="3D") dimensionality=3;
     else logfile.errorlog("Geometry code incorrect","critical");
@@ -141,9 +142,19 @@ template <typename CrdT, typename NetT>
 void Simulation<CrdT,NetT>::addBasicRing(vector<int> unitPath) {
     //calculate energy of adding basic rings to network, and select by monte carlo method
 
-    masterNetwork.buildRing(6,unitPath,potentialModel);
-    masterNetwork.geometryOptimise(potentialModel);
-
+    vector<NetT> trialNetworks;
+    vector<double> trialEnergies;
+    for(int i=0, j=basicMinSize; i<nBasicRingSizes; ++i, ++j){
+        if(j>unitPath.size()) {
+            NetT trialNetwork = masterNetwork;
+            trialNetwork.buildRing(j, unitPath, potentialModel);
+            trialNetwork.geometryOptimise(potentialModel);
+            trialNetworks.push_back(trialNetwork);
+            trialEnergies.push_back(trialNetwork.getEnergy());
+        }
+    }
+    int accepted=monteCarlo.metropolis(trialEnergies);
+    masterNetwork=trialNetworks[accepted];
 }
 //template <typename CrdT, typename NetT>
 //Simulation<CrdT,NetT>::

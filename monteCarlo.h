@@ -19,6 +19,8 @@ public:
     MonteCarlo();
     MonteCarlo(int seed, double temperature, Logfile &logfile);
 
+    //evaluators
+    int metropolis(vector<double> energies); //return index of selected item
 };
 
 

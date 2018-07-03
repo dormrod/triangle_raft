@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <vector>
+#include <algorithm>
 #include <string>
 #include <map>
 #include "easyIO.h"
@@ -49,6 +50,7 @@ public:
 
     //Getters
     int getNRings();
+    double getEnergy();
 
     //Methods
     //Build Network
