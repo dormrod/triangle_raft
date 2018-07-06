@@ -142,19 +142,8 @@ template <typename CrdT, typename NetT>
 void Simulation<CrdT,NetT>::addBasicRing(vector<int> unitPath) {
     //calculate energy of adding basic rings to network, and select by monte carlo method
 
-    vector<NetT> trialNetworks;
-    vector<double> trialEnergies;
-    for(int i=0, j=basicMinSize; i<nBasicRingSizes; ++i, ++j){
-        if(j>unitPath.size()) {
-            NetT trialNetwork = masterNetwork;
-            trialNetwork.buildRing(j, unitPath, potentialModel);
-            trialNetwork.geometryOptimise(potentialModel);
-            trialNetworks.push_back(trialNetwork);
-            trialEnergies.push_back(trialNetwork.getEnergy());
-        }
-    }
-    int accepted=monteCarlo.metropolis(trialEnergies);
-    masterNetwork=trialNetworks[accepted];
+    masterNetwork.trialRing(4,unitPath,potentialModel);
+
 }
 //template <typename CrdT, typename NetT>
 //Simulation<CrdT,NetT>::

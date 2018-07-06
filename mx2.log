@@ -1,4 +1,4 @@
-Simulation run: Tue Jul  3 16:54:29 2018
+Simulation run: Fri Jul  6 18:35:04 2018
 
 Grows MX2 Aperiodic Networks                    
 Written By: David OM, Wilson Group, 2018                    
@@ -25,11 +25,11 @@ Network growth begun after 0 seconds
 Network growth complete                    
 ----------------------------------------------------------------------
 Writing network                         
-    Atoms written to:   ./output_files/test_atoms.out
-    Units written to:   ./output_files/test_units.out
-    Rings written to:   ./output_files/test_rings.out
-    Additional connections written to: ./output_files/test_connections.out
+    Atoms written to:   ./output_files/testt_atoms.out
+    Units written to:   ./output_files/testt_units.out
+    Rings written to:   ./output_files/testt_rings.out
+    Additional connections written to: ./output_files/testt_connections.out
 Write complete                          
 ----------------------------------------------------------------------
-Simulation complete: Tue Jul  3 16:54:35 2018
+Simulation complete: Fri Jul  6 18:35:04 2018
 

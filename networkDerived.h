@@ -31,6 +31,8 @@ public:
     void geometryOptimise(vector<double> &potentialModel) override; //optimise geometry with steepest descent
     int getActiveUnit(string shape, double size) override; //find active unit within shape
     void buildRing(int ringSize, vector<int> &unitPath, vector<double> &potentialModel) override; //build a ring of given size
+    void popRing(int ringSize, vector<int> &unitPath) override; //remove last built ring
+    void trialRing(int ringSize, vector<int> &unitPath, vector<double> &potentialModel) override; //test a trial ring of given size
     void write(string prefix, Logfile &logfile) override; //write network to files
 };
 

@@ -51,6 +51,27 @@ void Network<CrdT>::addRing(Ring ring) {
 }
 
 template <typename CrdT>
+void Network<CrdT>::delAtom() {
+    //delete atom from network
+    atoms.pop_back();
+    --nAtoms;
+}
+
+template <typename CrdT>
+void Network<CrdT>::delUnit() {
+    //delete unit from network
+    units.pop_back();
+    --nUnits;
+}
+
+template <typename CrdT>
+void Network<CrdT>::delRing() {
+    //delete ring from network
+    rings.pop_back();
+    --nRings;
+}
+
+template <typename CrdT>
 int Network<CrdT>::addUnitAtomXCnx(int uId, int aId) {
     //add atom x id to unit
     int status=units[uId].atomsX.add(aId);
@@ -79,6 +100,24 @@ int Network<CrdT>::addRingRingCnx(int rId1, int rId2) {
     int status1=rings[rId1].rings.add(rId2);
     int status2=rings[rId2].rings.add(rId1);
     return status1+status2;
+}
+
+template <typename CrdT>
+void Network<CrdT>::delUnitUnitCnx(int uId1, int uId2) {
+    //del unit-unit connection
+    units[uId1].units.del(uId2);
+}
+
+template <typename CrdT>
+void Network<CrdT>::delUnitRingCnx(int uId, int rId) {
+    //delete unit-ring connection
+    units[uId].rings.del(rId);
+}
+
+template <typename CrdT>
+void Network<CrdT>::delRingRingCnx(int rId1, int rId2) {
+    //delete ring-ring connection
+    rings[rId1].rings.del(rId2);
 }
 
 template <typename CrdT>

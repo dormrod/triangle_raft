@@ -1,9 +1,9 @@
 IO
 ./input_files/6                       input prefix
-./output_files/test         output prefix
+./output_files/testt         output prefix
 -------------------------------------------------
 Network Properties
-50           number of rings
+2           number of rings
 6  6       basic ring size limits
 2DC         geometry code
 -------------------------------------------------

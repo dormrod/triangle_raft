@@ -147,6 +147,70 @@ int NetworkCart2D::getActiveUnit(string shape, double size) {
     return unitId;
 }
 
+void NetworkCart2D::trialRing(int ringSize, vector<int> &unitPath, vector<double> &potentialModel) {
+    //build a ring of a given size to a starting path
+    //minimise and calculate energy
+    //remove ring
+
+    //build trial ring
+    buildRing(ringSize, unitPath, potentialModel);
+
+    //geometry optimise
+    geometryOptimise(potentialModel);
+
+    //pop trial ring
+    popRing(ringSize, unitPath);
+
+}
+
+void NetworkCart2D::popRing(int ringSize, vector<int> &unitPath) {
+    //remove last built ring
+
+    //calculate number of species
+    int nNewTriangles=ringSize-unitPath.size();
+    int nNewM=nNewTriangles;
+    int nNewX=3*nNewM-1-nNewM;
+    int nNewX3=nNewTriangles;
+    int nNewX4=nNewX-nNewX3;
+
+    //remove atoms, units and ring
+    for(int i=0; i<nNewM; ++i) delAtom();
+    for(int i=0; i<nNewX; ++i) delAtom();
+    for(int i=0; i<nNewTriangles; ++i) delUnit();
+    delRing();
+
+    //decrease coordination of dangling atoms in unit path
+    int atomIdL = boundaryStatus[find(boundaryUnits.begin(), boundaryUnits.end(), unitPath[0]) - boundaryUnits.begin()];
+    int atomIdR = boundaryStatus[find(boundaryUnits.begin(), boundaryUnits.end(), unitPath.rbegin()[0]) - boundaryUnits.begin()];
+    --atoms[atomIdL].coordination;
+    --atoms[atomIdR].coordination;
+
+    //remove triangle-triangle connections
+    delUnitUnitCnx(unitPath[0],nUnits);
+    delUnitUnitCnx(unitPath.rbegin()[0],nUnits+nNewTriangles-1);
+
+    //remove triangle-ring connections
+    for(int i=0; i<unitPath.size(); ++i) delUnitRingCnx(unitPath[i],nRings);
+
+    //remove ring-ring connections
+    vector<int> nbRings;
+    nbRings.clear();
+    for(int i=0; i<unitPath.size(); ++i){
+        for(int j=0; j<units[unitPath[i]].rings.n;++j){
+            nbRings.push_back(units[unitPath[i]].rings.ids[j]);
+        }
+    }
+    sort(nbRings.begin(), nbRings.end());
+    int prevRing=-1, currRing;
+    for(int i=0; i<nbRings.size(); ++i){
+        currRing=nbRings[i];
+        if(currRing!=prevRing && currRing!=nRings){
+            delRingRingCnx(currRing,nRings);
+            prevRing=currRing;
+        }
+    }
+}
+
 void NetworkCart2D::buildRing(int ringSize, vector<int> &unitPath, vector<double> &potentialModel) {
     //build a ring of a given size to a starting path
 
@@ -364,7 +428,6 @@ void NetworkCart2D::buildRing(int ringSize, vector<int> &unitPath, vector<double
             crd-=vy;
         }
     }
-    calculateBoundary();
 }
 
 void NetworkCart2D::write(string prefix, Logfile &logfile) {
