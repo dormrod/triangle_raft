@@ -1,4 +1,4 @@
-Simulation run: Fri Jul  6 18:35:04 2018
+Simulation run: Mon Jul  9 13:57:05 2018
 
 Grows MX2 Aperiodic Networks                    
 Written By: David OM, Wilson Group, 2018                    
@@ -31,5 +31,5 @@ Writing network
     Additional connections written to: ./output_files/testt_connections.out
 Write complete                          
 ----------------------------------------------------------------------
-Simulation complete: Fri Jul  6 18:35:04 2018
+Simulation complete: Mon Jul  9 13:57:36 2018
 

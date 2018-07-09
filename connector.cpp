@@ -70,16 +70,20 @@ int Connector::add(int cnx) {
 int Connector::del(int cnx) {
     //delete a connection
 
-    int shift=0;
+    int shift=-1;
     for(int i=0; i<n; ++i){
         if(ids[i]==cnx){
             shift=i;
             --n;
+            full=false;
             break;
         }
     }
+    if(shift==-1){
+        return 1;
+    }
     for(int i=shift; i<n; ++i) ids[i]=ids[i+1];
-    ids[n+1]==-1;
+    ids[n]=-1;
 
     return 0;
 }

@@ -156,11 +156,19 @@ void NetworkCart2D::trialRing(int ringSize, vector<int> &unitPath, vector<double
     buildRing(ringSize, unitPath, potentialModel);
 
     //geometry optimise
-    geometryOptimise(potentialModel);
+    geometryOptimiseLocal(potentialModel);
 
     //pop trial ring
     popRing(ringSize, unitPath);
 
+}
+
+void NetworkCart2D::acceptRing(int ringSize, vector<int> &unitPath, vector<double> &potentialModel) {
+    //build ring of given size to a starting path, minimise and calculate boundary
+
+    buildRing(ringSize, unitPath, potentialModel);
+    geometryOptimiseLocal(potentialModel);
+    calculateBoundary();
 }
 
 void NetworkCart2D::popRing(int ringSize, vector<int> &unitPath) {
@@ -170,8 +178,6 @@ void NetworkCart2D::popRing(int ringSize, vector<int> &unitPath) {
     int nNewTriangles=ringSize-unitPath.size();
     int nNewM=nNewTriangles;
     int nNewX=3*nNewM-1-nNewM;
-    int nNewX3=nNewTriangles;
-    int nNewX4=nNewX-nNewX3;
 
     //remove atoms, units and ring
     for(int i=0; i<nNewM; ++i) delAtom();
@@ -525,6 +531,19 @@ vector<double> NetworkCart2D::getCrds() {
     return crds;
 }
 
+vector<double> NetworkCart2D::getCrds(map<int, int> &globalAtomMap, int n) {
+    //get local atom coordinates collapsed onto 1d
+    vector<double> crds;
+    crds.clear();
+    int id;
+    for(int i=0; i<n; ++i){
+        id=globalAtomMap.at(i);
+        crds.push_back(atoms[id].coordinate.x);
+        crds.push_back(atoms[id].coordinate.y);
+    }
+    return crds;
+}
+
 void NetworkCart2D::setCrds(vector<double> &crds) {
     //set all atom coordinates
     for(int i=0; i<nAtoms; ++i){
@@ -533,7 +552,18 @@ void NetworkCart2D::setCrds(vector<double> &crds) {
     }
 }
 
-void NetworkCart2D::geometryOptimise(vector<double> &potentialModel) {
+void NetworkCart2D::setCrds(map<int, int> &globalAtomMap, vector<double> &crds) {
+    //set local atom coordinates
+    int n=crds.size()/2;
+    int id;
+    for(int i=0; i<n; ++i){
+        id=globalAtomMap.at(i);
+        atoms[id].coordinate.x=crds[2*i];
+        atoms[id].coordinate.y=crds[2*i+1];
+    }
+}
+
+void NetworkCart2D::geometryOptimiseGlobal(vector<double> &potentialModel) {
     //set up harmonic potential before passing to derived class
 
     //reset potential information - don't need angles for harmonic potential
@@ -607,4 +637,130 @@ void NetworkCart2D::geometryOptimise(vector<double> &potentialModel) {
 
     //update coordinates
     setCrds(crds);
+}
+
+void NetworkCart2D::geometryOptimiseLocal(vector<double> &potentialModel) {
+    //geometry optimise atoms only in local region
+
+    //reset potential information - don't need angles for harmonic potential
+    vector<int> bonds, angles, interx;
+    vector<double>  bondK, bondR0, angleK, angleR0, crds;
+    bonds.clear();
+    angles.clear();
+    interx.clear();
+    bondK.clear();
+    bondR0.clear();
+    angleK.clear();
+    angleR0.clear();
+
+    //get local region
+    findLocalRegion(rings.rbegin()[0].id,5);
+
+    //get local atom coordinates
+    crds=getCrds(globalAtomMap,nLocalAtoms);
+
+    //loop over triangle units to get M-X, X-X bonds
+    int mId0, xId0, xId1, xId2;
+    for(int i=0; i<flexLocalUnits.size(); ++i){
+        mId0=localAtomMap.at(units[flexLocalUnits[i]].atomM);
+        xId0=localAtomMap.at(units[flexLocalUnits[i]].atomsX.ids[0]);
+        xId1=localAtomMap.at(units[flexLocalUnits[i]].atomsX.ids[1]);
+        xId2=localAtomMap.at(units[flexLocalUnits[i]].atomsX.ids[2]);
+        //M-X
+        bonds.push_back(mId0);
+        bonds.push_back(xId0);
+        bondK.push_back(potentialModel[0]);
+        bondR0.push_back(potentialModel[1]);
+        bonds.push_back(mId0);
+        bonds.push_back(xId1);
+        bondK.push_back(potentialModel[0]);
+        bondR0.push_back(potentialModel[1]);
+        bonds.push_back(mId0);
+        bonds.push_back(xId2);
+        bondK.push_back(potentialModel[0]);
+        bondR0.push_back(potentialModel[1]);
+        //X-X
+        bonds.push_back(xId0);
+        bonds.push_back(xId1);
+        bondK.push_back(potentialModel[2]);
+        bondR0.push_back(potentialModel[3]);
+        bonds.push_back(xId0);
+        bonds.push_back(xId2);
+        bondK.push_back(potentialModel[2]);
+        bondR0.push_back(potentialModel[3]);
+        bonds.push_back(xId1);
+        bonds.push_back(xId2);
+        bondK.push_back(potentialModel[2]);
+        bondR0.push_back(potentialModel[3]);
+    }
+    for(int i=0; i<fixedLocalUnits.size(); ++i){
+        mId0=localAtomMap.at(units[fixedLocalUnits[i]].atomM);
+        xId0=localAtomMap.at(units[fixedLocalUnits[i]].atomsX.ids[0]);
+        xId1=localAtomMap.at(units[fixedLocalUnits[i]].atomsX.ids[1]);
+        xId2=localAtomMap.at(units[fixedLocalUnits[i]].atomsX.ids[2]);
+        //M-X
+        bonds.push_back(mId0);
+        bonds.push_back(xId0);
+        bondK.push_back(potentialModel[0]);
+        bondR0.push_back(potentialModel[1]);
+        bonds.push_back(mId0);
+        bonds.push_back(xId1);
+        bondK.push_back(potentialModel[0]);
+        bondR0.push_back(potentialModel[1]);
+        bonds.push_back(mId0);
+        bonds.push_back(xId2);
+        bondK.push_back(potentialModel[0]);
+        bondR0.push_back(potentialModel[1]);
+        //X-X
+        bonds.push_back(xId0);
+        bonds.push_back(xId1);
+        bondK.push_back(potentialModel[2]);
+        bondR0.push_back(potentialModel[3]);
+        bonds.push_back(xId0);
+        bonds.push_back(xId2);
+        bondK.push_back(potentialModel[2]);
+        bondR0.push_back(potentialModel[3]);
+        bonds.push_back(xId1);
+        bonds.push_back(xId2);
+        bondK.push_back(potentialModel[2]);
+        bondR0.push_back(potentialModel[3]);
+    }
+
+    //loop over neighbour triangle units to get M-M
+    int mId1;
+    for(int i=0; i<flexLocalUnits.size(); ++i){
+        mId0=localAtomMap.at(units[flexLocalUnits[i]].atomM);
+        for(int j=0; j<units[flexLocalUnits[i]].units.n; ++j){
+            mId1=units[units[flexLocalUnits[i]].units.ids[j]].atomM;
+            mId1=localAtomMap.at(mId1);
+            if(mId0<mId1){//prevent double counting as reciprocal connections
+                bonds.push_back(mId0);
+                bonds.push_back(mId1);
+                bondK.push_back(potentialModel[4]);
+                bondR0.push_back(potentialModel[5]);
+            }
+        }
+    }
+    for(int i=0; i<fixedLocalUnits.size(); ++i){
+        mId0=localAtomMap.at(units[fixedLocalUnits[i]].atomM);
+        for(int j=0; j<units[fixedLocalUnits[i]].units.n; ++j){
+            mId1=units[units[flexLocalUnits[i]].units.ids[j]].atomM;
+            if(localAtomMap.count(mId1)>0){//check in local region
+                mId1=localAtomMap.at(mId1);
+                if(mId0<mId1){//prevent double counting as reciprocal connections
+                    bonds.push_back(mId0);
+                    bonds.push_back(mId1);
+                    bondK.push_back(potentialModel[4]);
+                    bondR0.push_back(potentialModel[5]);
+                }
+            }
+        }
+    }
+
+    //set up model and optimise
+    HC2 harmonicPotential(bonds, angles, bondK, bondR0, angleK, angleR0, fixedLocalAtoms, interx);
+    optimiser(harmonicPotential, energy, optIterations, crds);
+
+    //update coordinates
+    setCrds(globalAtomMap,crds);
 }

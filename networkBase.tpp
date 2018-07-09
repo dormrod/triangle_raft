@@ -231,7 +231,7 @@ void Network<CrdT>::calculateBoundary() {
                         else if(ring1bii!=ring0i && ring1bii!=ring0ii) id1=id1b;
                         else{
                             cout<<"Boundary failed"<<endl;
-                            consoleVector(boundaryUnits);
+//                            consoleVector(boundaryUnits);
                             Logfile dump;
                             write("dump",dump);
                             exit(9);
@@ -270,8 +270,8 @@ void Network<CrdT>::calculateBoundary() {
     //remove flag
     for(int i=0; i<boundaryUnits.size(); ++i) units[boundaryUnits[i]].flag=false;
 
-    consoleVector(boundaryUnits);
-    consoleVector(boundaryStatus);
+//    consoleVector(boundaryUnits);
+//    consoleVector(boundaryStatus);
 }
 
 template <typename CrdT>
@@ -305,8 +305,87 @@ vector<int> Network<CrdT>::getBoundarySection(int startId, bool direction) {
     }
     return section;
 }
-//template <typename CrdT>
-//Network<CrdT>::
+
+template <typename CrdT>
+void Network<CrdT>::findLocalRegion(int &rId, int nFlexShells) {
+    //find units around and included in a given ring, within a given number of connections, make map of corresponding local atoms
+    //have flexible shells, then fixed shell
+
+    localAtomMap.clear();
+    globalAtomMap.clear();
+    flexLocalUnits.clear();
+    fixedLocalUnits.clear();
+    fixedLocalAtoms.clear();
+
+    //get units in ring
+    vector<int> shell0(rings[rId].units.n), shell1;
+    for(int i=0; i<rings[rId].units.n; ++i) shell0[i]=rings[rId].units.ids[i];
+    for(int i=0; i<shell0.size(); ++i) flexLocalUnits.push_back(shell0[i]);
+
+    //loop over flexible shells and get units, then get fixed shell
+    for(int i=0; i<nFlexShells+1; ++i){
+        shell1.clear();
+        //find adjecent units to shell0
+        for(int j=0; j<shell0.size(); ++j){
+            for(int k=0; k<units[shell0[j]].units.n; ++k){
+                shell1.push_back(units[shell0[j]].units.ids[k]);
+            }
+        }
+        if(shell1.size()>0){
+            //get unique units not in shell0
+            sort(shell1.begin(), shell1.end());
+            shell1.erase(unique(shell1.begin(), shell1.end()),shell1.end());
+            for (int i=0; i <flexLocalUnits.size(); ++i) shell1.erase(remove(shell1.begin(), shell1.end(), flexLocalUnits[i]), shell1.end());
+            //add to vector
+            if(i!=nFlexShells){
+                for(int i=0; i<shell1.size(); ++i) flexLocalUnits.push_back(shell1[i]);
+            }
+            else{
+                for(int i=0; i<shell1.size(); ++i) fixedLocalUnits.push_back(shell1[i]);
+            }
+            shell0=shell1;
+        }
+        else break;
+    }
+
+    //make map of atoms to include in local region
+    int m, x;
+    nLocalAtoms=0;
+    for(int i=0; i<flexLocalUnits.size(); ++i){
+        m=units[flexLocalUnits[i]].atomM;
+        if(localAtomMap.count(m)==0){
+            localAtomMap[m]=nLocalAtoms;
+            globalAtomMap[nLocalAtoms]=m;
+            ++nLocalAtoms;
+        }
+        for(int j=0; j<units[flexLocalUnits[i]].atomsX.n; ++j){
+            x=units[flexLocalUnits[i]].atomsX.ids[j];
+            if(localAtomMap.count(x)==0){
+                localAtomMap[x]=nLocalAtoms;
+                globalAtomMap[nLocalAtoms]=x;
+                ++nLocalAtoms;
+            }
+        }
+    }
+    for(int i=0; i<fixedLocalUnits.size(); ++i){
+        m=units[fixedLocalUnits[i]].atomM;
+        if(localAtomMap.count(m)==0){
+            localAtomMap[m]=nLocalAtoms;
+            globalAtomMap[nLocalAtoms]=m;
+            fixedLocalAtoms.push_back(nLocalAtoms);
+            ++nLocalAtoms;
+        }
+        for(int j=0; j<units[fixedLocalUnits[i]].atomsX.n; ++j){
+            x=units[fixedLocalUnits[i]].atomsX.ids[j];
+            if(localAtomMap.count(x)==0){
+                localAtomMap[x]=nLocalAtoms;
+                globalAtomMap[nLocalAtoms]=x;
+                fixedLocalAtoms.push_back(nLocalAtoms);
+                ++nLocalAtoms;
+            }
+        }
+    }
+}
 //template <typename CrdT>
 //Network<CrdT>::
 //template <typename CrdT>

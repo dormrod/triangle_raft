@@ -19,7 +19,9 @@ protected:
 
     //Virtual Methods To Define
     vector<double> getCrds() override; //get all atom coordinates
+    vector<double> getCrds(map<int,int> &globalAtomMap, int n); //get local atom coordinates
     void setCrds(vector<double> &crds) override; //set all atom coordinates
+    void setCrds(map<int,int> &globalAtomMap, vector<double> &crds); //set all atom coordinates
 
 public:
     //Constructors
@@ -28,11 +30,13 @@ public:
 
     //Virtual Methods To Define
     void setGO(int it, double ls, double conv) override; //set up optimiser
-    void geometryOptimise(vector<double> &potentialModel) override; //optimise geometry with steepest descent
+    void geometryOptimiseGlobal(vector<double> &potentialModel) override; //optimise geometry with steepest descent
+    void geometryOptimiseLocal(vector<double> &potentialModel) override; //optimise geometry with steepest descent
     int getActiveUnit(string shape, double size) override; //find active unit within shape
     void buildRing(int ringSize, vector<int> &unitPath, vector<double> &potentialModel) override; //build a ring of given size
     void popRing(int ringSize, vector<int> &unitPath) override; //remove last built ring
     void trialRing(int ringSize, vector<int> &unitPath, vector<double> &potentialModel) override; //test a trial ring of given size
+    void acceptRing(int ringSize, vector<int> &unitPath, vector<double> &potentialModel) override; //accept a ring of given size
     void write(string prefix, Logfile &logfile) override; //write network to files
 };
 

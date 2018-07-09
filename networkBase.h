@@ -32,6 +32,9 @@ protected:
     //Geometry Optimisation
     int optIterations; //number of optimisation iterations
     double energy; //potential energy
+    int nLocalAtoms; //number of atoms in local region
+    map<int,int> localAtomMap, globalAtomMap; //maps local to global atoms
+    vector<int> flexLocalUnits, fixedLocalUnits, fixedLocalAtoms; //units that make up local region, and fixed atoms
 
     //Methods
     virtual vector<double> getCrds()=0; //get all atom coordinates - virtual as have different number of variables and will be faster
@@ -40,6 +43,7 @@ protected:
     bool checkEdgeUnit(int &uId, int ringCheck=3); //checks if edge by number of associated rings
     void calculateBoundary(); //work out boundary units
     virtual int getActiveUnit(string shape, double size)=0; //find active unit within shape
+    void findLocalRegion(int &rId, int nFlexShells); //find local units around given ring
 
 public:
     //Constructors
@@ -70,10 +74,12 @@ public:
     virtual void buildRing(int ringSize, vector<int> &unitPath, vector<double> &potentialModel)=0; //build a ring of given size
     virtual void popRing(int ringSize, vector<int> &unitPath)=0; //remove last built ring
     virtual void trialRing(int ringSize, vector<int> &unitPath, vector<double> &potentialModel)=0; //test a trial ring of given size
+    virtual void acceptRing(int ringSize, vector<int> &unitPath, vector<double> &potentialModel)=0; //accept a ring of given size
     //Search Network
     vector<int> getBoundarySection(int startId, bool direction); //find section of unit boundary in given direction
     //Optimise Network
-    virtual void geometryOptimise(vector<double> &potentialModel)=0;
+    virtual void geometryOptimiseGlobal(vector<double> &potentialModel)=0;
+    virtual void geometryOptimiseLocal(vector<double> &potentialModel)=0;
 
     //Write Out
     virtual void write(string prefix, Logfile &logfile)=0; //write network to files

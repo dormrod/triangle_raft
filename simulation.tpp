@@ -87,7 +87,7 @@ void Simulation<CrdT,NetT>::loadNetwork(Logfile &logfile) {
     logfile.log("Intialisation complete","","",0,true);
     masterNetwork=NetT(prefixIn,logfile);
     masterNetwork.setGO(goMaxIterations,goLineSeachInc,goConvergence);
-    if(globalPreGO) masterNetwork.geometryOptimise(potentialModel);
+    if(globalPreGO) masterNetwork.geometryOptimiseGlobal(potentialModel);
 }
 
 //##### GROW #####
@@ -142,8 +142,19 @@ template <typename CrdT, typename NetT>
 void Simulation<CrdT,NetT>::addBasicRing(vector<int> unitPath) {
     //calculate energy of adding basic rings to network, and select by monte carlo method
 
-    masterNetwork.trialRing(4,unitPath,potentialModel);
-
+    vector<int> trialSizes;
+    vector<double> trialEnergies;
+    trialSizes.clear();
+    trialEnergies.clear();
+    for(int i=0, j=basicMinSize; i<nBasicRingSizes; ++i, ++j){
+        if(j>unitPath.size()){
+            masterNetwork.trialRing(j,unitPath,potentialModel);
+            trialSizes.push_back(j);
+            trialEnergies.push_back(masterNetwork.getEnergy());
+        }
+    }
+    int acceptedSize=trialSizes[monteCarlo.metropolis(trialEnergies)];
+    masterNetwork.acceptRing(acceptedSize,unitPath,potentialModel);
 }
 //template <typename CrdT, typename NetT>
 //Simulation<CrdT,NetT>::

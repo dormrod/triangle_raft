@@ -19,6 +19,10 @@ struct Connector {
     ~Connector();
     Connector(const Connector &source);
     Connector& operator=(const Connector &source);
+    friend ostream& operator<<(ostream &output, const Connector &source) {
+        for (int i = 0; i < source.max; ++i) output << source.ids[i] << " ";
+        return output;
+    };
 
     //methods
     int add(int cnx); //add a connection
