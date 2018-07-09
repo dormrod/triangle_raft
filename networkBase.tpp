@@ -386,12 +386,92 @@ void Network<CrdT>::findLocalRegion(int &rId, int nFlexShells) {
         }
     }
 }
-//template <typename CrdT>
-//Network<CrdT>::
-//template <typename CrdT>
-//Network<CrdT>::
-//template <typename CrdT>
-//Network<CrdT>::
+
+template <typename CrdT>
+void Network<CrdT>::calculateRingStatistics() {
+    //calculate ring statistics, ring statistics around each ring, and aboav-weaire analysis
+
+    //calculate distribution of ring sizes and store unique ring sizes
+    vector<int> ringSizes;
+    for(int i=0; i<nRings; ++i) ringSizes.push_back(rings[i].units.n);
+    DiscreteDistribution ringStats(ringSizes);
+    ringStatistics=ringStats;
+
+    //calculate distributions for each ring size (excluding edge rings)
+    int ringRef;
+    indRingStatistics.resize(ringStatistics.n);
+    for(int i=0; i<ringStatistics.n; ++i){//loop over ring sizes
+        int s=ringStatistics.x[i];
+        ringSizes.clear();
+        for(int j=0; j<nRings; ++j){//get ring sizes around ring of given size
+            if(rings[j].rings.full){//only include rings not on edge
+                if(rings[j].units.n==s){
+                    for(int k=0; k<rings[j].rings.n; ++k){
+                        ringSizes.push_back(rings[rings[j].rings.ids[k]].units.n);
+                    }
+                }
+            }
+        }
+        DiscreteDistribution ringStats(ringSizes);
+        indRingStatistics[i]=ringStats;
+    }
+
+    //calculate aboav-weaire fit
+    vector<double> x(ringStatistics.n);
+    vector<double> y(ringStatistics.n);
+    for(int i=0; i<ringStatistics.n; ++i){
+        x[i]=ringStatistics.mean*(ringStatistics.x[i]-ringStatistics.mean);
+        y[i]=ringStatistics.x[i]*indRingStatistics[i].mean;
+    }
+    aboavWeaireParameters=leastSquaresLinearRegression(x,y);
+    aboavWeaireParameters[0]=1.0-aboavWeaireParameters[0]; //alpha
+    aboavWeaireParameters[1]-=ringStatistics.mean*ringStatistics.mean; //mu
+}
+
+template <typename CrdT>
+void Network<CrdT>::write(string prefix, Logfile &logfile) {
+    //write network and analysis to files
+    writeNetwork(prefix,logfile);
+    writeAnalysis(prefix,logfile);
+}
+
+template <typename CrdT>
+void Network<CrdT>::writeAnalysis(string prefix, Logfile &logfile) {
+    //write analysis to file
+
+    logfile.log("Writing network analysis","","",0,false);
+    //set up analysis file
+    string analysisFilename = prefix + "_analysis.out";
+    ofstream analysisFile(analysisFilename,ios::in|ios::trunc);
+
+    //overlap
+    writeFileValue(analysisFile,"Valid geometry",true);
+    writeFileValue(analysisFile,unitOverlap,true);
+
+    //ring statistics
+    writeFileValue(analysisFile,"p_n and <n>",true);
+    analysisFile << fixed << showpoint << setprecision(1);
+    vector<int> ringSizes=ringStatistics.getValues();
+    writeFileVector(analysisFile,ringSizes);
+    analysisFile << fixed << showpoint << setprecision(6);
+    vector<double> data=ringStatistics.getProbabilities();
+    data.push_back(ringStatistics.mean);
+    writeFileVector(analysisFile,data);
+    for(int i=0; i<ringSizes.size(); ++i){
+        data=indRingStatistics[i].getProbabilities();
+        data.push_back(indRingStatistics[i].mean);
+        writeFileVector(analysisFile,data);
+    }
+    logfile.log("Ring statistics written to: ",analysisFilename,"", 1, false);
+
+    //ring correlations
+    writeFileValue(analysisFile,"Aboav-Weaire alpha, mu and rsq",true);
+    data=aboavWeaireParameters;
+    writeFileVector(analysisFile,data);
+    logfile.log("Aboav-Weaire parameters written to: ",analysisFilename,"", 1, false);
+
+    logfile.log("Writing complete","","",0,true);
+}
 //template <typename CrdT>
 //Network<CrdT>::
 //template <typename CrdT>

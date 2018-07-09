@@ -26,7 +26,7 @@ private:
     vector<double> potentialModel; //all k and r0 values for harmonic potential
     //Geometry Optimisation
     bool globalPreGO, globalPostGO; //points for global optimisation
-    int goMaxIterations; //for descent algorithm
+    int goMaxIterations, goLocalExtent; //for descent algorithm, size of local region
     double goLineSeachInc, goConvergence; //for descent algorithm
 
     //Additional variables
@@ -36,6 +36,7 @@ private:
     //Key Methods
     void loadNetwork(Logfile &logfile);
     void growNetwork(Logfile &logfile);
+    void analyseNetwork(Logfile &logfile);
     void writeNetwork(Logfile &logfile);
 
     //Aux Methods
@@ -53,7 +54,7 @@ public:
     void setNP(int targRings, int basicMin, int basicMax, string geom, Logfile &logfile);
     void setMC(int seed, double temperature, Logfile &logfile);
     void setPM(double kMX, double r0MX, double kXX, double a0XX, double kMM, double a0MM, Logfile &logfile);
-    void setGO(bool global0, bool global1, int it, double ls, double conv, Logfile &logfile);
+    void setGO(bool global0, bool global1, int it, double ls, double conv, int loc, Logfile &logfile);
 
     //methods
     void run(Logfile &logfile);

@@ -436,7 +436,7 @@ void NetworkCart2D::buildRing(int ringSize, vector<int> &unitPath, vector<double
     }
 }
 
-void NetworkCart2D::write(string prefix, Logfile &logfile) {
+void NetworkCart2D::writeNetwork(string prefix, Logfile &logfile) {
     //write network information to output files
 
     //set up file names
@@ -515,8 +515,9 @@ void NetworkCart2D::write(string prefix, Logfile &logfile) {
     logfile.log("Write complete","","",0,true);
 }
 
-void NetworkCart2D::setGO(int it, double ls, double conv) {
+void NetworkCart2D::setGO(int it, double ls, double conv, int loc) {
     //set up optimiser with geometry optimisation parameters
+    localExtent=loc;
     optimiser=SteepestDescent<HC2>(it,ls,conv);
 }
 
@@ -654,7 +655,7 @@ void NetworkCart2D::geometryOptimiseLocal(vector<double> &potentialModel) {
     angleR0.clear();
 
     //get local region
-    findLocalRegion(rings.rbegin()[0].id,5);
+    findLocalRegion(rings.rbegin()[0].id,localExtent);
 
     //get local atom coordinates
     crds=getCrds(globalAtomMap,nLocalAtoms);
@@ -763,4 +764,46 @@ void NetworkCart2D::geometryOptimiseLocal(vector<double> &potentialModel) {
 
     //update coordinates
     setCrds(globalAtomMap,crds);
+}
+
+void NetworkCart2D::checkOverlap() {
+    //check for overlap of any triangles
+
+    unitOverlap=false;
+
+    //make list of all lines that make up triangles
+    int a, b, c;
+    vector<int> lines;
+    lines.clear();
+    for(int i=0; i<nUnits; ++i){
+        a=units[i].atomsX.ids[0];
+        b=units[i].atomsX.ids[1];
+        c=units[i].atomsX.ids[2];
+        lines.push_back(a);
+        lines.push_back(b);
+        lines.push_back(a);
+        lines.push_back(c);
+        lines.push_back(b);
+        lines.push_back(c);
+    }
+
+    //check overlap of all pairs of lines
+    int n=lines.size()/2;
+    double x0,x1,x2,x3,y0,y1,y2,y3;
+    for(int i=0; i<n-1; ++i){
+        x0=atoms[lines[2*i]].coordinate.x;
+        y0=atoms[lines[2*i]].coordinate.y;
+        x1=atoms[lines[2*i+1]].coordinate.x;
+        y1=atoms[lines[2*i+1]].coordinate.y;
+        for(int j=i+1; j<n; ++j){
+            x2=atoms[lines[2*j]].coordinate.x;
+            y2=atoms[lines[2*j]].coordinate.y;
+            x3=atoms[lines[2*j+1]].coordinate.x;
+            y3=atoms[lines[2*j+1]].coordinate.y;
+            if(properIntersectionLines(x0,y0,x1,y1,x2,y2,x3,y3)){
+                unitOverlap=true;
+                break;
+            }
+        }
+    }
 }

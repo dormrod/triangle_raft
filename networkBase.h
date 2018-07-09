@@ -11,6 +11,7 @@
 #include "atom.h"
 #include "unit.h"
 #include "ring.h"
+#include "analysis_tools.h"
 
 using namespace std;
 
@@ -32,9 +33,14 @@ protected:
     //Geometry Optimisation
     int optIterations; //number of optimisation iterations
     double energy; //potential energy
-    int nLocalAtoms; //number of atoms in local region
+    int localExtent, nLocalAtoms; //size of local region, number of atoms in local region
     map<int,int> localAtomMap, globalAtomMap; //maps local to global atoms
     vector<int> flexLocalUnits, fixedLocalUnits, fixedLocalAtoms; //units that make up local region, and fixed atoms
+    //Analysis
+    bool unitOverlap; //check for overlap of units
+    DiscreteDistribution ringStatistics; //ring size distribution for entire network
+    vector<DiscreteDistribution> indRingStatistics; //ring size distributions around each individual ring
+    vector<double> aboavWeaireParameters; //alpha, mu and rsq
 
     //Methods
     virtual vector<double> getCrds()=0; //get all atom coordinates - virtual as have different number of variables and will be faster
@@ -50,7 +56,7 @@ public:
     Network();
 
     //Setters
-    virtual void setGO(int it, double ls, double conv)=0; //virtual as set up optimiser with different potential types
+    virtual void setGO(int it, double ls, double conv, int loc)=0; //virtual as set up optimiser with different potential types
 
     //Getters
     int getNRings();
@@ -80,9 +86,14 @@ public:
     //Optimise Network
     virtual void geometryOptimiseGlobal(vector<double> &potentialModel)=0;
     virtual void geometryOptimiseLocal(vector<double> &potentialModel)=0;
+    //Analyse Network
+    void calculateRingStatistics(); //ring stats analysis
+    virtual void checkOverlap()=0; //check for overlap
 
     //Write Out
-    virtual void write(string prefix, Logfile &logfile)=0; //write network to files
+    void write(string prefix, Logfile &logfile); //write out to files
+    virtual void writeNetwork(string prefix, Logfile &logfile)=0; //write network to files
+    void writeAnalysis(string prefix, Logfile &logfile); //write analysis out to files
 };
 
 #include "networkBase.tpp"

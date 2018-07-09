@@ -120,17 +120,17 @@ def plot_triangle_network(data,show_x,show_m,atom_label,tri_label,fig,ax):
         tri_crds=np.array([crds[a] for a in tri])
         tri_crds=np.append(tri_crds, [tri_crds[0]], axis=0)
         path=Path(tri_crds, polygon_cmds[0])
-        patch = patches.PathPatch(path, facecolor="gold", lw=1.0, alpha=0.5, zorder=1)
+        patch = patches.PathPatch(path, facecolor="black", lw=1.0, alpha=0.5, zorder=1)
         ax.add_patch(patch)
 
     # Plot x atoms
     if show_x:
         x_crds=crds[unit_x.flatten()]
-        ax.scatter(x_crds[:,0],x_crds[:,1], facecolor="red", edgecolor="black", zorder=2)
+        ax.scatter(x_crds[:,0],x_crds[:,1], facecolor="red", edgecolor="black", alpha=0.5, s=10, zorder=2)
     # Plot m atoms
     if show_m:
         m_crds=crds[unit_m]
-        ax.scatter(m_crds[:,0],m_crds[:,1], facecolor="blue", edgecolor="black", zorder=2)
+        ax.scatter(m_crds[:,0],m_crds[:,1], facecolor="yellow", edgecolor="black", alpha=0.5, s=10, zorder=2)
 
     # Make labels
     if atom_label:
@@ -172,6 +172,7 @@ def plot_ring_network(data,fig,ax):
     # depth=np.average(np.array([depth_cueing[a] for a in ring]))
         path=Path(ring_crds, polygon_cmds[ring_sizes[i]-3])
         patch = patches.PathPatch(path, facecolor=ring_colours[i], lw=1.0, alpha=1.0, zorder=0)
+        # patch = patches.PathPatch(path, facecolor="white", lw=1.0, alpha=1.0, zorder=0)
         ax.add_patch(patch)
 
     # if(label):

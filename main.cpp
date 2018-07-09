@@ -60,13 +60,14 @@ int main(){
     //Minimisation
     bool preOpt, postOpt;
     vector<bool> globalOpt;
-    int maxIt;
+    int maxIt, localSize;
     double lsInc, convTest;
     readFileSkipLines(inputFile,2); //skip
     readFileRowVector(inputFile,globalOpt,2); //perform global optimisation before/after simulation
     readFileValue(inputFile,maxIt); //maximum iterations of geometry optimisation
     readFileValue(inputFile,lsInc); //line search increment
     readFileValue(inputFile,convTest); //convergence test
+    readFileValue(inputFile,localSize); //size of local region
     preOpt=globalOpt[0];
     postOpt=globalOpt[1];
     inputFile.close();
@@ -77,7 +78,7 @@ int main(){
     simulation.setNP(nTotalRings,minBasicRingSize,maxBasicRingSize,geometry,logfile);
     simulation.setMC(randomSeed,temperature,logfile);
     simulation.setPM(kMX,r0MX,kXX,a0XX,kMM,a0MM,logfile);
-    simulation.setGO(preOpt,postOpt,maxIt,lsInc,convTest,logfile);
+    simulation.setGO(preOpt,postOpt,maxIt,lsInc,convTest,localSize,logfile);
 
     //run simulation
     simulation.run(logfile);

@@ -1,15 +1,15 @@
 IO
-./input_files/6                       input prefix
-./output_files/testt         output prefix
+./output_files/testt  ./input_files/6                       input prefix
+./output_files/test         output prefix
 -------------------------------------------------
 Network Properties
-100           number of rings
-6 6       basic ring size limits
+20           number of rings
+5 7       basic ring size limits
 2DC         geometry code
 -------------------------------------------------
 Monte Carlo Process
 0           random seed
-0.005     temperature
+0.001     temperature
 -------------------------------------------------
 Harmonic Potential Model
 1.0     1.0     M-X (k,r0)
@@ -21,4 +21,5 @@ Minimisation Control
 10000    maximum iterations
 0.1     line search increment
 1e-07   convergence test
+10      size of local region
 

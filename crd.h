@@ -181,5 +181,17 @@ inline bool properIntersectionLines(double &x0, double &y0, double &x1, double &
     if(collinearPoints(x0,y0,x1,y1,x2,y2) || collinearPoints(x0,y0,x1,y1,x3,y3) || collinearPoints(x2,y2,x3,y3,x0,y0) || collinearPoints(x2,y2,x3,y3,x1,y1)) return false;
     return (leftTriangle(x0,y0,x1,y1,x2,y2)^leftTriangle(x0,y0,x1,y1,x3,y3)) && (leftTriangle(x2,y2,x3,y3,x0,y0)^leftTriangle(x2,y2,x3,y3,x1,y1));
 }
+inline bool between(double &x0, double &y0, double &x1, double &y1, double &x2, double &y2){
+    //checks betweeness of points
+    if(!collinearPoints(x0,y0,x1,y1,x2,y2)) return false;
+    if(x0!=x1) return ((x0 <= x2) && (x2 <= x1)) || ((x0 >= x2) && (x2 >= x1));
+    else return ((y0 <= y2) && (y2 <= y1)) || ((y0 >= y2) && (y2 >= y1));
+}
+inline bool lineIntersect2D(double &x0, double &y0, double &x1, double &y1, double &x2, double &y2, double &x3, double &y3){
+    //returns true if proper or improper intersection
+    if(properIntersectionLines(x0,y0,x1,y1,x2,y2,x3,y3)) return true;
+    else if(between(x0,y0,x1,y1,x2,y2) || between(x0,y0,x1,y1,x3,y3) || between(x2,y2,x3,y3,x0,y0) || between(x2,y2,x3,y3,x1,y1)) return true;
+    return false;
+}
 
 #endif //MX2_CRD_H

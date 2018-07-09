@@ -57,13 +57,14 @@ void Simulation<CrdT,NetT>::setPM(double kMX, double r0MX, double kXX, double a0
 }
 
 template <typename CrdT, typename NetT>
-void Simulation<CrdT,NetT>::setGO(bool global0, bool global1, int it, double ls, double conv, Logfile &logfile) {
+void Simulation<CrdT,NetT>::setGO(bool global0, bool global1, int it, double ls, double conv, int loc, Logfile &logfile) {
     //set geometery optimisation parameters
     globalPreGO=global0;
     globalPostGO=global1;
     goMaxIterations=it;
     goLineSeachInc=ls;
     goConvergence=conv;
+    goLocalExtent=loc;
     logfile.log("Initialised: ","geometry optimisation","",1,false);
 }
 
@@ -76,6 +77,8 @@ void Simulation<CrdT,NetT>::run(Logfile &logfile) {
 
     growNetwork(logfile);
 
+    analyseNetwork(logfile);
+
     writeNetwork(logfile);
 }
 
@@ -86,7 +89,7 @@ void Simulation<CrdT,NetT>::loadNetwork(Logfile &logfile) {
 
     logfile.log("Intialisation complete","","",0,true);
     masterNetwork=NetT(prefixIn,logfile);
-    masterNetwork.setGO(goMaxIterations,goLineSeachInc,goConvergence);
+    masterNetwork.setGO(goMaxIterations,goLineSeachInc,goConvergence,goLocalExtent);
     if(globalPreGO) masterNetwork.geometryOptimiseGlobal(potentialModel);
 }
 
@@ -103,7 +106,12 @@ void Simulation<CrdT,NetT>::growNetwork(Logfile &logfile) {
             vector<int> unitPath = selectUnitPath(activeUnit);
             addBasicRing(unitPath);
             ++nRings;
+            if(nRings%100==0) logfile.log(to_string(nRings)+" rings, time elapsed: ","","sec",1,false);
         }while(nRings<nTargetRings);
+    }
+    if(globalPostGO){
+        logfile.log("Performing global geometry optimisation","","",1,false);
+        masterNetwork.geometryOptimiseGlobal(potentialModel);
     }
     logfile.log("Network growth complete","","",0,true);
 }
@@ -162,8 +170,22 @@ void Simulation<CrdT,NetT>::addBasicRing(vector<int> unitPath) {
 //Simulation<CrdT,NetT>::
 //template <typename CrdT, typename NetT>
 //Simulation<CrdT,NetT>::
-//template <typename CrdT, typename NetT>
-//Simulation<CrdT,NetT>::
+//##### ANALYSE #####
+template <typename CrdT, typename NetT>
+void Simulation<CrdT,NetT>::analyseNetwork(Logfile &logfile) {
+    //analyse network properties
+    logfile.log("Analysing network","","",0,false);
+
+    //check geometry
+    masterNetwork.checkOverlap();
+    logfile.log("Network checked for unit overlap","","",1,false);
+
+    //ring statistics
+    masterNetwork.calculateRingStatistics();
+    logfile.log("Ring statistics calculated","","",1,false);
+
+    logfile.log("Analysis complete","","",0,true);
+}
 
 //##### WRITE #####
 template <typename CrdT, typename NetT>
