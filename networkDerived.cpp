@@ -306,7 +306,8 @@ void NetworkCart2D::buildRing(int ringSize, vector<int> &unitPath, vector<double
     uvPar=atoms[atomIdR].coordinate-atoms[atomIdL].coordinate;
     Cart2D vClockwise(uvPar.y,-uvPar.x);
     Cart2D vAntiClockwise(-uvPar.y,uvPar.x);
-    Cart2D dir=atoms[atomIdL].coordinate-atoms[units[unitPath[0]].atomM].coordinate;
+//    Cart2D dir=atoms[atomIdL].coordinate-atoms[units[unitPath[0]].atomM].coordinate;
+    Cart2D dir=(atoms[atomIdL].coordinate+atoms[atomIdR].coordinate)*0.5;
     if(vClockwise*dir>0) uvPer=vClockwise;
     else uvPer=vAntiClockwise;
     double perLen, parLen; //lengths of original perpendicular and parallel vectors
@@ -518,6 +519,7 @@ void NetworkCart2D::writeNetwork(string prefix, Logfile &logfile) {
 void NetworkCart2D::setGO(int it, double ls, double conv, int loc) {
     //set up optimiser with geometry optimisation parameters
     localExtent=loc;
+    defLineInc=ls;
     optimiser=SteepestDescent<HLJC2>(it,ls,conv);
 }
 
@@ -805,9 +807,19 @@ void NetworkCart2D::geometryOptimiseLocal(vector<double> &potentialModel) {
         }
     }
 
-    //set up model and optimise
-    HLJC2 potential(bonds, angles, repulsions, bondK, bondR0, repK, repR0, fixedLocalAtoms, interx);
-    optimiser(potential, energy, optIterations, crds);
+    //set up model and optimise, alter line search increment if insufficient iterations
+    HLJC2 potential(bonds,angles, repulsions, bondK, bondR0, repK, repR0, fixedLocalAtoms, interx);
+    optIterations=0;
+    double lInc=defLineInc;
+    for(int i=0; i<3; ++i){
+        optimiser(potential, energy, optIterations, crds);
+        if(optIterations>10) break;
+        else{
+            lInc/=10.0;
+            optimiser.setLineSearchIncrement(lInc);
+        }
+    }
+    optimiser.setLineSearchIncrement(defLineInc);
 
     //update coordinates
     setCrds(globalAtomMap,crds);

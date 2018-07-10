@@ -101,6 +101,8 @@ void Simulation<CrdT,NetT>::growNetwork(Logfile &logfile) {
     //grow network using monte carlo process
     logfile.log("Network growth begun after","","sec",0,false);
 
+    killGrowth=false;
+    energyCutoff=100.0*potentialModel[0];
     int nRings=masterNetwork.getNRings();
     if(nRings<nTargetRings){//only if network needs growing
         do{
@@ -111,6 +113,11 @@ void Simulation<CrdT,NetT>::growNetwork(Logfile &logfile) {
             if(nRings%100==0){
                 cout<<nRings<<endl;
                 logfile.log(to_string(nRings)+" rings, time elapsed: ","","sec",1,false);
+            }
+            cout<<nRings<<endl;
+            if(killGrowth){
+                logfile.errorlog("Growth prematurely killed due to excessive energy","severe");
+                break;
             }
         }while(nRings<nTargetRings);
     }
@@ -166,7 +173,9 @@ void Simulation<CrdT,NetT>::addBasicRing(vector<int> unitPath) {
             trialEnergies.push_back(masterNetwork.getEnergy());
         }
     }
-    int acceptedSize=trialSizes[monteCarlo.metropolis(trialEnergies)];
+    int acceptedRing=monteCarlo.metropolis(trialEnergies);
+    if(trialEnergies[acceptedRing]>energyCutoff) killGrowth=true;
+    int acceptedSize=trialSizes[acceptedRing];
     masterNetwork.acceptRing(acceptedSize,unitPath,potentialModel);
 }
 //template <typename CrdT, typename NetT>

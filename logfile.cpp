@@ -70,8 +70,8 @@ void Logfile::errorlog(string message, string errorType, int errorCode){
     ofstream file(filename,ios::in|ios::app);
     string errorMessage;
     if(errorType=="critical") errorMessage="Critical error at "+currentTime()+": "+message;
+    else errorMessage=errorType+"error : "+message;
     writeFileValue(file,errorMessage,true);
     if(errorType=="critical") exit(errorCode);
-    writeFileValue(file,message,true);
     file.close();
 }

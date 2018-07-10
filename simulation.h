@@ -32,6 +32,8 @@ private:
     //Additional variables
     NetT masterNetwork; //main global network for simulation
     int nBasicRingSizes; //number of basic ring sizes
+    double energyCutoff; //cutoff for energy to kill growth
+    bool killGrowth; //flag to kill growth
 
     //Key Methods
     void loadNetwork(Logfile &logfile);

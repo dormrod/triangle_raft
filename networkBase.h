@@ -32,6 +32,7 @@ protected:
     vector<int> boundaryStatus;
     //Geometry Optimisation
     int optIterations; //number of optimisation iterations
+    double defLineInc; //default line search increment
     double energy; //potential energy
     int localExtent, nLocalAtoms; //size of local region, number of atoms in local region
     map<int,int> localAtomMap, globalAtomMap; //maps local to global atoms

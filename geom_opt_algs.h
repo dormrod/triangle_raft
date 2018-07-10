@@ -20,6 +20,9 @@ public:
     SteepestDescent();
     SteepestDescent(int maxIt, double lInc, double cc);
 
+    //setters
+    void setLineSearchIncrement(double inc);
+
     //function call
     int operator()(PotModel &model, double &energy, int &iterations, vector<double> &crdsIn);
 };

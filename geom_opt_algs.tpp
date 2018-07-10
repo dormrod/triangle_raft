@@ -16,6 +16,12 @@ SteepestDescent<PotModel>::SteepestDescent(int maxIt, double lInc, double cc) {
 }
 
 template <typename PotModel>
+void SteepestDescent<PotModel>::setLineSearchIncrement(double inc) {
+    //alter line search increment
+    lineInc=inc;
+}
+
+template <typename PotModel>
 int SteepestDescent<PotModel>::operator()(PotModel &model, double &energy, int &iterations, vector<double> &crdsIn) {
     //steepest descent algorithm
     col_vector<double> crds=crdsIn;
@@ -60,7 +66,7 @@ int SteepestDescent<PotModel>::operator()(PotModel &model, double &energy, int &
 //        cout<<i<<" "<<energy<<" "<<deltaE<<endl;
     }
 
-//    cout<<"iterations "<<iterations<<" energy "<<energy<<endl;
+    cout<<"iterations "<<iterations<<" energy "<<energy<<endl;
 
     //update coordinates
     for(int i=0; i<crds.n; ++i) crdsIn[i]=crds[i];
