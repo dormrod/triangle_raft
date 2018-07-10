@@ -15,7 +15,7 @@ class NetworkCart2D: public Network<Cart2D> {
     //network class using two dimensional cartesian coordinate
 protected:
     //Geometry Optimisation
-    SteepestDescent<HC2> optimiser;
+    SteepestDescent<HLJC2> optimiser;
 
     //Virtual Methods To Define
     vector<double> getCrds() override; //get all atom coordinates

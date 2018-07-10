@@ -5,14 +5,16 @@ BasePotentialCart2D::BasePotentialCart2D(){
     //default constructor
 }
 
-BasePotentialCart2D::BasePotentialCart2D(vector<int> &bondsIn, vector<int> &anglesIn, vector<int> &fixedIn, vector<int> &interxIn) {
+BasePotentialCart2D::BasePotentialCart2D(vector<int> &bondsIn, vector<int> &anglesIn, vector<int> &repIn, vector<int> &fixedIn, vector<int> &interxIn) {
     //set up initial coordinate, bond and angle column vectors
     bonds=bondsIn;
     angles=anglesIn;
+    repulsions=repIn;
     fixed=fixedIn;
     interx=interxIn;
     nBonds=bonds.n/2;
     nAngles=angles.n/3;
+    nRep=repulsions.n/2;
     nInterx=interx.n/4;
 }
 
@@ -42,6 +44,15 @@ void BasePotentialCart2D::calculateForce(col_vector<double> &crds, col_vector<do
         y1=x1+1;
         y2=x2+1;
         angleForce(crds[x0],crds[y0],crds[x1],crds[y1],crds[x2],crds[y2],force[x0],force[y0],force[x1],force[y1],force[x2],force[y2],i);
+    }
+
+    //calculate forces from repulsions
+    for(int i=0; i<nRep; ++i){
+        x0=2*repulsions[2*i];
+        x1=2*repulsions[2*i+1];
+        y0=x0+1;
+        y1=x1+1;
+        repForce(crds[x0],crds[y0],crds[x1],crds[y1],force[x0],force[y0],force[x1],force[y1],i);
     }
 
     //kill forces on fixed atoms
@@ -79,6 +90,15 @@ void BasePotentialCart2D::calculateEnergy(col_vector<double> &crds, double &ener
         angleEnergy(crds[x0],crds[y0],crds[x1],crds[y1],crds[x2],crds[y2],energy,i);
     }
 
+    //calculate energy from repulsions
+    for(int i=0; i<nRep; ++i){
+        x0=2*repulsions[2*i];
+        x1=2*repulsions[2*i+1];
+        y0=x0+1;
+        y1=x1+1;
+        repEnergy(crds[x0],crds[y0],crds[x1],crds[y1],energy,i);
+    }
+
     //calculate energy from intersections
     int x3, y3; //indices
     for(int i=0; i<nInterx; ++i){
@@ -100,8 +120,8 @@ HC2::HC2(){
     //default constructor
 }
 
-HC2::HC2(vector<int> &bondsIn, vector<int> &anglesIn, double &bondKIn, double &bondR0In,
-         double &angleKIn, double &angleR0In, vector<int> &fixedIn, vector<int> &interxIn):BasePotentialCart2D(bondsIn,anglesIn,fixedIn,interxIn) {
+HC2::HC2(vector<int> &bondsIn, vector<int> &anglesIn, vector<int> &repIn, double &bondKIn, double &bondR0In,
+         double &angleKIn, double &angleR0In, vector<int> &fixedIn, vector<int> &interxIn):BasePotentialCart2D(bondsIn,anglesIn,repIn,fixedIn,interxIn) {
     //construct with single parameter set for bonds and angles
     //turn single values into vectors
     bondK=col_vector<double>(bonds.n);
@@ -114,8 +134,8 @@ HC2::HC2(vector<int> &bondsIn, vector<int> &anglesIn, double &bondKIn, double &b
     angleR0=angleR0In;
 }
 
-HC2::HC2(vector<int> &bondsIn, vector<int> &anglesIn, vector<double> &bondKIn, vector<double> &bondR0In,
-         vector<double> &angleKIn, vector<double> &angleR0In, vector<int> &fixedIn, vector<int> &interxIn):BasePotentialCart2D(bondsIn,anglesIn,fixedIn,interxIn) {
+HC2::HC2(vector<int> &bondsIn, vector<int> &anglesIn, vector<int> &repIn, vector<double> &bondKIn, vector<double> &bondR0In,
+         vector<double> &angleKIn, vector<double> &angleR0In, vector<int> &fixedIn, vector<int> &interxIn):BasePotentialCart2D(bondsIn,anglesIn,repIn,fixedIn,interxIn) {
     //construct with parameter set for individual bonds and angles
     bondK=bondKIn;
     bondR0=bondR0In;
@@ -153,6 +173,12 @@ inline void HC2::angleForce(double &cx0, double &cy0, double &cx1, double &cy1, 
     fy2+=f[1];
 }
 
+inline void HC2::repForce(double &cx0, double &cy0, double &cx1, double &cy1, double &fx0, double &fy0, double &fx1,
+                          double &fy1, int paramRef) {
+    //none
+    return;
+}
+
 inline void HC2::bondEnergy(double &cx0, double &cy0, double &cx1, double &cy1, double &e, int paramRef) {
     //calculate energy of a single harmonic bond, U=0.5k(r-r0)^2
     double dx=cx1-cx0;
@@ -169,12 +195,125 @@ inline void HC2::angleEnergy(double &cx0, double &cy0, double &cx1, double &cy1,
     e+=0.5*angleK[paramRef]*pow((r-angleR0[paramRef]),2);
 }
 
+inline void HC2::repEnergy(double &cx0, double &cy0, double &cx1, double &cy1, double &e, int paramRef) {
+    //none
+    return;
+}
+
 inline void HC2::interxEnergy(double &cx0, double &cy0, double &cx1, double &cy1, double &cx2, double &cy2, double &cx3,
                               double &cy3, double &e) {
     //calculate energy of single intersection pair, delta function
     bool intersection=properIntersectionLines(cx0,cy0,cx1,cy1,cx2,cy2,cx3,cy3);
     if(intersection) e=numeric_limits<double>::infinity();
 }
+
+//##### HARMONIC CARTESIAN 2D WITH LJ REPULSIONS #####//
+HLJC2::HLJC2(){
+    //default constructor
+}
+
+HLJC2::HLJC2(vector<int> &bondsIn, vector<int> &anglesIn, vector<int> &repIn, double &bondKIn, double &bondR0In,
+             double &repEpIn, double &repR0In, vector<int> &fixedIn, vector<int> &interxIn):BasePotentialCart2D(bondsIn,anglesIn,repIn,fixedIn,interxIn) {
+    //construct with single parameter set for bonds and angles
+    //turn single values into vectors
+    bondK=col_vector<double>(bonds.n);
+    bondR0=col_vector<double>(bonds.n);
+    repEpsilon=col_vector<double>(repulsions.n);
+    repR02=col_vector<double>(repulsions.n);
+    bondK=bondKIn;
+    bondR0=bondR0In;
+    repEpsilon=repEpIn;
+    repR02=repR0In;
+    repR02*=repR02;
+}
+
+HLJC2::HLJC2(vector<int> &bondsIn, vector<int> &anglesIn, vector<int> &repIn, vector<double> &bondKIn,
+             vector<double> &bondR0In, vector<double> &repEpIn, vector<double> &repR0In, vector<int> &fixedIn,
+             vector<int> &interxIn):BasePotentialCart2D(bondsIn,anglesIn,repIn,fixedIn,interxIn) {
+    //construct with parameter set for individual bonds and angles
+    bondK=bondKIn;
+    bondR0=bondR0In;
+    repEpsilon=repEpIn;
+    repR02=repR0In;
+    repR02*=repR02;
+}
+
+inline void HLJC2::bondForce(double &cx0, double &cy0, double &cx1, double &cy1, double &fx0, double &fy0,
+                           double &fx1, double &fy1, int paramRef) {
+    //calculate force from single harmonic bond, f=-k(r-r0)
+    col_vector<double> f(2);
+    f[0]=cx1-cx0;
+    f[1]=cy1-cy0;
+    double r=sqrt(f[0]*f[0]+f[1]*f[1]);
+    double mag=-bondK[paramRef]*(r-bondR0[paramRef])/r;
+    f*=mag;
+    fx0-=f[0];
+    fy0-=f[1];
+    fx1+=f[0];
+    fy1+=f[1];
+}
+
+inline void HLJC2::angleForce(double &cx0, double &cy0, double &cx1, double &cy1, double &cx2, double &cy2, double &fx0,
+                            double &fy0, double &fx1, double &fy1, double &fx2, double &fy2, int paramRef) {
+    //none
+    return;
+}
+
+inline void HLJC2::repForce(double &cx0, double &cy0, double &cx1, double &cy1, double &fx0, double &fy0, double &fx1,
+                          double &fy1, int paramRef) {
+    //shifted and truncated lennard-jones potential F=12ep/r**2(r*-12-r**-6)
+    col_vector<double> f(2);
+    f[0]=cx1-cx0;
+    f[1]=cy1-cy0;
+    double r02=repR02[paramRef];
+    double r2=(f[0]*f[0]+f[1]*f[1]);
+    if(r2>=r02) return; //if greater than cutoff
+    double d2=r02/r2;
+    double d6=pow(d2,3);
+    double d12=pow(d6,2);
+    double mag=12.0*repEpsilon[paramRef]*(d12-d6)/r2;
+    f*=mag;
+    fx0-=f[0];
+    fy0-=f[1];
+    fx1+=f[0];
+    fy1+=f[1];
+    cout<<f<<endl;
+    return;
+}
+
+inline void HLJC2::bondEnergy(double &cx0, double &cy0, double &cx1, double &cy1, double &e, int paramRef) {
+    //calculate energy of a single harmonic bond, U=0.5k(r-r0)^2
+    double dx=cx1-cx0;
+    double dy=cy1-cy0;
+    double r=sqrt(dx*dx+dy*dy);
+    e+=0.5*bondK[paramRef]*pow((r-bondR0[paramRef]),2);
+}
+
+inline void HLJC2::angleEnergy(double &cx0, double &cy0, double &cx1, double &cy1, double &cx2, double &cy2, double &e, int paramRef) {
+    //none
+    return;
+}
+
+inline void HLJC2::repEnergy(double &cx0, double &cy0, double &cx1, double &cy1, double &e, int paramRef) {
+    //shifted and truncated LJ potential U=ep*(r-12-2r-6)
+    double dx=cx1-cx0;
+    double dy=cy1-cy0;
+    double r02=repR02[paramRef];
+    double r2=(dx*dx+dy*dy);
+    if(r2>=r02) return; //if greater than cutoff
+    double d2=r02/r2;
+    double d6=pow(d2,3);
+    double d12=pow(d6,2);
+    e+=repEpsilon[paramRef]*(d12-2.0*d6)+repEpsilon[paramRef];
+    return;
+}
+
+inline void HLJC2::interxEnergy(double &cx0, double &cy0, double &cx1, double &cy1, double &cx2, double &cy2, double &cx3,
+                              double &cy3, double &e) {
+    //none
+    return;
+}
+
 
 //##### BASE POTENTIAL MODEL IN CARTESIAN 3D COORDINATES #####
 BasePotentialCart3D::BasePotentialCart3D(){

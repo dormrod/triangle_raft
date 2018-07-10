@@ -518,7 +518,7 @@ void NetworkCart2D::writeNetwork(string prefix, Logfile &logfile) {
 void NetworkCart2D::setGO(int it, double ls, double conv, int loc) {
     //set up optimiser with geometry optimisation parameters
     localExtent=loc;
-    optimiser=SteepestDescent<HC2>(it,ls,conv);
+    optimiser=SteepestDescent<HLJC2>(it,ls,conv);
 }
 
 vector<double> NetworkCart2D::getCrds() {
@@ -568,16 +568,17 @@ void NetworkCart2D::geometryOptimiseGlobal(vector<double> &potentialModel) {
     //set up harmonic potential before passing to derived class
 
     //reset potential information - don't need angles for harmonic potential
-    vector<int> bonds, angles, fixedAtoms, interx;
-    vector<double>  bondK, bondR0, angleK, angleR0, crds;
+    vector<int> bonds, angles, repulsions, fixedAtoms, interx;
+    vector<double>  bondK, bondR0, repK, repR0, crds;
     bonds.clear();
     angles.clear();
+    repulsions.clear();
     fixedAtoms.clear();
     interx.clear();
     bondK.clear();
     bondR0.clear();
-    angleK.clear();
-    angleR0.clear();
+    repK.clear();
+    repR0.clear();
 
     //get all atom coordinates
     crds=getCrds();
@@ -632,9 +633,14 @@ void NetworkCart2D::geometryOptimiseGlobal(vector<double> &potentialModel) {
         }
     }
 
+    repK.push_back(0.1);
+    repR0.push_back(2*potentialModel[1]);
+    repulsions.push_back(99);
+    repulsions.push_back(115);
+
     //set up model and optimise
-    HC2 harmonicPotential(bonds, angles, bondK, bondR0, angleK, angleR0, fixedAtoms, interx);
-    optimiser(harmonicPotential, energy, optIterations, crds);
+    HLJC2 potential(bonds, angles, repulsions, bondK, bondR0, repK, repR0, fixedAtoms, interx);
+    optimiser(potential, energy, optIterations, crds);
 
     //update coordinates
     setCrds(crds);
@@ -644,15 +650,16 @@ void NetworkCart2D::geometryOptimiseLocal(vector<double> &potentialModel) {
     //geometry optimise atoms only in local region
 
     //reset potential information - don't need angles for harmonic potential
-    vector<int> bonds, angles, interx;
-    vector<double>  bondK, bondR0, angleK, angleR0, crds;
+    vector<int> bonds, angles, repulsions, interx;
+    vector<double>  bondK, bondR0, repK, repR0, crds;
     bonds.clear();
     angles.clear();
+    repulsions.clear();
     interx.clear();
     bondK.clear();
     bondR0.clear();
-    angleK.clear();
-    angleR0.clear();
+    repK.clear();
+    repR0.clear();
 
     //get local region
     findLocalRegion(rings.rbegin()[0].id,localExtent);
@@ -759,8 +766,8 @@ void NetworkCart2D::geometryOptimiseLocal(vector<double> &potentialModel) {
     }
 
     //set up model and optimise
-    HC2 harmonicPotential(bonds, angles, bondK, bondR0, angleK, angleR0, fixedLocalAtoms, interx);
-    optimiser(harmonicPotential, energy, optIterations, crds);
+    HLJC2 potential(bonds, angles, repulsions, bondK, bondR0, repK, repR0, fixedLocalAtoms, interx);
+    optimiser(potential, energy, optIterations, crds);
 
     //update coordinates
     setCrds(globalAtomMap,crds);

@@ -1,4 +1,4 @@
-Simulation run: Tue Jul 10 10:05:10 2018
+Simulation run: Tue Jul 10 14:11:13 2018
 
 Grows MX2 Aperiodic Networks                    
 Written By: David OM, Wilson Group, 2018                    
@@ -9,20 +9,19 @@ david.ormrodmorley@chem.ox.ac.uk
 Initialising network parameters                    
     Initialised:        IO                  
     Initialised:        network properties  
-    Initialised:        Monte Carlo, with seed 0
+    Initialised:        Monte Carlo, with seed 5
     Initialised:        potential model     
     Initialised:        geometry optimisation
 Intialisation complete                    
 ----------------------------------------------------------------------
 Loading network                         
-    Atoms read from:    ./input_files/6_atoms.out
-    Units read from:    ./input_files/6_units.out
-    Rings read from:    ./input_files/6_rings.out
-    Additional connections read from: ./input_files/6_connections.out
+    Atoms read from:    ./output_files/test_atoms.out
+    Units read from:    ./output_files/test_units.out
+    Rings read from:    ./output_files/test_rings.out
+    Additional connections read from: ./output_files/test_connections.out
 Load complete                           
 ----------------------------------------------------------------------
 Network growth begun after 0 seconds
-    Performing global geometry optimisation                    
 Network growth complete                    
 ----------------------------------------------------------------------
 Analysing network                       
@@ -31,16 +30,16 @@ Analysing network
 Analysis complete                       
 ----------------------------------------------------------------------
 Writing network                         
-    Atoms written to:   ./output_files/test_atoms.out
-    Units written to:   ./output_files/test_units.out
-    Rings written to:   ./output_files/test_rings.out
-    Additional connections written to: ./output_files/test_connections.out
+    Atoms written to:   ./output_files/testt_atoms.out
+    Units written to:   ./output_files/testt_units.out
+    Rings written to:   ./output_files/testt_rings.out
+    Additional connections written to: ./output_files/testt_connections.out
 Write complete                          
 ----------------------------------------------------------------------
 Writing network analysis                    
-    Ring statistics written to: ./output_files/test_analysis.out
-    Aboav-Weaire parameters written to: ./output_files/test_analysis.out
+    Ring statistics written to: ./output_files/testt_analysis.out
+    Aboav-Weaire parameters written to: ./output_files/testt_analysis.out
 Writing complete                        
 ----------------------------------------------------------------------
-Simulation complete: Tue Jul 10 10:06:58 2018
+Simulation complete: Tue Jul 10 14:11:13 2018
 

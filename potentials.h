@@ -11,15 +11,16 @@
 struct BasePotentialCart2D{
     //base struct for potential model in 2D cartesian coordinates
 
-    int nBonds, nAngles, nInterx; //number of bonds and angles and intersections
+    int nBonds, nAngles, nRep, nInterx; //number of bonds and angles and repulsions and intersections
     col_vector<int> bonds; //list of bonds
     col_vector<int> angles; //list of angles
+    col_vector<int> repulsions; //list of repulsions
     col_vector<int> interx; //list of intersections
     col_vector<int> fixed; //list of fixed atoms
 
     //constructors
     BasePotentialCart2D();
-    BasePotentialCart2D(vector<int> &bondsIn, vector<int> &anglesIn, vector<int> &fixedIn, vector<int> &interxIn);
+    BasePotentialCart2D(vector<int> &bondsIn, vector<int> &anglesIn, vector<int> &repIn, vector<int> &fixedIn, vector<int> &interxIn);
 
     //methods
     void calculateForce(col_vector<double> &crds, col_vector<double> &force);
@@ -30,8 +31,11 @@ struct BasePotentialCart2D{
                            double &fx0, double &fy0, double &fx1, double &fy1, int paramRef)=0;
     virtual void angleForce(double &cx0, double &cy0, double &cx1, double &cy1, double &cx2, double &cy2,
                             double &fx0, double &fy0, double &fx1, double &fy1, double &fx2, double &fy2, int paramRef)=0;
+    virtual void repForce(double &cx0, double &cy0, double &cx1, double &cy1,
+                           double &fx0, double &fy0, double &fx1, double &fy1, int paramRef)=0;
     virtual void bondEnergy(double &cx0, double &cy0, double &cx1, double &cy1, double &e, int paramRef)=0;
     virtual void angleEnergy(double &cx0, double &cy0, double &cx1, double &cy1, double &cx2, double &cy2, double &e, int paramRef)=0;
+    virtual void repEnergy(double &cx0, double &cy0, double &cx1, double &cy1, double &e, int paramRef)=0;
     virtual void interxEnergy(double &cx0, double &cy0, double &cx1, double &cy1, double &cx2, double &cy2, double &cx3, double &cy3, double &e)=0;
 };
 
@@ -43,17 +47,44 @@ struct HC2: public BasePotentialCart2D{
 
     //constructors
     HC2();
-    HC2(vector<int> &bondsIn, vector<int> &anglesIn, double &bondKIn, double &bondR0In, double &angleKIn, double &angleR0In, vector<int> &fixedIn, vector<int> &interxIn);
-    HC2(vector<int> &bondsIn, vector<int> &anglesIn, vector<double> &bondKIn, vector<double> &bondR0In, vector<double> &angleKIn, vector<double> &angleR0In, vector<int> &fixedIn, vector<int> &interxIn);
+    HC2(vector<int> &bondsIn, vector<int> &anglesIn, vector<int> &repIn, double &bondKIn, double &bondR0In, double &angleKIn, double &angleR0In, vector<int> &fixedIn, vector<int> &interxIn);
+    HC2(vector<int> &bondsIn, vector<int> &anglesIn, vector<int> &repIn, vector<double> &bondKIn, vector<double> &bondR0In, vector<double> &angleKIn, vector<double> &angleR0In, vector<int> &fixedIn, vector<int> &interxIn);
 
     //overrides for virtual methods
     void bondForce(double &cx0, double &cy0, double &cx1, double &cy1,
-                   double &fx0, double &fy0, double &fx1, double &fy1, int paramRef);
+                   double &fx0, double &fy0, double &fx1, double &fy1, int paramRef) override;
     void angleForce(double &cx0, double &cy0, double &cx1, double &cy1, double &cx2, double &cy2,
-                            double &fx0, double &fy0, double &fx1, double &fy1, double &fx2, double &fy2, int paramRef);
-    void bondEnergy(double &cx0, double &cy0, double &cx1, double &cy1, double &e, int paramRef);
-    void angleEnergy(double &cx0, double &cy0, double &cx1, double &cy1, double &cx2, double &cy2, double &e, int paramRef);
-    void interxEnergy(double &cx0, double &cy0, double &cx1, double &cy1, double &cx2, double &cy2, double &cx3, double &cy3, double &e);
+                            double &fx0, double &fy0, double &fx1, double &fy1, double &fx2, double &fy2, int paramRef) override;;
+    void repForce(double &cx0, double &cy0, double &cx1, double &cy1,
+                          double &fx0, double &fy0, double &fx1, double &fy1, int paramRef) override;;
+    void bondEnergy(double &cx0, double &cy0, double &cx1, double &cy1, double &e, int paramRef) override;
+    void angleEnergy(double &cx0, double &cy0, double &cx1, double &cy1, double &cx2, double &cy2, double &e, int paramRef) override;
+    void repEnergy(double &cx0, double &cy0, double &cx1, double &cy1, double &e, int paramRef) override;
+    void interxEnergy(double &cx0, double &cy0, double &cx1, double &cy1, double &cx2, double &cy2, double &cx3, double &cy3, double &e) override;
+};
+
+struct HLJC2: public BasePotentialCart2D{
+    //harmonic,cartesian, 2D
+
+    //potential information
+    col_vector<double> bondK, bondR0, repEpsilon, repR02; //constant and separation minimum
+
+    //constructors
+    HLJC2();
+    HLJC2(vector<int> &bondsIn, vector<int> &anglesIn, vector<int> &repIn, double &bondKIn, double &bondR0In, double &repEpIn, double &repR0In, vector<int> &fixedIn, vector<int> &interxIn);
+    HLJC2(vector<int> &bondsIn, vector<int> &anglesIn, vector<int> &repIn, vector<double> &bondKIn, vector<double> &bondR0In, vector<double> &repEpIn, vector<double> &repR0In, vector<int> &fixedIn, vector<int> &interxIn);
+
+    //overrides for virtual methods
+    void bondForce(double &cx0, double &cy0, double &cx1, double &cy1,
+                   double &fx0, double &fy0, double &fx1, double &fy1, int paramRef) override;
+    void angleForce(double &cx0, double &cy0, double &cx1, double &cy1, double &cx2, double &cy2,
+                            double &fx0, double &fy0, double &fx1, double &fy1, double &fx2, double &fy2, int paramRef) override;;
+    void repForce(double &cx0, double &cy0, double &cx1, double &cy1,
+                          double &fx0, double &fy0, double &fx1, double &fy1, int paramRef) override;;
+    void bondEnergy(double &cx0, double &cy0, double &cx1, double &cy1, double &e, int paramRef) override;
+    void angleEnergy(double &cx0, double &cy0, double &cx1, double &cy1, double &cx2, double &cy2, double &e, int paramRef) override;
+    void repEnergy(double &cx0, double &cy0, double &cx1, double &cy1, double &e, int paramRef) override;
+    void interxEnergy(double &cx0, double &cy0, double &cx1, double &cy1, double &cx2, double &cy2, double &cx3, double &cy3, double &e) override;
 };
 
 struct BasePotentialCart3D{
