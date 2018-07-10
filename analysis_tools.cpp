@@ -7,6 +7,11 @@ DiscreteDistribution::DiscreteDistribution() {
 DiscreteDistribution::DiscreteDistribution(vector<int> values) {
     //calculate distribution from provided values
 
+    if(values.size()==0){
+        n=0;
+        return;
+    }
+
     //generate unique list of values
     sort(values.begin(),values.end());
     vector<int> uniqueValues;
@@ -36,14 +41,14 @@ DiscreteDistribution::DiscreteDistribution(vector<int> values) {
 }
 
 vector<int> DiscreteDistribution::getValues() {
-    vector<int> values(n,0);
-    for(int i=0; i<n; ++i) values[i]=x[i];
+    vector<int> values;
+    for(int i=0; i<n; ++i) values.push_back(x[i]);
     return values;
 }
 
 vector<double> DiscreteDistribution::getProbabilities() {
-    vector<double> probabilities(n,0.0);
-    for(int i=0; i<n; ++i) probabilities[i]=p[i];
+    vector<double> probabilities;
+    for(int i=0; i<n; ++i) probabilities.push_back(p[i]);
     return probabilities;
 }
 
