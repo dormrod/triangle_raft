@@ -3,13 +3,13 @@ IO
 ./output_files/test         output prefix
 -------------------------------------------------
 Network Properties
-20           number of rings
+50           number of rings
 5 7       basic ring size limits
 2DC         geometry code
 -------------------------------------------------
 Monte Carlo Process
 5           random seed
-0.01     temperature
+0.001     temperature
 -------------------------------------------------
 Potential Model
 1.0     1.0     M-X (k,r0)

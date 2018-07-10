@@ -1,4 +1,4 @@
-Simulation run: Tue Jul 10 16:17:39 2018
+Simulation run: Tue Jul 10 16:57:10 2018
 
 Grows MX2 Aperiodic Networks                    
 Written By: David OM, Wilson Group, 2018                    
@@ -22,24 +22,3 @@ Loading network
 Load complete                           
 ----------------------------------------------------------------------
 Network growth begun after 0 seconds
-Network growth complete                    
-----------------------------------------------------------------------
-Analysing network                       
-    Network checked for unit overlap                    
-    Ring statistics calculated                    
-Analysis complete                       
-----------------------------------------------------------------------
-Writing network                         
-    Atoms written to:   ./output_files/test_atoms.out
-    Units written to:   ./output_files/test_units.out
-    Rings written to:   ./output_files/test_rings.out
-    Additional connections written to: ./output_files/test_connections.out
-Write complete                          
-----------------------------------------------------------------------
-Writing network analysis                    
-    Ring statistics written to: ./output_files/test_analysis.out
-    Aboav-Weaire parameters written to: ./output_files/test_analysis.out
-Writing complete                        
-----------------------------------------------------------------------
-Simulation complete: Tue Jul 10 16:18:19 2018
-
