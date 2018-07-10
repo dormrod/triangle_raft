@@ -45,7 +45,7 @@ int main(){
     readFileValue(inputFile,randomSeed); //for random number generator
     readFileValue(inputFile,temperature); //for metropolis criteria
     //Potential
-    double kMX, r0MX, kXX, a0XX, kMM, a0MM;
+    double kMX, r0MX, kXX, a0XX, kMM, a0MM, kLJ, r0LJ;
     vector<double> potential;
     readFileSkipLines(inputFile,2); //skip
     readFileRowVector(inputFile,potential,2); //M-X
@@ -57,6 +57,9 @@ int main(){
     readFileRowVector(inputFile,potential,2); //M-X
     kMM=potential[0];
     a0MM=potential[1];
+    readFileRowVector(inputFile,potential,2); //L-J
+    kLJ=potential[0];
+    r0LJ=potential[1];
     //Minimisation
     bool preOpt, postOpt;
     vector<bool> globalOpt;
@@ -77,7 +80,7 @@ int main(){
     simulation.setIO(inputPrefix,outputPrefix,logfile);
     simulation.setNP(nTotalRings,minBasicRingSize,maxBasicRingSize,geometry,logfile);
     simulation.setMC(randomSeed,temperature,logfile);
-    simulation.setPM(kMX,r0MX,kXX,a0XX,kMM,a0MM,logfile);
+    simulation.setPM(kMX,r0MX,kXX,a0XX,kMM,a0MM,kLJ,r0LJ,logfile);
     simulation.setGO(preOpt,postOpt,maxIt,lsInc,convTest,localSize,logfile);
 
     //run simulation

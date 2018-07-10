@@ -277,7 +277,6 @@ inline void HLJC2::repForce(double &cx0, double &cy0, double &cx1, double &cy1, 
     fy0-=f[1];
     fx1+=f[0];
     fy1+=f[1];
-    cout<<f<<endl;
     return;
 }
 

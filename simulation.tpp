@@ -41,9 +41,9 @@ void Simulation<CrdT,NetT>::setMC(int seed, double temperature, Logfile &logfile
 }
 
 template <typename CrdT, typename NetT>
-void Simulation<CrdT,NetT>::setPM(double kMX, double r0MX, double kXX, double a0XX, double kMM, double a0MM, Logfile &logfile) {
+void Simulation<CrdT,NetT>::setPM(double kMX, double r0MX, double kXX, double a0XX, double kMM, double a0MM, double kLJ, double r0LJ, Logfile &logfile) {
     //set potential model as M-X, X-X, M-M k and r0 values for harmonics
-    potentialModel.resize(6);
+    potentialModel.resize(8);
     potentialModel[0]=kMX;
     potentialModel[1]=r0MX;
     potentialModel[2]=kXX;
@@ -53,6 +53,8 @@ void Simulation<CrdT,NetT>::setPM(double kMX, double r0MX, double kXX, double a0
     potentialModel[3]=r0;
     r0=2.0*kMX*sin(a0MM*0.5*M_PI/180.0);
     potentialModel[5]=r0;
+    potentialModel[6]=kLJ;
+    potentialModel[7]=r0LJ;
     logfile.log("Initialised: ","potential model","",1,false);
 }
 
@@ -106,7 +108,10 @@ void Simulation<CrdT,NetT>::growNetwork(Logfile &logfile) {
             vector<int> unitPath = selectUnitPath(activeUnit);
             addBasicRing(unitPath);
             ++nRings;
-            if(nRings%100==0) logfile.log(to_string(nRings)+" rings, time elapsed: ","","sec",1,false);
+            if(nRings%100==0){
+                cout<<nRings<<endl;
+                logfile.log(to_string(nRings)+" rings, time elapsed: ","","sec",1,false);
+            }
         }while(nRings<nTargetRings);
     }
     if(globalPostGO){

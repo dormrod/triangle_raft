@@ -633,10 +633,22 @@ void NetworkCart2D::geometryOptimiseGlobal(vector<double> &potentialModel) {
         }
     }
 
-    repK.push_back(0.1);
-    repR0.push_back(2*potentialModel[1]);
-    repulsions.push_back(99);
-    repulsions.push_back(115);
+    //add lennard jones repulsions - all m atoms on edge not on adjacent triangles
+    int m0, m1, mA, mB;
+    for(int i=0; i<boundaryUnits.size()-1; ++i){
+        m0=units[boundaryUnits[i]].atomM;
+        mA=units[units[boundaryUnits[i]].units.ids[0]].atomM;
+        mB=units[units[boundaryUnits[i]].units.ids[1]].atomM;
+        for(int j=i+1; j<boundaryUnits.size(); ++j){
+            m1=units[boundaryUnits[j]].atomM;
+            if(m1!=mA && m1!=mB){
+                repulsions.push_back(m0);
+                repulsions.push_back(m1);
+                repK.push_back(potentialModel[6]);
+                repR0.push_back(potentialModel[7]);
+            }
+        }
+    }
 
     //set up model and optimise
     HLJC2 potential(bonds, angles, repulsions, bondK, bondR0, repK, repR0, fixedAtoms, interx);
@@ -761,6 +773,34 @@ void NetworkCart2D::geometryOptimiseLocal(vector<double> &potentialModel) {
                     bondK.push_back(potentialModel[4]);
                     bondR0.push_back(potentialModel[5]);
                 }
+            }
+        }
+    }
+
+     //add lennard jones repulsions - all m atoms not on adjacent triangles
+    int m0, m1, mA, mB, mC;
+    for(int i=0; i<flexLocalUnits.size()-1; ++i){
+        m0=localAtomMap.at(units[flexLocalUnits[i]].atomM);
+        mA=localAtomMap.at(units[units[flexLocalUnits[i]].units.ids[0]].atomM);
+        mB=localAtomMap.at(units[units[flexLocalUnits[i]].units.ids[1]].atomM);
+        if(units[flexLocalUnits[i]].units.n==3) mC=localAtomMap.at(units[units[flexLocalUnits[i]].units.ids[1]].atomM);
+        else mC=-1;
+        for(int j=i+1; j<flexLocalUnits.size(); ++j){
+            m1=localAtomMap.at(units[flexLocalUnits[j]].atomM);
+            if(m1!=mA && m1!=mB && m1!=mC){//neglect neighbours
+                repulsions.push_back(m0);
+                repulsions.push_back(m1);
+                repK.push_back(potentialModel[6]);
+                repR0.push_back(potentialModel[7]);
+            }
+        }
+        for(int j=0; j<fixedLocalUnits.size(); ++j){
+            m1=localAtomMap.at(units[fixedLocalUnits[j]].atomM);
+            if(m1!=mA && m1!=mB && m1!=mC){//neglect neighbours
+                repulsions.push_back(m0);
+                repulsions.push_back(m1);
+                repK.push_back(potentialModel[6]);
+                repR0.push_back(potentialModel[7]);
             }
         }
     }
