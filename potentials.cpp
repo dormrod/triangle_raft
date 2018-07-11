@@ -269,9 +269,9 @@ inline void HLJC2::repForce(double &cx0, double &cy0, double &cx1, double &cy1, 
     double r2=(f[0]*f[0]+f[1]*f[1]);
     if(r2>=r02) return; //if greater than cutoff
     double d2=r02/r2;
-    double d6=pow(d2,3);
-    double d12=pow(d6,2);
-    double mag=12.0*repEpsilon[paramRef]*(d12-d6)/r2;
+    double d12=pow(d2,6);
+    double d24=pow(d12,2);
+    double mag=24.0*repEpsilon[paramRef]*(d24-d12)/r2;
     f*=mag;
     fx0-=f[0];
     fy0-=f[1];
@@ -301,9 +301,9 @@ inline void HLJC2::repEnergy(double &cx0, double &cy0, double &cx1, double &cy1,
     double r2=(dx*dx+dy*dy);
     if(r2>=r02) return; //if greater than cutoff
     double d2=r02/r2;
-    double d6=pow(d2,3);
-    double d12=pow(d6,2);
-    e+=repEpsilon[paramRef]*(d12-2.0*d6)+repEpsilon[paramRef];
+    double d12=pow(d2,6);
+    double d24=pow(d12,2);
+    e+=repEpsilon[paramRef]*(d24-2.0*d12)+repEpsilon[paramRef];
     return;
 }
 

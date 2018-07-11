@@ -27,5 +27,21 @@ public:
     int operator()(PotModel &model, double &energy, int &iterations, vector<double> &crdsIn);
 };
 
+template <typename PotModel>
+class SteepestDescentArmijo{
+private:
+    int iterationLimit; //maximum iterations
+    double tau; //line search increment
+    double convCriteria; //convergence criteria
+
+public:
+    //constructors
+    SteepestDescentArmijo();
+    SteepestDescentArmijo(int maxIt, double t, double cc);
+
+    //function call
+    int operator()(PotModel &model, double &energy, int &iterations, vector<double> &crdsIn);
+};
+
 #include "geom_opt_algs.tpp"
 #endif //MX2_GEOM_OPT_ALGS_H

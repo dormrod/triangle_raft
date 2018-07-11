@@ -53,6 +53,7 @@ struct col_vector {
     //methods
     double sum();
     double asum();
+    double normSq();
 
 };
 

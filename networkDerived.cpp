@@ -520,7 +520,7 @@ void NetworkCart2D::setGO(int it, double ls, double conv, int loc) {
     //set up optimiser with geometry optimisation parameters
     localExtent=loc;
     defLineInc=ls;
-    optimiser=SteepestDescent<HLJC2>(it,ls,conv);
+    optimiser=SteepestDescentArmijo<HLJC2>(it,ls,conv);
 }
 
 vector<double> NetworkCart2D::getCrds() {
@@ -620,37 +620,50 @@ void NetworkCart2D::geometryOptimiseGlobal(vector<double> &potentialModel) {
         bondR0.push_back(potentialModel[3]);
     }
 
-    //loop over neighbour triangle units to get M-M
+    //loop over all m atoms and add M-M LJ interactions
     int mId1;
-    for(int i=0; i<nUnits; ++i){
+    for(int i=0; i<nUnits-1;++i){
         mId0=units[i].atomM;
-        for(int j=0; j<units[i].units.n; ++j){
-            mId1=units[units[i].units.ids[j]].atomM;
-            if(mId0<mId1){//prevent double counting as reciprocal connections
-                bonds.push_back(mId0);
-                bonds.push_back(mId1);
-                bondK.push_back(potentialModel[4]);
-                bondR0.push_back(potentialModel[5]);
-            }
+        for(int j=i+1; j<nUnits; ++j){
+            mId1=units[j].atomM;
+            repulsions.push_back(mId0);
+            repulsions.push_back(mId1);
+            repK.push_back(potentialModel[6]);
+            repR0.push_back(potentialModel[7]);
         }
     }
 
-    //add lennard jones repulsions - all m atoms on edge not on adjacent triangles
-    int m0, m1, mA, mB;
-    for(int i=0; i<boundaryUnits.size()-1; ++i){
-        m0=units[boundaryUnits[i]].atomM;
-        mA=units[units[boundaryUnits[i]].units.ids[0]].atomM;
-        mB=units[units[boundaryUnits[i]].units.ids[1]].atomM;
-        for(int j=i+1; j<boundaryUnits.size(); ++j){
-            m1=units[boundaryUnits[j]].atomM;
-            if(m1!=mA && m1!=mB){
-                repulsions.push_back(m0);
-                repulsions.push_back(m1);
-                repK.push_back(potentialModel[6]);
-                repR0.push_back(potentialModel[7]);
-            }
-        }
-    }
+//    //loop over neighbour triangle units to get M-M
+//    int mId1;
+//    for(int i=0; i<nUnits; ++i){
+//        mId0=units[i].atomM;
+//        for(int j=0; j<units[i].units.n; ++j){
+//            mId1=units[units[i].units.ids[j]].atomM;
+//            if(mId0<mId1){//prevent double counting as reciprocal connections
+//                bonds.push_back(mId0);
+//                bonds.push_back(mId1);
+//                bondK.push_back(potentialModel[4]);
+//                bondR0.push_back(potentialModel[5]);
+//            }
+//        }
+//    }
+
+//    //add lennard jones repulsions - all m atoms on edge not on adjacent triangles
+//    int m0, m1, mA, mB;
+//    for(int i=0; i<boundaryUnits.size()-1; ++i){
+//        m0=units[boundaryUnits[i]].atomM;
+//        mA=units[units[boundaryUnits[i]].units.ids[0]].atomM;
+//        mB=units[units[boundaryUnits[i]].units.ids[1]].atomM;
+//        for(int j=i+1; j<boundaryUnits.size(); ++j){
+//            m1=units[boundaryUnits[j]].atomM;
+//            if(m1!=mA && m1!=mB){
+//                repulsions.push_back(m0);
+//                repulsions.push_back(m1);
+//                repK.push_back(potentialModel[6]);
+//                repR0.push_back(potentialModel[7]);
+//            }
+//        }
+//    }
 
     //set up model and optimise
     HLJC2 potential(bonds, angles, repulsions, bondK, bondR0, repK, repR0, fixedAtoms, interx);
@@ -760,6 +773,7 @@ void NetworkCart2D::geometryOptimiseLocal(vector<double> &potentialModel) {
                 bonds.push_back(mId1);
                 bondK.push_back(potentialModel[4]);
                 bondR0.push_back(potentialModel[5]);
+//                cout<<globalAtomMap[mId0]<<" "<<globalAtomMap[mId1]<<endl;
             }
         }
     }
@@ -774,12 +788,13 @@ void NetworkCart2D::geometryOptimiseLocal(vector<double> &potentialModel) {
                     bonds.push_back(mId1);
                     bondK.push_back(potentialModel[4]);
                     bondR0.push_back(potentialModel[5]);
+//                    cout<<globalAtomMap[mId0]<<" "<<globalAtomMap[mId1]<<endl;
                 }
             }
         }
     }
 
-     //add lennard jones repulsions - all m atoms not on adjacent triangles
+     //add lennard jones repulsions: m-m for non-adjacent and adjacent triangles
     int m0, m1, mA, mB, mC;
     for(int i=0; i<flexLocalUnits.size()-1; ++i){
         m0=localAtomMap.at(units[flexLocalUnits[i]].atomM);
@@ -789,37 +804,39 @@ void NetworkCart2D::geometryOptimiseLocal(vector<double> &potentialModel) {
         else mC=-1;
         for(int j=i+1; j<flexLocalUnits.size(); ++j){
             m1=localAtomMap.at(units[flexLocalUnits[j]].atomM);
-            if(m1!=mA && m1!=mB && m1!=mC){//neglect neighbours
+            if(m1!=mA && m1!=mB && m1!=mC){//non-adjacent
                 repulsions.push_back(m0);
                 repulsions.push_back(m1);
                 repK.push_back(potentialModel[6]);
                 repR0.push_back(potentialModel[7]);
             }
+//            else{//adjacent
+//                repulsions.push_back(m0);
+//                repulsions.push_back(m1);
+//                repK.push_back(potentialModel[6]);
+//                repR0.push_back(potentialModel[8]);
+//            }
         }
         for(int j=0; j<fixedLocalUnits.size(); ++j){
             m1=localAtomMap.at(units[fixedLocalUnits[j]].atomM);
-            if(m1!=mA && m1!=mB && m1!=mC){//neglect neighbours
+            if(m1!=mA && m1!=mB && m1!=mC){//non-adjacent
                 repulsions.push_back(m0);
                 repulsions.push_back(m1);
                 repK.push_back(potentialModel[6]);
                 repR0.push_back(potentialModel[7]);
             }
+//            else{//adjacent
+//                repulsions.push_back(m0);
+//                repulsions.push_back(m1);
+//                repK.push_back(potentialModel[6]);
+//                repR0.push_back(potentialModel[8]);
+//            }
         }
     }
 
     //set up model and optimise, alter line search increment if insufficient iterations
     HLJC2 potential(bonds,angles, repulsions, bondK, bondR0, repK, repR0, fixedLocalAtoms, interx);
-    optIterations=0;
-    double lInc=defLineInc;
-    for(int i=0; i<3; ++i){
-        optimiser(potential, energy, optIterations, crds);
-        if(optIterations>10) break;
-        else{
-            lInc/=10.0;
-            optimiser.setLineSearchIncrement(lInc);
-        }
-    }
-    optimiser.setLineSearchIncrement(defLineInc);
+    optimiser(potential, energy, optIterations, crds);
 
     //update coordinates
     setCrds(globalAtomMap,crds);

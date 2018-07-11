@@ -55,6 +55,7 @@ void Simulation<CrdT,NetT>::setPM(double kMX, double r0MX, double kXX, double a0
     potentialModel[5]=r0;
     potentialModel[6]=kLJ;
     potentialModel[7]=r0LJ;
+//    potentialModel[8]=2.0*sqrt(pow(r0MX,2)-pow(potentialModel[3]*0.5,2));
     logfile.log("Initialised: ","potential model","",1,false);
 }
 

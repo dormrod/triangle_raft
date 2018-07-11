@@ -101,9 +101,12 @@ col_vector<T> col_vector<T>::operator/(const T &k) {
 template <typename T>
 void col_vector<T>::operator=(const col_vector &source) {
     if (this == &source) return;
-    n=source.n;
-    values=new T[n]();
-    for(int i=0; i<n; ++i) values[i]=source.values[i];
+    if(n!=source.n){
+        delete[] values;
+        n=source.n;
+        values=new T[n]();
+    }
+    for(int i=0; i<n; ++i) this->values[i]=source.values[i];
     return;
 }
 
@@ -170,4 +173,12 @@ double col_vector<T>::asum() {
     double sum=0.0;
     for(int i=0; i<n; ++i) sum+=fabs(values[i]);
     return sum;
+}
+
+template <typename T>
+double col_vector<T>::normSq(){
+    //norm square
+    double nSq=0.0;
+    for(int i=0; i<n; ++i) nSq+=values[i]*values[i];
+    return nSq;
 }

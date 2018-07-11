@@ -385,6 +385,20 @@ void Network<CrdT>::findLocalRegion(int &rId, int nFlexShells) {
             }
         }
     }
+
+//    cout<<"***"<<endl;
+//    for(int i=0; i<fixedLocalAtoms.size(); ++i) {
+//        cout<<globalAtomMap[fixedLocalAtoms[i]]<<endl;
+//    }
+//    cout<<"***"<<endl;
+//
+//    cout<<"-----"<<endl;
+//    for(int i=0; i<nLocalAtoms;++i){
+//        cout<<globalAtomMap[i]<<endl;
+//    }
+//    cout<<"-----"<<endl;
+
+
 }
 
 template <typename CrdT>

@@ -1,4 +1,4 @@
-Simulation run: Tue Jul 10 16:57:10 2018
+Simulation run: Wed Jul 11 11:25:00 2018
 
 Grows MX2 Aperiodic Networks                    
 Written By: David OM, Wilson Group, 2018                    
@@ -9,7 +9,7 @@ david.ormrodmorley@chem.ox.ac.uk
 Initialising network parameters                    
     Initialised:        IO                  
     Initialised:        network properties  
-    Initialised:        Monte Carlo, with seed 5
+    Initialised:        Monte Carlo, with seed 0
     Initialised:        potential model     
     Initialised:        geometry optimisation
 Intialisation complete                    
@@ -22,3 +22,24 @@ Loading network
 Load complete                           
 ----------------------------------------------------------------------
 Network growth begun after 0 seconds
+Network growth complete                    
+----------------------------------------------------------------------
+Analysing network                       
+    Network checked for unit overlap                    
+    Ring statistics calculated                    
+Analysis complete                       
+----------------------------------------------------------------------
+Writing network                         
+    Atoms written to:   ./output_files/testtt_atoms.out
+    Units written to:   ./output_files/testtt_units.out
+    Rings written to:   ./output_files/testtt_rings.out
+    Additional connections written to: ./output_files/testtt_connections.out
+Write complete                          
+----------------------------------------------------------------------
+Writing network analysis                    
+    Ring statistics written to: ./output_files/testtt_analysis.out
+    Aboav-Weaire parameters written to: ./output_files/testtt_analysis.out
+Writing complete                        
+----------------------------------------------------------------------
+Simulation complete: Wed Jul 11 11:25:05 2018
+

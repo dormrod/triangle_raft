@@ -66,7 +66,75 @@ int SteepestDescent<PotModel>::operator()(PotModel &model, double &energy, int &
 //        cout<<i<<" "<<energy<<" "<<deltaE<<endl;
     }
 
-//    cout<<"iterations "<<iterations<<" energy "<<energy<<endl;
+    cout<<"iterations "<<iterations<<" energy "<<energy<<endl;
+
+    //update coordinates
+    for(int i=0; i<crds.n; ++i) crdsIn[i]=crds[i];
+    return 0;
+}
+
+//##### STEEPEST DESCENT WITH ARMIJO BACKTRACKING LINE SEARCH #####
+template <typename PotModel>
+SteepestDescentArmijo<PotModel>::SteepestDescentArmijo() {
+    //default constructor
+    iterationLimit=0;
+}
+
+template <typename PotModel>
+SteepestDescentArmijo<PotModel>::SteepestDescentArmijo(int maxIt, double t, double cc) {
+    //set steepest descent parameters
+    iterationLimit=maxIt;
+    tau=t;
+    convCriteria=cc;
+}
+
+template <typename PotModel>
+int SteepestDescentArmijo<PotModel>::operator()(PotModel &model, double &energy, int &iterations, vector<double> &crdsIn) {
+    //steepest descent algorithm
+    col_vector<double> crds=crdsIn;
+    col_vector<double> force(crds.n);
+
+    //intialise steepest descent parameters
+    energy=0.0;
+    iterations=0;
+    double previousEnergy=numeric_limits<double>::infinity();
+    double deltaE; //difference between current and previous energy
+    col_vector<double> crdInc; //increment in coordinates for line search
+
+    //evaluate force and check non-zero before commencing main loop
+    model.calculateForce(crds,force);
+    if(force.asum()<1e-6) return 1;
+
+    //steepest descent algorithm
+    for(int i=0; i<iterationLimit; ++i){
+        //backtracking line search
+        double fSq=force.normSq();
+        double alpha=1.0;
+        double e0, e1;
+        model.calculateEnergy(crds,e0);
+        for(;;){
+            crdInc=crds+force*alpha;
+            model.calculateEnergy(crdInc,e1);
+            e1+=0.5*alpha*fSq;
+            if(e1<e0){
+                energy=e1;
+                crds=crdInc;
+                ++iterations;
+                break;
+            }
+            else alpha*=tau;
+        }
+        //check energy convergence
+        deltaE=fabs(energy-previousEnergy);
+        if(deltaE<convCriteria) break;
+        else previousEnergy=energy;
+
+        //recalculate forces
+        model.calculateForce(crds,force);
+//        cout<<i<<" "<<energy<<" "<<deltaE<<endl;
+    }
+
+    cout<<"iterations "<<iterations<<" energy "<<energy<<endl;
 
     //update coordinates
     for(int i=0; i<crds.n; ++i) crdsIn[i]=crds[i];
