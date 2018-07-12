@@ -319,16 +319,18 @@ BasePotentialCart3D::BasePotentialCart3D(){
     //default constructor
 }
 
-BasePotentialCart3D::BasePotentialCart3D(vector<int> &bondsIn, vector<int> &anglesIn, vector<int> &fixedIn,
+BasePotentialCart3D::BasePotentialCart3D(vector<int> &bondsIn, vector<int> &anglesIn, vector<int> &repIn, vector<int> &fixedIn,
                                          vector<int> &interxIn, vector<int> &constrainedIn) {
     //set up initial coordinate, bond and angle column vectors
     bonds=bondsIn;
     angles=anglesIn;
+    repulsions=repIn;
     fixed=fixedIn;
     interx=interxIn;
     constrained=constrainedIn;
     nBonds=bonds.n/2;
     nAngles=angles.n/3;
+    nRep=repulsions.n/2;
     nInterx=interx.n/4;
 }
 
@@ -373,6 +375,17 @@ void BasePotentialCart3D::calculateForce(col_vector<double> &crds, col_vector<do
         z2=x2+2;
         angleForce(crds[x0],crds[y0],crds[z0],crds[x1],crds[y1],crds[z1],crds[x2],crds[y2],crds[z2],
                    force[x0],force[y0],force[z0],force[x1],force[y1],force[z1],force[x2],force[y2],force[z2],i);
+    }
+
+    //calculate force from repulsions
+    for(int i=0; i<nRep; ++i){
+        x0=3*repulsions[2*i];
+        x1=3*repulsions[2*i+1];
+        y0=x0+1;
+        y1=x1+1;
+        z0=x0+2;
+        z1=x1+2;
+        repForce(crds[x0],crds[y0],crds[z0],crds[x1],crds[y1],crds[z1],force[x0],force[y0],force[z0],force[x1],force[y1],force[z1],i);
     }
 
     //kill forces on fixed atoms
@@ -425,6 +438,17 @@ void BasePotentialCart3D::calculateEnergy(col_vector<double> &crds, double &ener
         angleEnergy(crds[x0],crds[y0],crds[z0],crds[x1],crds[y1],crds[z1],crds[x2],crds[y2],crds[z2],energy,i);
     }
 
+    //calculate energy from repulsions
+    for(int i=0; i<nRep; ++i){
+        x0=3*repulsions[2*i];
+        x1=3*repulsions[2*i+1];
+        y0=x0+1;
+        y1=x1+1;
+        z0=x0+2;
+        z1=x1+2;
+        repEnergy(crds[x0],crds[y0],crds[z0],crds[x1],crds[y1],crds[z1],energy,i);
+    }
+
     //calculate energy from intersections
     int x3, y3, z3; //indices
     for(int i=0; i<nInterx; ++i){
@@ -450,9 +474,9 @@ HC3S::HC3S(){
     //default constructor
 }
 
-HC3S::HC3S(vector<int> &bondsIn, vector<int> &anglesIn, vector<int> &fixedIn, vector<int> &interxIn,
+HC3S::HC3S(vector<int> &bondsIn, vector<int> &anglesIn, vector<int> &repIn, vector<int> &fixedIn, vector<int> &interxIn,
            vector<int> constrIn, double &bondKIn, double &bondR0In, double &angleKIn, double &angleR0In,
-           double &constrKIn, double &constrR0In):BasePotentialCart3D(bondsIn,anglesIn,fixedIn,interxIn,constrIn) {
+           double &constrKIn, double &constrR0In):BasePotentialCart3D(bondsIn,anglesIn,repIn,fixedIn,interxIn,constrIn) {
     //construct with single parameter set for bonds and angles and constraints
     //turn single values into vectors
     bondK=col_vector<double>(bonds.n);
@@ -469,9 +493,9 @@ HC3S::HC3S(vector<int> &bondsIn, vector<int> &anglesIn, vector<int> &fixedIn, ve
     constraintR0=constrR0In;
 }
 
-HC3S::HC3S(vector<int> &bondsIn, vector<int> &anglesIn, vector<int> &fixedIn, vector<int> &interxIn,
+HC3S::HC3S(vector<int> &bondsIn, vector<int> &anglesIn, vector<int> &repIn, vector<int> &fixedIn, vector<int> &interxIn,
            vector<int> constrIn, vector<double> &bondKIn, vector<double> &bondR0In, vector<double> &angleKIn,
-           vector<double> &angleR0In, vector<double> &constrKIn, vector<double> &constrR0In):BasePotentialCart3D(bondsIn,anglesIn,fixedIn,interxIn,constrIn) {
+           vector<double> &angleR0In, vector<double> &constrKIn, vector<double> &constrR0In):BasePotentialCart3D(bondsIn,anglesIn,repIn, fixedIn,interxIn,constrIn) {
     //construct with parameter set for individual bonds and angles and constraints
     bondK=bondKIn;
     bondR0=bondR0In;
@@ -532,6 +556,12 @@ inline void HC3S::angleForce(double &cx0, double &cy0, double &cz0, double &cx1,
     fz2+=f[2];
 }
 
+inline void HC3S::repForce(double &cx0, double &cy0, double &cz0, double &cx1, double &cy1, double &cz1, double &fx0,
+                             double &fy0, double &fz0, double &fx1, double &fy1, double &fz1, int paramRef) {
+    //none
+    return;
+}
+
 inline void HC3S::constraintEnergy(double &cx0, double &cy0, double &cz0, double &e, int paramRef) {
     //calculate energy from point to constraining sphere, U=0.5k(r-r0)^2
     double r=sqrt(cx0*cx0+cy0*cy0+cz0*cz0);
@@ -558,6 +588,11 @@ inline void HC3S::angleEnergy(double &cx0, double &cy0, double &cz0, double &cx1
     e+=0.5*angleK[paramRef]*pow((r-angleR0[paramRef]),2);
 }
 
+inline void HC3S::repEnergy(double &cx0, double &cy0, double &cz0, double &cx1, double &cy1, double &cz1, double &e, int paramRef) {
+    //none
+    return;
+}
+
 inline void HC3S::interxEnergy(double &cx0, double &cy0, double &cz0, double &cx1, double &cy1, double &cz1,
                                double &cx2, double &cy2, double &cz2, double &cx3, double &cy3, double &cz3,
                                double &e) {
@@ -566,3 +601,148 @@ inline void HC3S::interxEnergy(double &cx0, double &cy0, double &cz0, double &cx
 //    if(intersection) e=numeric_limits<double>::infinity();
 }
 
+//##### HARMONIC + LJ CARTESIAN 3D SPHERE CONSTRAINED //
+HLJC3S::HLJC3S(){
+    //default constructor
+}
+
+HLJC3S::HLJC3S(vector<int> &bondsIn, vector<int> &anglesIn, vector<int> &repIn, vector<int> &fixedIn,
+               vector<int> &interxIn, vector<int> constrIn, double &bondKIn, double &bondR0In, double &repEpIn,
+               double &repR0In, double &constrKIn, double &constrR0In):BasePotentialCart3D(bondsIn,anglesIn,repIn,fixedIn,interxIn,constrIn) {
+    //construct with single parameter set for bonds and angles and constraints
+    //turn single values into vectors
+    bondK=col_vector<double>(bonds.n);
+    bondR0=col_vector<double>(bonds.n);
+    repEpsilon=col_vector<double>(repulsions.n);
+    repR02=col_vector<double>(repulsions.n);
+    constraintK=col_vector<double>(constrained.n);
+    constraintR0=col_vector<double>(constrained.n);
+    bondK=bondKIn;
+    bondR0=bondR0In;
+    repEpsilon=repEpIn;
+    repR02=repR0In;
+    repR02*=repR02;
+    constraintK=constrKIn;
+    constraintR0=constrR0In;
+}
+
+HLJC3S::HLJC3S(vector<int> &bondsIn, vector<int> &anglesIn, vector<int> &repIn, vector<int> &fixedIn,
+               vector<int> &interxIn, vector<int> constrIn, vector<double> &bondKIn, vector<double> &bondR0In,
+               vector<double> &repEpIn, vector<double> &repR0In, vector<double> &constrKIn,
+               vector<double> &constrR0In):BasePotentialCart3D(bondsIn,anglesIn,repIn,fixedIn,interxIn,constrIn) {
+    //construct with parameter set for individual bonds and angles and constraints
+    bondK=bondKIn;
+    bondR0=bondR0In;
+    repEpsilon=repEpIn;
+    repR02=repR0In;
+    repR02*=repR02;
+    constraintK=constrKIn;
+    constraintR0=constrR0In;
+}
+
+inline void HLJC3S::constraintForce(double &cx0, double &cy0, double &cz0, double &fx0, double &fy0, double &fz0, int paramRef) {
+    //calculate force from point to constraining sphere, f=-k(r-r0)
+    col_vector<double> f(3);
+    f[0]=cx0;
+    f[1]=cy0;
+    f[2]=cz0;
+    double r=sqrt(f[0]*f[0]+f[1]*f[1]+f[2]*f[2]);
+    double mag=-constraintK[paramRef]*(r-constraintR0[paramRef])/r;
+    f*=mag;
+    fx0+=f[0];
+    fy0+=f[1];
+    fz0+=f[2];
+}
+
+inline void HLJC3S::bondForce(double &cx0, double &cy0, double &cz0, double &cx1, double &cy1, double &cz1, double &fx0,
+                            double &fy0, double &fz0, double &fx1, double &fy1, double &fz1, int paramRef) {
+    //calculate force from single harmonic bond, f=-k(r-r0)
+    col_vector<double> f(3);
+    f[0]=cx1-cx0;
+    f[1]=cy1-cy0;
+    f[2]=cz1-cz0;
+    double r=sqrt(f[0]*f[0]+f[1]*f[1]+f[2]*f[2]);
+    double mag=-bondK[paramRef]*(r-bondR0[paramRef])/r;
+    f*=mag;
+    fx0-=f[0];
+    fy0-=f[1];
+    fz0-=f[2];
+    fx1+=f[0];
+    fy1+=f[1];
+    fz1+=f[2];
+}
+
+inline void HLJC3S::angleForce(double &cx0, double &cy0, double &cz0, double &cx1, double &cy1, double &cz1, double &cx2,
+                             double &cy2, double &cz2, double &fx0, double &fy0, double &fz0, double &fx1, double &fy1,
+                             double &fz1, double &fx2, double &fy2, double &fz2, int paramRef) {
+    //none
+    return;
+}
+
+inline void HLJC3S::repForce(double &cx0, double &cy0, double &cz0, double &cx1, double &cy1, double &cz1, double &fx0,
+                             double &fy0, double &fz0, double &fx1, double &fy1, double &fz1, int paramRef) {
+    //shifted and truncated lennard-jones potential F=12ep/r**2(r*-12-r**-6)
+    col_vector<double> f(3);
+    f[0]=cx1-cx0;
+    f[1]=cy1-cy0;
+    f[2]=cz1-cz0;
+    double r02=repR02[paramRef];
+    double r2=(f[0]*f[0]+f[1]*f[1]+f[2]*f[2]);
+    if(r2>=r02) return; //if greater than cutoff
+    double d2=r02/r2;
+    double d12=pow(d2,6);
+    double d24=pow(d12,2);
+    double mag=24.0*repEpsilon[paramRef]*(d24-d12)/r2;
+    f*=mag;
+    fx0-=f[0];
+    fy0-=f[1];
+    fz0-=f[2];
+    fx1+=f[0];
+    fy1+=f[1];
+    fz1+=f[2];
+    return;
+}
+
+inline void HLJC3S::constraintEnergy(double &cx0, double &cy0, double &cz0, double &e, int paramRef) {
+    //calculate energy from point to constraining sphere, U=0.5k(r-r0)^2
+    double r=sqrt(cx0*cx0+cy0*cy0+cz0*cz0);
+    e+=0.5*constraintK[paramRef]*pow((r-constraintR0[paramRef]),2);
+}
+
+inline void HLJC3S::bondEnergy(double &cx0, double &cy0, double &cz0, double &cx1, double &cy1, double &cz1, double &e,
+                             int paramRef) {
+    //calculate energy of a single harmonic bond, U=0.5k(r-r0)^2
+    double dx=cx1-cx0;
+    double dy=cy1-cy0;
+    double dz=cz1-cz0;
+    double r=sqrt(dx*dx+dy*dy+dz*dz);
+    e+=0.5*bondK[paramRef]*pow((r-bondR0[paramRef]),2);
+}
+
+inline void HLJC3S::angleEnergy(double &cx0, double &cy0, double &cz0, double &cx1, double &cy1, double &cz1, double &cx2,
+                              double &cy2, double &cz2, double &e, int paramRef) {
+    //none
+    return;
+}
+
+inline void HLJC3S::repEnergy(double &cx0, double &cy0, double &cz0, double &cx1, double &cy1, double &cz1, double &e, int paramRef) {
+    //shifted and truncated LJ potential U=ep*(r-12-2r-6)
+    double dx=cx1-cx0;
+    double dy=cy1-cy0;
+    double dz=cz1-cz0;
+    double r02=repR02[paramRef];
+    double r2=(dx*dx+dy*dy+dz*dz);
+    if(r2>=r02) return; //if greater than cutoff
+    double d2=r02/r2;
+    double d12=pow(d2,6);
+    double d24=pow(d12,2);
+    e+=repEpsilon[paramRef]*(d24-2.0*d12)+repEpsilon[paramRef];
+    return;
+}
+
+inline void HLJC3S::interxEnergy(double &cx0, double &cy0, double &cz0, double &cx1, double &cy1, double &cz1,
+                               double &cx2, double &cy2, double &cz2, double &cx3, double &cy3, double &cz3,
+                               double &e) {
+    //none
+    return;
+}
