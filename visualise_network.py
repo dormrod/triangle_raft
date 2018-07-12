@@ -20,8 +20,8 @@ def main():
     vis_tri_label=vis_options.get("triangle_label",False)
     # vis_atom_label=vis_options.get("atom_label",False)
     # vis_ring_label=vis_options.get("ring_label",False)
-    # vis_save_pdf=vis_options.get("save_pdf",False)
-    # vis_save_png=vis_options.get("save_png",False)
+    vis_save_pdf=vis_options.get("save_pdf",False)
+    vis_save_png=vis_options.get("save_png",False)
 
     # Set up axes
     updateParams()
@@ -37,8 +37,8 @@ def main():
         plot_ring_network(data,fig,ax)
 
     # Save and Show plot
-    # if vis_save_pdf: savePlot(vis_prefix,fmt="pdf")
-    # if vis_save_png: savePlot(vis_prefix,fmt="png")
+    if vis_save_pdf: savePlot(vis_prefix,fmt="pdf")
+    if vis_save_png: savePlot(vis_prefix,fmt="png")
     plt.show()
 
 def get_options():
@@ -61,8 +61,8 @@ def get_options():
         else: options["atom_label"]=False
         if("T" in sys.argv[2]): options["triangle_label"]=True
         else: options["triangle_label"]=False
-        # if("s" in sys.argv[2]): options["save_pdf"]=True
-        # if("S" in sys.argv[2]): options["save_png"]=True
+        if("s" in sys.argv[2]): options["save_pdf"]=True
+        if("S" in sys.argv[2]): options["save_png"]=True
     return options
 
 def updateParams():
@@ -126,11 +126,11 @@ def plot_triangle_network(data,show_x,show_m,atom_label,tri_label,fig,ax):
     # Plot x atoms
     if show_x:
         x_crds=crds[unit_x.flatten()]
-        ax.scatter(x_crds[:,0],x_crds[:,1], facecolor="red", edgecolor="black", alpha=0.5, s=10, zorder=2)
+        ax.scatter(x_crds[:,0],x_crds[:,1], facecolor="red", edgecolor="black", alpha=0.8, s=10, zorder=2)
     # Plot m atoms
     if show_m:
         m_crds=crds[unit_m]
-        ax.scatter(m_crds[:,0],m_crds[:,1], facecolor="yellow", edgecolor="black", alpha=0.5, s=10, zorder=2)
+        ax.scatter(m_crds[:,0],m_crds[:,1], facecolor="yellow", edgecolor="black", alpha=0.8, s=10, zorder=2)
 
     # Make labels
     if atom_label:
@@ -245,7 +245,7 @@ def generate_colours(ring_sizes):
 
 def savePlot(prefix,fmt="pdf"):
     filename="{0}.{1}".format(prefix,fmt)
-    plt.savefig(filename, dpi=800, bbox_inches="tight")
+    plt.savefig(filename, dpi=400, bbox_inches="tight")
 
 if __name__=="__main__":
     main()

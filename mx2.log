@@ -1,4 +1,4 @@
-Simulation run: Wed Jul 11 11:25:00 2018
+Simulation run: Thu Jul 12 10:03:25 2018
 
 Grows MX2 Aperiodic Networks                    
 Written By: David OM, Wilson Group, 2018                    
@@ -21,8 +21,21 @@ Loading network
     Additional connections read from: ./input_files/6_connections.out
 Load complete                           
 ----------------------------------------------------------------------
-Network growth begun after 0 seconds
-Network growth complete                    
+Monte Carlo process                     
+    Network growth begun after 0 seconds
+        All rings built, time elapsed:  2 seconds
+    Network growth complete                    
+    Monte Carlo monitoring                    
+        Ring proposal probabilities                    
+            4         5         6         7         8         9         10        
+            0.114754  0.147541  0.147541  0.147541  0.147541  0.147541  0.147541  
+        Ring proposal probabilities within expected range                    
+        Geometry optimisation monitoring                    
+            Average iterations: 1488.07             
+            Number of times iteration limit reached: 0                   
+        Iteration limit satisfactory                    
+    Monitoring analysis complete                    
+Monte Carlo process complete                    
 ----------------------------------------------------------------------
 Analysing network                       
     Network checked for unit overlap                    
@@ -30,16 +43,16 @@ Analysing network
 Analysis complete                       
 ----------------------------------------------------------------------
 Writing network                         
-    Atoms written to:   ./output_files/testtt_atoms.out
-    Units written to:   ./output_files/testtt_units.out
-    Rings written to:   ./output_files/testtt_rings.out
-    Additional connections written to: ./output_files/testtt_connections.out
+    Atoms written to:   ./output_files/test_atoms.out
+    Units written to:   ./output_files/test_units.out
+    Rings written to:   ./output_files/test_rings.out
+    Additional connections written to: ./output_files/test_connections.out
 Write complete                          
 ----------------------------------------------------------------------
 Writing network analysis                    
-    Ring statistics written to: ./output_files/testtt_analysis.out
-    Aboav-Weaire parameters written to: ./output_files/testtt_analysis.out
+    Ring statistics written to: ./output_files/test_analysis.out
+    Aboav-Weaire parameters written to: ./output_files/test_analysis.out
 Writing complete                        
 ----------------------------------------------------------------------
-Simulation complete: Wed Jul 11 11:25:05 2018
+Simulation complete: Thu Jul 12 10:03:28 2018
 

@@ -134,7 +134,7 @@ int SteepestDescentArmijo<PotModel>::operator()(PotModel &model, double &energy,
 //        cout<<i<<" "<<energy<<" "<<deltaE<<endl;
     }
 
-    cout<<"iterations "<<iterations<<" energy "<<energy<<endl;
+//    cout<<"iterations "<<iterations<<" energy "<<energy<<endl;
 
     //update coordinates
     for(int i=0; i<crds.n; ++i) crdsIn[i]=crds[i];

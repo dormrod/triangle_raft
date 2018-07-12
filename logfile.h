@@ -8,6 +8,7 @@
 #include <chrono>
 #include <vector>
 #include "easyIO.h"
+#include "col_vector.h"
 
 using namespace std;
 
@@ -55,6 +56,14 @@ public:
     };
     template <typename T>
     void log(vector<T> values, int indent, bool linebreak){
+        ofstream file(filename,ios::in|ios::app);
+        for(int i=0; i<indent; ++i) writeFileIndent(file);
+        writeFileVector(file,values);
+        if(linebreak) writeFileDashedLine(file);
+        file.close();
+    };
+    template <typename T>
+    void log(col_vector<T> values, int indent, bool linebreak){
         ofstream file(filename,ios::in|ios::app);
         for(int i=0; i<indent; ++i) writeFileIndent(file);
         writeFileVector(file,values);

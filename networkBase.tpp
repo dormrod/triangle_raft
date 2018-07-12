@@ -30,6 +30,12 @@ double Network<CrdT>::getEnergy() {
 }
 
 template <typename CrdT>
+int Network<CrdT>::getIterations() {
+    //return minimisation iterations
+    return optIterations;
+}
+
+template <typename CrdT>
 void Network<CrdT>::addAtom(Atom<CrdT> atom) {
     //add atom to network and update map
     atoms.push_back(atom);
@@ -413,7 +419,7 @@ void Network<CrdT>::calculateRingStatistics() {
 
     //calculate distributions for each ring size (excluding edge rings)
     int ringRef;
-    indRingStatistics.resize(ringStatistics.n);
+    indRingStatistics.clear();
     for(int i=0; i<ringStatistics.n; ++i){//loop over ring sizes
         int s=ringStatistics.x[i];
         ringSizes.clear();
@@ -426,16 +432,21 @@ void Network<CrdT>::calculateRingStatistics() {
                 }
             }
         }
-        DiscreteDistribution ringStats(ringSizes);
-        indRingStatistics[i]=ringStats;
+        if(ringSizes.size()>0){
+            DiscreteDistribution ringStats(ringSizes);
+            indRingStatistics[s]=ringStats;
+        }
     }
 
     //calculate aboav-weaire fit
-    vector<double> x(ringStatistics.n);
-    vector<double> y(ringStatistics.n);
+    vector<double> x;
+    vector<double> y;
     for(int i=0; i<ringStatistics.n; ++i){
-        x[i]=ringStatistics.mean*(ringStatistics.x[i]-ringStatistics.mean);
-        y[i]=ringStatistics.x[i]*indRingStatistics[i].mean;
+        int s=ringStatistics.x[i];
+        if(indRingStatistics.count(s)>0){
+            x.push_back(ringStatistics.mean*(s-ringStatistics.mean));
+            y.push_back(s*indRingStatistics[s].mean);
+        }
     }
     aboavWeaireParameters=leastSquaresLinearRegression(x,y);
     aboavWeaireParameters[0]=1.0-aboavWeaireParameters[0]; //alpha
@@ -472,8 +483,17 @@ void Network<CrdT>::writeAnalysis(string prefix, Logfile &logfile) {
     data.push_back(ringStatistics.mean);
     writeFileVector(analysisFile,data);
     for(int i=0; i<ringSizes.size(); ++i){
-        data=indRingStatistics[i].getProbabilities();
-        data.push_back(indRingStatistics[i].mean);
+        data.clear();
+        int s=ringSizes[i];
+        if(indRingStatistics.count(s)==0){
+            for(int j=0; j<ringSizes.size()+1; ++j) data.push_back(0.0);
+        }
+        else{
+            for(int j=0; j<ringSizes.size(); ++j){
+                data.push_back(indRingStatistics.at(s).getProbability(ringSizes[j]));
+            }
+            data.push_back(indRingStatistics.at(s).mean);
+        }
         writeFileVector(analysisFile,data);
     }
     logfile.log("Ring statistics written to: ",analysisFilename,"", 1, false);

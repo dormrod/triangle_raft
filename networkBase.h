@@ -40,7 +40,7 @@ protected:
     //Analysis
     bool unitOverlap; //check for overlap of units
     DiscreteDistribution ringStatistics; //ring size distribution for entire network
-    vector<DiscreteDistribution> indRingStatistics; //ring size distributions around each individual ring
+    map<int,DiscreteDistribution> indRingStatistics; //ring size distributions around each individual ring
     vector<double> aboavWeaireParameters; //alpha, mu and rsq
 
     //Methods
@@ -62,6 +62,7 @@ public:
     //Getters
     int getNRings();
     double getEnergy();
+    int getIterations();
 
     //Methods
     //Build Network

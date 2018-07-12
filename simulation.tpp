@@ -100,11 +100,17 @@ void Simulation<CrdT,NetT>::loadNetwork(Logfile &logfile) {
 template <typename CrdT, typename NetT>
 void Simulation<CrdT,NetT>::growNetwork(Logfile &logfile) {
     //grow network using monte carlo process
-    logfile.log("Network growth begun after","","sec",0,false);
+    logfile.log("Monte Carlo process","","",0,false);
+    logfile.log("Network growth begun after","","sec",1,false);
 
+    //initialise variables
     killGrowth=false;
     energyCutoff=100.0*potentialModel[0];
+    goMonitoring=col_vector<int>(3); //number of minimisations, total number of iterations, number of times iteration limit reached
+    mcMonitoring=col_vector<double>(nBasicRingSizes);
     int nRings=masterNetwork.getNRings();
+
+    //main loop
     if(nRings<nTargetRings){//only if network needs growing
         do{
             int activeUnit = selectActiveUnit();
@@ -113,7 +119,7 @@ void Simulation<CrdT,NetT>::growNetwork(Logfile &logfile) {
             ++nRings;
             if(nRings%100==0){
                 cout<<nRings<<endl;
-                logfile.log(to_string(nRings)+" rings, time elapsed: ","","sec",1,false);
+                logfile.log(to_string(nRings)+" rings, time elapsed: ","","sec",2,false);
             }
             cout<<nRings<<endl;
             if(killGrowth){
@@ -123,12 +129,39 @@ void Simulation<CrdT,NetT>::growNetwork(Logfile &logfile) {
             }
         }while(nRings<nTargetRings);
     }
+    logfile.log("All rings built, time elapsed: ","","sec",2,false);
+    logfile.log("Network growth complete","","",1,false);
+
+    //monitoring results
+    logfile.log("Monte Carlo monitoring","","",1,false);
+    logfile.log("Ring proposal probabilities","","",2,false);
+    vector<int> ringSizes(nBasicRingSizes);
+    for(int i=0, j=basicMinSize; i<nBasicRingSizes; ++i, ++j) ringSizes[i]=j;
+    mcMonitoring/=mcMonitoring.sum();
+    bool warning=false;
+    for(int i=0; i<nBasicRingSizes; ++i) if(mcMonitoring[i]<0.75/nBasicRingSizes) warning=true;
+    logfile.log(ringSizes,3,false);
+    logfile.log(mcMonitoring,3,false);
+    if(warning) logfile.log("Warning: large discrepancy in move proposal probability","","",2,false);
+    else logfile.log("Ring proposal probabilities within expected range","","",2,false);
+    logfile.log("Geometry optimisation monitoring","","",2,false);
+    logfile.log("Average iterations: ",double(goMonitoring[1])/double(goMonitoring[0]),"",3,false);
+    logfile.log("Number of times iteration limit reached: ",goMonitoring[2],"",3,false);
+    warning=false;
+    if(double(goMonitoring[2])/double(goMonitoring[0])>0.05) warning=true;
+    if(warning) logfile.log("Warning: iteration limit reached frequently","","",2,false);
+    else logfile.log("Iteration limit satisfactory","","",2,false);
+    logfile.log("Monitoring analysis complete","","",1,false);
+
+    //global geometry optimisation
     if(globalPostGO){
         logfile.log("Performing global geometry optimisation","","",1,false);
         masterNetwork.geometryOptimiseGlobal(potentialModel);
     }
-    logfile.log("Network growth complete","","",0,true);
+
+    logfile.log("Monte Carlo process complete","","",0,true);
 }
+
 
 template <typename CrdT, typename NetT>
 int Simulation<CrdT,NetT>::selectActiveUnit() {
@@ -170,9 +203,16 @@ void Simulation<CrdT,NetT>::addBasicRing(vector<int> unitPath) {
     trialEnergies.clear();
     for(int i=0, j=basicMinSize; i<nBasicRingSizes; ++i, ++j){
         if(j>unitPath.size()){
+            //trial ring
             masterNetwork.trialRing(j,unitPath,potentialModel);
             trialSizes.push_back(j);
             trialEnergies.push_back(masterNetwork.getEnergy());
+            //monitoring
+            mcMonitoring[i]+=1.0;
+            int iterations=masterNetwork.getIterations();
+            ++goMonitoring[0];
+            goMonitoring[1]+=iterations;
+            if(iterations==goMaxIterations) ++goMonitoring[2];
         }
     }
     int acceptedRing=monteCarlo.metropolis(trialEnergies);

@@ -28,6 +28,9 @@ private:
     bool globalPreGO, globalPostGO; //points for global optimisation
     int goMaxIterations, goLocalExtent; //for descent algorithm, size of local region
     double goLineSeachInc, goConvergence; //for descent algorithm
+    //Monitoring
+    col_vector<int> goMonitoring; //monitor geometry optimisation
+    col_vector<double> mcMonitoring; //monitor ring proposal frequency
 
     //Additional variables
     NetT masterNetwork; //main global network for simulation

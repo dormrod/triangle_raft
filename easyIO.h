@@ -9,6 +9,7 @@
 #include <string>
 #include <iomanip>
 #include <sstream>
+#include "col_vector.h"
 
 using namespace std;
 
@@ -68,6 +69,14 @@ template <typename T>
 void writeFileVector(ofstream &file, vector<T> values, int width=10){
     //write vector of values to file
     for(int i=0; i<values.size(); ++i){
+        file<<setw(width)<<left<<values[i];
+    }
+    file<<endl;
+}
+template <typename T>
+void writeFileVector(ofstream &file, col_vector<T> values, int width=10){
+    //write vector of values to file
+    for(int i=0; i<values.n; ++i){
         file<<setw(width)<<left<<values[i];
     }
     file<<endl;

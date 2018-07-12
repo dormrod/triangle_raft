@@ -52,6 +52,17 @@ vector<double> DiscreteDistribution::getProbabilities() {
     return probabilities;
 }
 
+double DiscreteDistribution::getProbability(int xValue) {
+    double probability=0.0;
+    for(int i=0; i<n; ++i){
+        if(xValue==x[i]){
+            probability=p[i];
+            break;
+        }
+    }
+    return probability;
+}
+
 vector<double> leastSquaresLinearRegression(vector<double> x, vector<double> y){
     //perform least squares linear regression and return gradient, intercept and r-squared
 

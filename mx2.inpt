@@ -1,6 +1,6 @@
 I0
 ./input_files/6                       input prefix
-./output_files/testtt        output prefix
+./output_files/test        output prefix
 -------------------------------------------------
 Network Properties
 10           number of rings
@@ -9,13 +9,13 @@ Network Properties
 -------------------------------------------------
 Monte Carlo Process
 0           random seed
-0.001     temperature
+0.0002     temperature
 -------------------------------------------------
 Potential Model
 1.0     1.0     M-X (k,r0)
 1.0     120.0   X-X (k,a0)
-1.0     180.0   M-M (k,a0)
-0.1     2.0     L-J (k,r0)
+0.0     180.0   M-M (k,a0)
+0.004     2.0     L-J (k,r0)
 -------------------------------------------------
 Minimisation Control
 0 0     global optimisation before/after simulation

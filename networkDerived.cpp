@@ -761,78 +761,98 @@ void NetworkCart2D::geometryOptimiseLocal(vector<double> &potentialModel) {
         bondR0.push_back(potentialModel[3]);
     }
 
-    //loop over neighbour triangle units to get M-M
+    //loop over m atoms and add M-M LJ interactions
     int mId1;
-    for(int i=0; i<flexLocalUnits.size(); ++i){
+    for(int i=0; i<flexLocalUnits.size()-1;++i){
         mId0=localAtomMap.at(units[flexLocalUnits[i]].atomM);
-        for(int j=0; j<units[flexLocalUnits[i]].units.n; ++j){
-            mId1=units[units[flexLocalUnits[i]].units.ids[j]].atomM;
-            mId1=localAtomMap.at(mId1);
-            if(mId0<mId1){//prevent double counting as reciprocal connections
-                bonds.push_back(mId0);
-                bonds.push_back(mId1);
-                bondK.push_back(potentialModel[4]);
-                bondR0.push_back(potentialModel[5]);
-//                cout<<globalAtomMap[mId0]<<" "<<globalAtomMap[mId1]<<endl;
-            }
+        for(int j=i+1; j<flexLocalUnits.size(); ++j){
+            mId1=localAtomMap.at(units[flexLocalUnits[j]].atomM);
+            repulsions.push_back(mId0);
+            repulsions.push_back(mId1);
+            repK.push_back(potentialModel[6]);
+            repR0.push_back(potentialModel[7]);
         }
-    }
-    for(int i=0; i<fixedLocalUnits.size(); ++i){
-        mId0=localAtomMap.at(units[fixedLocalUnits[i]].atomM);
-        for(int j=0; j<units[fixedLocalUnits[i]].units.n; ++j){
-            mId1=units[units[flexLocalUnits[i]].units.ids[j]].atomM;
-            if(localAtomMap.count(mId1)>0){//check in local region
-                mId1=localAtomMap.at(mId1);
-                if(mId0<mId1){//prevent double counting as reciprocal connections
-                    bonds.push_back(mId0);
-                    bonds.push_back(mId1);
-                    bondK.push_back(potentialModel[4]);
-                    bondR0.push_back(potentialModel[5]);
-//                    cout<<globalAtomMap[mId0]<<" "<<globalAtomMap[mId1]<<endl;
-                }
-            }
+        for(int j=0; j<fixedLocalUnits.size(); ++j){
+            mId1=localAtomMap.at(units[fixedLocalUnits[j]].atomM);
+            repulsions.push_back(mId0);
+            repulsions.push_back(mId1);
+            repK.push_back(potentialModel[6]);
+            repR0.push_back(potentialModel[7]);
         }
     }
 
-     //add lennard jones repulsions: m-m for non-adjacent and adjacent triangles
-    int m0, m1, mA, mB, mC;
-    for(int i=0; i<flexLocalUnits.size()-1; ++i){
-        m0=localAtomMap.at(units[flexLocalUnits[i]].atomM);
-        mA=localAtomMap.at(units[units[flexLocalUnits[i]].units.ids[0]].atomM);
-        mB=localAtomMap.at(units[units[flexLocalUnits[i]].units.ids[1]].atomM);
-        if(units[flexLocalUnits[i]].units.n==3) mC=localAtomMap.at(units[units[flexLocalUnits[i]].units.ids[1]].atomM);
-        else mC=-1;
-        for(int j=i+1; j<flexLocalUnits.size(); ++j){
-            m1=localAtomMap.at(units[flexLocalUnits[j]].atomM);
-            if(m1!=mA && m1!=mB && m1!=mC){//non-adjacent
-                repulsions.push_back(m0);
-                repulsions.push_back(m1);
-                repK.push_back(potentialModel[6]);
-                repR0.push_back(potentialModel[7]);
-            }
-//            else{//adjacent
+//    //loop over neighbour triangle units to get M-M
+//    int mId1;
+//    for(int i=0; i<flexLocalUnits.size(); ++i){
+//        mId0=localAtomMap.at(units[flexLocalUnits[i]].atomM);
+//        for(int j=0; j<units[flexLocalUnits[i]].units.n; ++j){
+//            mId1=units[units[flexLocalUnits[i]].units.ids[j]].atomM;
+//            mId1=localAtomMap.at(mId1);
+//            if(mId0<mId1){//prevent double counting as reciprocal connections
+//                bonds.push_back(mId0);
+//                bonds.push_back(mId1);
+//                bondK.push_back(potentialModel[4]);
+//                bondR0.push_back(potentialModel[5]);
+////                cout<<globalAtomMap[mId0]<<" "<<globalAtomMap[mId1]<<endl;
+//            }
+//        }
+//    }
+//    for(int i=0; i<fixedLocalUnits.size(); ++i){
+//        mId0=localAtomMap.at(units[fixedLocalUnits[i]].atomM);
+//        for(int j=0; j<units[fixedLocalUnits[i]].units.n; ++j){
+//            mId1=units[units[flexLocalUnits[i]].units.ids[j]].atomM;
+//            if(localAtomMap.count(mId1)>0){//check in local region
+//                mId1=localAtomMap.at(mId1);
+//                if(mId0<mId1){//prevent double counting as reciprocal connections
+//                    bonds.push_back(mId0);
+//                    bonds.push_back(mId1);
+//                    bondK.push_back(potentialModel[4]);
+//                    bondR0.push_back(potentialModel[5]);
+////                    cout<<globalAtomMap[mId0]<<" "<<globalAtomMap[mId1]<<endl;
+//                }
+//            }
+//        }
+//    }
+//
+//     //add lennard jones repulsions: m-m for non-adjacent and adjacent triangles
+//    int m0, m1, mA, mB, mC;
+//    for(int i=0; i<flexLocalUnits.size()-1; ++i){
+//        m0=localAtomMap.at(units[flexLocalUnits[i]].atomM);
+//        mA=localAtomMap.at(units[units[flexLocalUnits[i]].units.ids[0]].atomM);
+//        mB=localAtomMap.at(units[units[flexLocalUnits[i]].units.ids[1]].atomM);
+//        if(units[flexLocalUnits[i]].units.n==3) mC=localAtomMap.at(units[units[flexLocalUnits[i]].units.ids[1]].atomM);
+//        else mC=-1;
+//        for(int j=i+1; j<flexLocalUnits.size(); ++j){
+//            m1=localAtomMap.at(units[flexLocalUnits[j]].atomM);
+//            if(m1!=mA && m1!=mB && m1!=mC){//non-adjacent
 //                repulsions.push_back(m0);
 //                repulsions.push_back(m1);
 //                repK.push_back(potentialModel[6]);
-//                repR0.push_back(potentialModel[8]);
+//                repR0.push_back(potentialModel[7]);
 //            }
-        }
-        for(int j=0; j<fixedLocalUnits.size(); ++j){
-            m1=localAtomMap.at(units[fixedLocalUnits[j]].atomM);
-            if(m1!=mA && m1!=mB && m1!=mC){//non-adjacent
-                repulsions.push_back(m0);
-                repulsions.push_back(m1);
-                repK.push_back(potentialModel[6]);
-                repR0.push_back(potentialModel[7]);
-            }
-//            else{//adjacent
+////            else{//adjacent
+////                repulsions.push_back(m0);
+////                repulsions.push_back(m1);
+////                repK.push_back(potentialModel[6]);
+////                repR0.push_back(potentialModel[8]);
+////            }
+//        }
+//        for(int j=0; j<fixedLocalUnits.size(); ++j){
+//            m1=localAtomMap.at(units[fixedLocalUnits[j]].atomM);
+//            if(m1!=mA && m1!=mB && m1!=mC){//non-adjacent
 //                repulsions.push_back(m0);
 //                repulsions.push_back(m1);
 //                repK.push_back(potentialModel[6]);
-//                repR0.push_back(potentialModel[8]);
+//                repR0.push_back(potentialModel[7]);
 //            }
-        }
-    }
+////            else{//adjacent
+////                repulsions.push_back(m0);
+////                repulsions.push_back(m1);
+////                repK.push_back(potentialModel[6]);
+////                repR0.push_back(potentialModel[8]);
+////            }
+//        }
+//    }
 
     //set up model and optimise, alter line search increment if insufficient iterations
     HLJC2 potential(bonds,angles, repulsions, bondK, bondR0, repK, repR0, fixedLocalAtoms, interx);
