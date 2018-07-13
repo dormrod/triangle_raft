@@ -29,13 +29,11 @@ int main(){
     string geometry;
     int minBasicRingSize, maxBasicRingSize;
     int dimensionality;
-    double geometryParam;
     vector<int> basicRingSizeLimits;
     readFileSkipLines(inputFile,2); //skip
     readFileValue(inputFile,nTotalRings); //total rings in generated sample
     readFileRowVector(inputFile,basicRingSizeLimits,2);
     readFileValue(inputFile,geometry); //geometry code for sample
-    readFileValue(inputFile,geometryParam); //geometry specific parameters
     minBasicRingSize=basicRingSizeLimits[0];
     maxBasicRingSize=basicRingSizeLimits[1];
     if(geometry.substr(0,2)=="2D") dimensionality=2;
@@ -47,7 +45,7 @@ int main(){
     readFileValue(inputFile,randomSeed); //for random number generator
     readFileValue(inputFile,temperature); //for metropolis criteria
     //Potential
-    double kMX, r0MX, kXX, a0XX, kMM, a0MM, kLJ, r0LJ;
+    double kMX, r0MX, kXX, a0XX, kMM, a0MM, kLJ, r0LJ, kC, r0C;
     vector<double> potential;
     readFileSkipLines(inputFile,2); //skip
     readFileRowVector(inputFile,potential,2); //M-X
@@ -62,6 +60,9 @@ int main(){
     readFileRowVector(inputFile,potential,2); //L-J
     kLJ=potential[0];
     r0LJ=potential[1];
+    readFileRowVector(inputFile,potential,2); //Constraints
+    kC=potential[0];
+    r0C=potential[1];
     //Minimisation
     bool preOpt, postOpt;
     vector<bool> globalOpt;
@@ -83,23 +84,23 @@ int main(){
         simulation.setIO(inputPrefix, outputPrefix, logfile);
         simulation.setNP(nTotalRings, minBasicRingSize, maxBasicRingSize, geometry, logfile);
         simulation.setMC(randomSeed, temperature, logfile);
-        simulation.setPM(kMX, r0MX, kXX, a0XX, kMM, a0MM, kLJ, r0LJ, logfile);
+        simulation.setPM(kMX, r0MX, kXX, a0XX, kMM, a0MM, kLJ, r0LJ, kC, r0C, logfile);
         simulation.setGO(preOpt, postOpt, maxIt, lsInc, convTest, localSize, logfile);
 
         //run simulation
         simulation.run(logfile);
     }
-    else if(geometry=="3DCS") {
-        Simulation<Cart3D, NetworkCart3DS> simulation(logfile);
-        simulation.setIO(inputPrefix, outputPrefix, logfile);
-        simulation.setNP(nTotalRings, minBasicRingSize, maxBasicRingSize, geometry, logfile);
-        simulation.setMC(randomSeed, temperature, logfile);
-        simulation.setPM(kMX, r0MX, kXX, a0XX, kMM, a0MM, kLJ, r0LJ, logfile);
-        simulation.setGO(preOpt, postOpt, maxIt, lsInc, convTest, localSize, logfile);
-
-        //run simulation
-        simulation.run(logfile);
-    }
+//    else if(geometry=="3DS") {
+//        Simulation<Cart3D, NetworkCart3DS> simulation(logfile);
+//        simulation.setIO(inputPrefix, outputPrefix, logfile);
+//        simulation.setNP(nTotalRings, minBasicRingSize, maxBasicRingSize, geometry, logfile);
+//        simulation.setMC(randomSeed, temperature, logfile);
+//        simulation.setPM(kMX, r0MX, kXX, a0XX, kMM, a0MM, kLJ, r0LJ, kC, r0C, logfile);
+//        simulation.setGO(preOpt, postOpt, maxIt, lsInc, convTest, localSize, logfile);
+//
+//        //run simulation
+//        simulation.run(logfile);
+//    }
 
     return 0;
 }

@@ -1,5 +1,5 @@
-#ifndef MX2_NETWORK3DCS_H
-#define MX2_NETWORK3DCS_H
+#ifndef MX2_NETWORK3DS_H
+#define MX2_NETWORK3DS_H
 
 #include <iostream>
 #include <string>
@@ -29,10 +29,10 @@ public:
     NetworkCart3DS();
     NetworkCart3DS(string prefix, Logfile &logfile); //load network from files
 
-//    //Virtual Methods To Define
-//    void setGO(int it, double ls, double conv, int loc) override; //set up optimiser
-//    void geometryOptimiseGlobal(vector<double> &potentialModel) override; //optimise geometry with steepest descent
-//    void geometryOptimiseLocal(vector<double> &potentialModel) override; //optimise geometry with steepest descent
+    //Virtual Methods To Define
+    void setGO(int it, double ls, double conv, int loc) override; //set up optimiser
+    void geometryOptimiseGlobal(vector<double> &potentialModel) override; //optimise geometry with steepest descent
+    void geometryOptimiseLocal(vector<double> &potentialModel) override; //optimise geometry with steepest descent
 //    int getActiveUnit(string shape, double size) override; //find active unit within shape
 //    void buildRing(int ringSize, vector<int> &unitPath, vector<double> &potentialModel) override; //build a ring of given size
 //    void popRing(int ringSize, vector<int> &unitPath) override; //remove last built ring
@@ -43,4 +43,4 @@ public:
 };
 
 
-#endif //MX2_NETWORK3DCS_H
+#endif //MX2_NETWORK3DS_H

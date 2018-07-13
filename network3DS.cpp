@@ -1,4 +1,4 @@
-#include "network3DCS.h"
+#include "network3DS.h"
 
 //##### NETWORK CART 3D S #####
 NetworkCart3DS::NetworkCart3DS() {
@@ -233,4 +233,219 @@ void NetworkCart3DS::setCrds(map<int, int> &globalAtomMap, vector<double> &crds)
         atoms[id].coordinate.y=crds[3*i+1];
         atoms[id].coordinate.z=crds[3*i+2];
     }
+}
+
+void NetworkCart3DS::setGO(int it, double ls, double conv, int loc) {
+    //set up optimiser with geometry optimisation parameters
+    localExtent=loc;
+    defLineInc=ls;
+    optimiser=SteepestDescentArmijo<HLJC3S>(it,ls,conv);
+}
+
+void NetworkCart3DS::geometryOptimiseGlobal(vector<double> &potentialModel) {
+    //set up harmonic potential before passing to derived class
+
+    //reset potential information
+    vector<int> bonds, angles, repulsions, fixedAtoms, interx, constrainedAtoms;
+    vector<double>  bondK, bondR0, repK, repR0, conK, conR0, crds;
+    bonds.clear();
+    angles.clear();
+    repulsions.clear();
+    fixedAtoms.clear();
+    interx.clear();
+    constrainedAtoms.clear();
+    bondK.clear();
+    bondR0.clear();
+    repK.clear();
+    repR0.clear();
+
+    //get all atom coordinates
+    crds=getCrds();
+
+    //loop over triangle units to get M-X, X-X bonds
+    int mId0, xId0, xId1, xId2;
+    for(int i=0; i<nUnits; ++i){
+        mId0=units[i].atomM;
+        xId0=units[i].atomsX.ids[0];
+        xId1=units[i].atomsX.ids[1];
+        xId2=units[i].atomsX.ids[2];
+        //M-X
+        bonds.push_back(mId0);
+        bonds.push_back(xId0);
+        bondK.push_back(potentialModel[0]);
+        bondR0.push_back(potentialModel[1]);
+        bonds.push_back(mId0);
+        bonds.push_back(xId1);
+        bondK.push_back(potentialModel[0]);
+        bondR0.push_back(potentialModel[1]);
+        bonds.push_back(mId0);
+        bonds.push_back(xId2);
+        bondK.push_back(potentialModel[0]);
+        bondR0.push_back(potentialModel[1]);
+        //X-X
+        bonds.push_back(xId0);
+        bonds.push_back(xId1);
+        bondK.push_back(potentialModel[2]);
+        bondR0.push_back(potentialModel[3]);
+        bonds.push_back(xId0);
+        bonds.push_back(xId2);
+        bondK.push_back(potentialModel[2]);
+        bondR0.push_back(potentialModel[3]);
+        bonds.push_back(xId1);
+        bonds.push_back(xId2);
+        bondK.push_back(potentialModel[2]);
+        bondR0.push_back(potentialModel[3]);
+    }
+
+    //loop over all m atoms and add M-M LJ interactions
+    int mId1;
+    for(int i=0; i<nUnits-1;++i){
+        mId0=units[i].atomM;
+        for(int j=i+1; j<nUnits; ++j){
+            mId1=units[j].atomM;
+            repulsions.push_back(mId0);
+            repulsions.push_back(mId1);
+            repK.push_back(potentialModel[6]);
+            repR0.push_back(potentialModel[7]);
+        }
+    }
+
+    //add spherical constraints
+    for(int i=0; i<nAtoms; ++i){
+        constrainedAtoms.push_back(i);
+        conK.push_back(potentialModel[8]);
+        conR0.push_back(potentialModel[9]);
+    }
+
+    //set up model and optimise
+    HLJC3S potential(bonds,angles,repulsions,fixedAtoms,interx,constrainedAtoms,bondK,bondR0,repK,repR0,conK,conR0);
+    optimiser(potential, energy, optIterations, crds);
+
+    //update coordinates
+    setCrds(crds);
+}
+
+void NetworkCart3DS::geometryOptimiseLocal(vector<double> &potentialModel) {
+    //geometry optimise atoms only in local region
+
+    //reset potential information
+    vector<int> bonds, angles, repulsions, fixedAtoms, interx, constrainedAtoms;
+    vector<double>  bondK, bondR0, repK, repR0, conK, conR0, crds;
+    bonds.clear();
+    angles.clear();
+    repulsions.clear();
+    fixedAtoms.clear();
+    interx.clear();
+    constrainedAtoms.clear();
+    bondK.clear();
+    bondR0.clear();
+    repK.clear();
+    repR0.clear();
+
+    //get local region
+    findLocalRegion(rings.rbegin()[0].id,localExtent);
+
+    //get local atom coordinates
+    crds=getCrds(globalAtomMap,nLocalAtoms);
+
+    //loop over triangle units to get M-X, X-X bonds
+    int mId0, xId0, xId1, xId2;
+    for(int i=0; i<flexLocalUnits.size(); ++i){
+        mId0=localAtomMap.at(units[flexLocalUnits[i]].atomM);
+        xId0=localAtomMap.at(units[flexLocalUnits[i]].atomsX.ids[0]);
+        xId1=localAtomMap.at(units[flexLocalUnits[i]].atomsX.ids[1]);
+        xId2=localAtomMap.at(units[flexLocalUnits[i]].atomsX.ids[2]);
+        //M-X
+        bonds.push_back(mId0);
+        bonds.push_back(xId0);
+        bondK.push_back(potentialModel[0]);
+        bondR0.push_back(potentialModel[1]);
+        bonds.push_back(mId0);
+        bonds.push_back(xId1);
+        bondK.push_back(potentialModel[0]);
+        bondR0.push_back(potentialModel[1]);
+        bonds.push_back(mId0);
+        bonds.push_back(xId2);
+        bondK.push_back(potentialModel[0]);
+        bondR0.push_back(potentialModel[1]);
+        //X-X
+        bonds.push_back(xId0);
+        bonds.push_back(xId1);
+        bondK.push_back(potentialModel[2]);
+        bondR0.push_back(potentialModel[3]);
+        bonds.push_back(xId0);
+        bonds.push_back(xId2);
+        bondK.push_back(potentialModel[2]);
+        bondR0.push_back(potentialModel[3]);
+        bonds.push_back(xId1);
+        bonds.push_back(xId2);
+        bondK.push_back(potentialModel[2]);
+        bondR0.push_back(potentialModel[3]);
+    }
+    for(int i=0; i<fixedLocalUnits.size(); ++i){
+        mId0=localAtomMap.at(units[fixedLocalUnits[i]].atomM);
+        xId0=localAtomMap.at(units[fixedLocalUnits[i]].atomsX.ids[0]);
+        xId1=localAtomMap.at(units[fixedLocalUnits[i]].atomsX.ids[1]);
+        xId2=localAtomMap.at(units[fixedLocalUnits[i]].atomsX.ids[2]);
+        //M-X
+        bonds.push_back(mId0);
+        bonds.push_back(xId0);
+        bondK.push_back(potentialModel[0]);
+        bondR0.push_back(potentialModel[1]);
+        bonds.push_back(mId0);
+        bonds.push_back(xId1);
+        bondK.push_back(potentialModel[0]);
+        bondR0.push_back(potentialModel[1]);
+        bonds.push_back(mId0);
+        bonds.push_back(xId2);
+        bondK.push_back(potentialModel[0]);
+        bondR0.push_back(potentialModel[1]);
+        //X-X
+        bonds.push_back(xId0);
+        bonds.push_back(xId1);
+        bondK.push_back(potentialModel[2]);
+        bondR0.push_back(potentialModel[3]);
+        bonds.push_back(xId0);
+        bonds.push_back(xId2);
+        bondK.push_back(potentialModel[2]);
+        bondR0.push_back(potentialModel[3]);
+        bonds.push_back(xId1);
+        bonds.push_back(xId2);
+        bondK.push_back(potentialModel[2]);
+        bondR0.push_back(potentialModel[3]);
+    }
+
+    //loop over m atoms and add M-M LJ interactions
+    int mId1;
+    for(int i=0; i<flexLocalUnits.size()-1;++i){
+        mId0=localAtomMap.at(units[flexLocalUnits[i]].atomM);
+        for(int j=i+1; j<flexLocalUnits.size(); ++j){
+            mId1=localAtomMap.at(units[flexLocalUnits[j]].atomM);
+            repulsions.push_back(mId0);
+            repulsions.push_back(mId1);
+            repK.push_back(potentialModel[6]);
+            repR0.push_back(potentialModel[7]);
+        }
+        for(int j=0; j<fixedLocalUnits.size(); ++j){
+            mId1=localAtomMap.at(units[fixedLocalUnits[j]].atomM);
+            repulsions.push_back(mId0);
+            repulsions.push_back(mId1);
+            repK.push_back(potentialModel[6]);
+            repR0.push_back(potentialModel[7]);
+        }
+    }
+
+    //add spherical constraints
+    for(int i=0; i<nLocalAtoms; ++i){
+        constrainedAtoms.push_back(i);
+        conK.push_back(potentialModel[8]);
+        conR0.push_back(potentialModel[9]);
+    }
+
+    //set up model and optimise
+    HLJC3S potential(bonds,angles,repulsions,fixedAtoms,interx,constrainedAtoms,bondK,bondR0,repK,repR0,conK,conR0);
+    optimiser(potential, energy, optIterations, crds);
+
+    //update coordinates
+    setCrds(crds);
 }

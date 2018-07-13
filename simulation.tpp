@@ -41,9 +41,9 @@ void Simulation<CrdT,NetT>::setMC(int seed, double temperature, Logfile &logfile
 }
 
 template <typename CrdT, typename NetT>
-void Simulation<CrdT,NetT>::setPM(double kMX, double r0MX, double kXX, double a0XX, double kMM, double a0MM, double kLJ, double r0LJ, Logfile &logfile) {
+void Simulation<CrdT,NetT>::setPM(double kMX, double r0MX, double kXX, double a0XX, double kMM, double a0MM, double kLJ, double r0LJ, double kC, double r0C, Logfile &logfile) {
     //set potential model as M-X, X-X, M-M k and r0 values for harmonics
-    potentialModel.resize(8);
+    potentialModel.resize(10);
     potentialModel[0]=kMX;
     potentialModel[1]=r0MX;
     potentialModel[2]=kXX;
@@ -56,6 +56,9 @@ void Simulation<CrdT,NetT>::setPM(double kMX, double r0MX, double kXX, double a0
     potentialModel[6]=kLJ;
     potentialModel[7]=r0LJ;
 //    potentialModel[8]=2.0*sqrt(pow(r0MX,2)-pow(potentialModel[3]*0.5,2));
+    //geometry specific parameters
+    potentialModel[8]=kC;
+    potentialModel[9]=r0C;
     logfile.log("Initialised: ","potential model","",1,false);
 }
 
