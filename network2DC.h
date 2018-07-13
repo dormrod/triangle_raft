@@ -1,5 +1,5 @@
-#ifndef MX2_NETWORKDERIVED_H
-#define MX2_NETWORKDERIVED_H
+#ifndef MX2_NETWORK2DC_H
+#define MX2_NETWORK2DC_H
 
 #include <iostream>
 #include <string>
@@ -41,5 +41,4 @@ public:
     void checkOverlap() override; //check for overlap
 };
 
-
-#endif //MX2_NETWORKDERIVED_H
+#endif //MX2_NETWORK2DC_H

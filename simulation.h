@@ -5,7 +5,8 @@
 #include <string>
 #include "logfile.h"
 #include "monteCarlo.h"
-#include "networkDerived.h"
+#include "network2DC.h"
+#include "network3DCS.h"
 
 using namespace std;
 

@@ -29,11 +29,13 @@ int main(){
     string geometry;
     int minBasicRingSize, maxBasicRingSize;
     int dimensionality;
+    double geometryParam;
     vector<int> basicRingSizeLimits;
     readFileSkipLines(inputFile,2); //skip
     readFileValue(inputFile,nTotalRings); //total rings in generated sample
     readFileRowVector(inputFile,basicRingSizeLimits,2);
     readFileValue(inputFile,geometry); //geometry code for sample
+    readFileValue(inputFile,geometryParam); //geometry specific parameters
     minBasicRingSize=basicRingSizeLimits[0];
     maxBasicRingSize=basicRingSizeLimits[1];
     if(geometry.substr(0,2)=="2D") dimensionality=2;
@@ -75,16 +77,29 @@ int main(){
     postOpt=globalOpt[1];
     inputFile.close();
 
-    //set up simulation
-    Simulation<Cart2D,NetworkCart2D> simulation(logfile);
-    simulation.setIO(inputPrefix,outputPrefix,logfile);
-    simulation.setNP(nTotalRings,minBasicRingSize,maxBasicRingSize,geometry,logfile);
-    simulation.setMC(randomSeed,temperature,logfile);
-    simulation.setPM(kMX,r0MX,kXX,a0XX,kMM,a0MM,kLJ,r0LJ,logfile);
-    simulation.setGO(preOpt,postOpt,maxIt,lsInc,convTest,localSize,logfile);
+    //set up simulation of correct geometry
+    if(geometry=="2DC") {
+        Simulation<Cart2D, NetworkCart2D> simulation(logfile);
+        simulation.setIO(inputPrefix, outputPrefix, logfile);
+        simulation.setNP(nTotalRings, minBasicRingSize, maxBasicRingSize, geometry, logfile);
+        simulation.setMC(randomSeed, temperature, logfile);
+        simulation.setPM(kMX, r0MX, kXX, a0XX, kMM, a0MM, kLJ, r0LJ, logfile);
+        simulation.setGO(preOpt, postOpt, maxIt, lsInc, convTest, localSize, logfile);
 
-    //run simulation
-    simulation.run(logfile);
+        //run simulation
+        simulation.run(logfile);
+    }
+    else if(geometry=="3DCS") {
+        Simulation<Cart3D, NetworkCart3DS> simulation(logfile);
+        simulation.setIO(inputPrefix, outputPrefix, logfile);
+        simulation.setNP(nTotalRings, minBasicRingSize, maxBasicRingSize, geometry, logfile);
+        simulation.setMC(randomSeed, temperature, logfile);
+        simulation.setPM(kMX, r0MX, kXX, a0XX, kMM, a0MM, kLJ, r0LJ, logfile);
+        simulation.setGO(preOpt, postOpt, maxIt, lsInc, convTest, localSize, logfile);
+
+        //run simulation
+        simulation.run(logfile);
+    }
 
     return 0;
 }

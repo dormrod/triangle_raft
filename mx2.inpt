@@ -4,8 +4,9 @@ I0
 -------------------------------------------------
 Network Properties
 10           number of rings
-4 10       basic ring size limits
+4 10        basic ring size limits
 2DC         geometry code
+100.0       geometry specific parameters
 -------------------------------------------------
 Monte Carlo Process
 0           random seed
@@ -15,7 +16,7 @@ Potential Model
 1.0     1.0     M-X (k,r0)
 1.0     120.0   X-X (k,a0)
 0.0     180.0   M-M (k,a0)
-0.004     2.0     L-J (k,r0)
+0.01     2.0     L-J (k,r0)
 -------------------------------------------------
 Minimisation Control
 0 0     global optimisation before/after simulation
