@@ -145,6 +145,34 @@ bool Network<CrdT>::checkEdgeUnit(int &uId, int ringCheck) {
 }
 
 template <typename CrdT>
+void Network<CrdT>::trialRing(int ringSize, vector<int> &unitPath, vector<double> &potentialModel) {
+    //build a ring of a given size to a starting path
+    //minimise and calculate energy
+    //remove ring
+
+    //build trial ring
+    buildRing(ringSize, unitPath, potentialModel);
+
+    //geometry optimise
+    geometryOptimiseLocal(potentialModel);
+//    geometryOptimiseGlobal(potentialModel);
+
+    //pop trial ring
+    popRing(ringSize, unitPath);
+
+}
+
+template <typename CrdT>
+void Network<CrdT>::acceptRing(int ringSize, vector<int> &unitPath, vector<double> &potentialModel) {
+    //build ring of given size to a starting path, minimise and calculate boundary
+
+    buildRing(ringSize, unitPath, potentialModel);
+    geometryOptimiseLocal(potentialModel);
+//    geometryOptimiseGlobal(potentialModel);
+    calculateBoundary();
+}
+
+template <typename CrdT>
 void Network<CrdT>::calculateBoundary() {
     //find units on boundary of network
     //follow units on edge, flag when traversed

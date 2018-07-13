@@ -86,6 +86,7 @@ struct Cart3D {
     double x, y, z;
     Cart3D();
     Cart3D(double xInit, double yInit, double zInit=0.0);
+    Cart3D(Cart2D c2d, double zInit=0.0);
 
     //overload operators
     Cart3D operator=(const Cart3D &c){
@@ -93,6 +94,12 @@ struct Cart3D {
         this->x=c.x;
         this->y=c.y;
         this->z=c.z;
+        return *this;
+    }
+    Cart3D operator=(const Cart2D &c){
+        this->x=c.x;
+        this->y=c.y;
+        this->z=0.0;
         return *this;
     }
     Cart3D operator+(const Cart3D &c){

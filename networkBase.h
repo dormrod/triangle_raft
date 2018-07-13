@@ -79,10 +79,11 @@ public:
     void delUnitUnitCnx(int uId1, int uId2);
     void delUnitRingCnx(int uId, int rId);
     void delRingRingCnx(int rId1, int rId2);
+    void trialRing(int ringSize, vector<int> &unitPath, vector<double> &potentialModel); //test a trial ring of given size
+    void acceptRing(int ringSize, vector<int> &unitPath, vector<double> &potentialModel); //accept a ring of given size
     virtual void buildRing(int ringSize, vector<int> &unitPath, vector<double> &potentialModel)=0; //build a ring of given size
     virtual void popRing(int ringSize, vector<int> &unitPath)=0; //remove last built ring
-    virtual void trialRing(int ringSize, vector<int> &unitPath, vector<double> &potentialModel)=0; //test a trial ring of given size
-    virtual void acceptRing(int ringSize, vector<int> &unitPath, vector<double> &potentialModel)=0; //accept a ring of given size
+    virtual bool checkGrowth()=0; //check to continue growth
     //Search Network
     vector<int> getBoundarySection(int startId, bool direction); //find section of unit boundary in given direction
     //Optimise Network

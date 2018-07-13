@@ -1,4 +1,4 @@
-Simulation run: Fri Jul 13 12:12:20 2018
+Simulation run: Fri Jul 13 15:35:36 2018
 
 Grows MX2 Aperiodic Networks                    
 Written By: David OM, Wilson Group, 2018                    
@@ -15,45 +15,11 @@ Initialising network parameters
 Intialisation complete                    
 ----------------------------------------------------------------------
 Loading network                         
-    Atoms read from:    ./output_files/test_atoms.out
-    Units read from:    ./output_files/test_units.out
-    Rings read from:    ./output_files/test_rings.out
-    Additional connections read from: ./output_files/test_connections.out
+    Atoms read from:    ./input_files/6_atoms.out
+    Units read from:    ./input_files/6_units.out
+    Rings read from:    ./input_files/6_rings.out
+    Additional connections read from: ./input_files/6_connections.out
 Load complete                           
 ----------------------------------------------------------------------
 Monte Carlo process                     
-    Network growth begun after 1 seconds
-        All rings built, time elapsed:  0 seconds
-    Network growth complete                    
-    Monte Carlo monitoring                    
-        Ring proposal probabilities                    
-            4         5         6         7         8         9         10        
-            nan       nan       nan       nan       nan       nan       nan       
-        Ring proposal probabilities within expected range                    
-        Geometry optimisation monitoring                    
-            Average iterations: nan                 
-            Number of times iteration limit reached: 0                   
-        Iteration limit satisfactory                    
-    Monitoring analysis complete                    
-Monte Carlo process complete                    
-----------------------------------------------------------------------
-Analysing network                       
-    Network checked for unit overlap                    
-    Ring statistics calculated                    
-Analysis complete                       
-----------------------------------------------------------------------
-Writing network                         
-    Atoms written to:   ./output_files/test3ds_atoms.out
-    Units written to:   ./output_files/test3ds_units.out
-    Rings written to:   ./output_files/test3ds_rings.out
-    Additional connections written to: ./output_files/test3ds_connections.out
-    xyz file written to: ./output_files/test3ds.xyz
-Write complete                          
-----------------------------------------------------------------------
-Writing network analysis                    
-    Ring statistics written to: ./output_files/test3ds_analysis.out
-    Aboav-Weaire parameters written to: ./output_files/test3ds_analysis.out
-Writing complete                        
-----------------------------------------------------------------------
-Simulation complete: Fri Jul 13 12:12:21 2018
-
+    Network growth begun after 0 seconds

@@ -147,30 +147,6 @@ int NetworkCart2D::getActiveUnit(string shape, double size) {
     return unitId;
 }
 
-void NetworkCart2D::trialRing(int ringSize, vector<int> &unitPath, vector<double> &potentialModel) {
-    //build a ring of a given size to a starting path
-    //minimise and calculate energy
-    //remove ring
-
-    //build trial ring
-    buildRing(ringSize, unitPath, potentialModel);
-
-    //geometry optimise
-    geometryOptimiseLocal(potentialModel);
-
-    //pop trial ring
-    popRing(ringSize, unitPath);
-
-}
-
-void NetworkCart2D::acceptRing(int ringSize, vector<int> &unitPath, vector<double> &potentialModel) {
-    //build ring of given size to a starting path, minimise and calculate boundary
-
-    buildRing(ringSize, unitPath, potentialModel);
-    geometryOptimiseLocal(potentialModel);
-    calculateBoundary();
-}
-
 void NetworkCart2D::popRing(int ringSize, vector<int> &unitPath) {
     //remove last built ring
 
@@ -902,4 +878,9 @@ void NetworkCart2D::checkOverlap() {
             }
         }
     }
+}
+
+bool NetworkCart2D::checkGrowth() {
+    //placeholder
+    return false;
 }

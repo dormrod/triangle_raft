@@ -1,15 +1,15 @@
 I0
-./output_files/test ./input_files/6                       input prefix
-./output_files/test3ds        output prefix
+./input_files/6                       input prefix
+./output_files/test        output prefix
 -------------------------------------------------
 Network Properties
-50           number of rings
-4 10        basic ring size limits
+200           number of rings
+5 6        basic ring size limits
 3DS         geometry code
 -------------------------------------------------
 Monte Carlo Process
 0           random seed
-0.0002     temperature
+0.0001     temperature
 -------------------------------------------------
 Potential Model
 1.0     1.0     M-X (k,r0)

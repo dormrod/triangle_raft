@@ -60,6 +60,13 @@ Cart3D::Cart3D(double xInit, double yInit, double zInit) {
     return;
 }
 
+Cart3D::Cart3D(Cart2D c2d, double zInit) {
+    //coordinate from 2D coordinate
+    x=c2d.x;
+    y=c2d.y;
+    z=zInit;
+}
+
 double Cart3D::norm() {
     //get length of equivalent vector
 

@@ -35,10 +35,9 @@ public:
     int getActiveUnit(string shape, double size) override; //find active unit within shape
     void buildRing(int ringSize, vector<int> &unitPath, vector<double> &potentialModel) override; //build a ring of given size
     void popRing(int ringSize, vector<int> &unitPath) override; //remove last built ring
-    void trialRing(int ringSize, vector<int> &unitPath, vector<double> &potentialModel) override; //test a trial ring of given size
-    void acceptRing(int ringSize, vector<int> &unitPath, vector<double> &potentialModel) override; //accept a ring of given size
     void writeNetwork(string prefix, Logfile &logfile) override; //write network to files
     void checkOverlap() override; //check for overlap
+    bool checkGrowth() override; //check to continue growth
 };
 
 #endif //MX2_NETWORK2DC_H

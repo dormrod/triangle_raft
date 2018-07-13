@@ -447,24 +447,352 @@ void NetworkCart3DS::geometryOptimiseLocal(vector<double> &potentialModel) {
     optimiser(potential, energy, optIterations, crds);
 
     //update coordinates
-    setCrds(crds);
+    setCrds(globalAtomMap,crds);
+}
+
+bool NetworkCart3DS::checkGrowth() {
+    //check if any boundary atoms in negative z-direction, limits to hemisphere
+
+    int mId;
+    double z;
+    bool flag=false;
+    for(int i=0; i<boundaryUnits.size(); ++i){
+        mId=units[boundaryUnits[i]].atomM;
+        z=atoms[mId].coordinate.z;
+        if(z<0.0) flag=true;
+    }
+    return flag;
 }
 
 int NetworkCart3DS::getActiveUnit(string shape, double size){
-    return 0;
+//    find active unit within given shape, return -1 if cannot find
+
+    int unitId=-1;
+    int atomId; //id of atom with dangling bond
+
+    if(shape=="S") {//projected onto circle in x-y plane
+        Cart2D projection;
+        double rsq = size * size;
+        for (int i = 0; i < boundaryUnits.size(); ++i) {
+            atomId = boundaryStatus[i];
+            if (atomId >= 0) {
+                projection=atoms[atomId].coordinate.xyProjection();
+                if (projection.normSq() < rsq) {
+                    unitId = boundaryUnits[i];
+                    break;
+                }
+            }
+        }
+    }
+    return unitId;
 }
+
 void NetworkCart3DS::buildRing(int ringSize, vector<int> &unitPath, vector<double> &potentialModel){
+    //build a ring of a given size to a starting path
+
+    //calculate number of new species
+    int nNewTriangles=ringSize-unitPath.size();
+    int nNewM=nNewTriangles;
+    int nNewX=3*nNewM-1-nNewM;
+    int nNewX3=nNewTriangles;
+    int nNewX4=nNewX-nNewX3;
+
+    //set up ids for new species
+    int ringId=nRings;
+    vector<int> mAtomIds(nNewM), x3AtomIds(nNewX3), x4AtomIds(nNewX4), triIds(nNewTriangles);
+    for(int i=0; i<nNewTriangles; ++i) triIds[i]=nUnits+i;
+    for(int i=0; i<nNewM; ++i) mAtomIds[i]=nAtoms+i;
+    for(int i=0; i<nNewX3; ++i) x3AtomIds[i]=mAtomIds.rbegin()[0]+i+1;
+    for(int i=0; i<nNewX4; ++i) x4AtomIds[i]=x3AtomIds.rbegin()[0]+i+1;
+
+    //make new atoms
+    for(int i=0; i<nNewM; ++i){//m
+        Atom<Cart3D> atom(nAtoms,14,3);
+        addAtom(atom);
+    }
+    for(int i=0; i<nNewX3; ++i){//x3
+        Atom<Cart3D> atom(nAtoms,8,3);
+        addAtom(atom);
+    }
+    for(int i=0; i<nNewX4; ++i){//x4
+        Atom<Cart3D> atom(nAtoms,8,4);
+        addAtom(atom);
+    }
+    //increase coordination of dangling atoms in unit path
+    int atomIdL = boundaryStatus[find(boundaryUnits.begin(), boundaryUnits.end(), unitPath[0]) - boundaryUnits.begin()];
+    int atomIdR = boundaryStatus[find(boundaryUnits.begin(), boundaryUnits.end(), unitPath.rbegin()[0]) - boundaryUnits.begin()];
+    ++atoms[atomIdL].coordination;
+    ++atoms[atomIdR].coordination;
+
+    //make new triangles
+    for(int i=0; i<nNewTriangles; ++i){
+        Unit triangle(nUnits,3,3,3);
+        addUnit(triangle);
+    }
+    //assign m atoms and x3 atoms
+    for(int i=0; i<nNewTriangles; ++i){
+        units[triIds[i]].setAtomM(mAtomIds[i]);
+        addUnitAtomXCnx(triIds[i],x3AtomIds[i]);
+    }
+    //assign x4 atoms
+    for(int i=0; i<nNewTriangles; ++i){
+        if(i==0) addUnitAtomXCnx(triIds[i],atomIdL);
+        else addUnitAtomXCnx(triIds[i],x4AtomIds[i-1]);
+        if(i==nNewX4) addUnitAtomXCnx(triIds[i],atomIdR);
+        else addUnitAtomXCnx(triIds[i],x4AtomIds[i]);
+    }
+    //assign triangles
+    addUnitUnitCnx(triIds[0],unitPath[0]);
+    for(int i=0; i<nNewTriangles-1; ++i) addUnitUnitCnx(triIds[i],triIds[i+1]);
+    addUnitUnitCnx(triIds.rbegin()[0],unitPath.rbegin()[0]);
+
+    //make new ring
+    Ring ring(nRings,ringSize,ringSize);
+    addRing(ring);
+    //assign ring-units
+    for(int i=0; i<unitPath.size(); ++i) addUnitRingCnx(unitPath.rbegin()[i],ringId);
+    for(int i=0; i<nNewTriangles; ++i) addUnitRingCnx(triIds[i],ringId);
+    //assign ring-rings
+    vector<int> nbRings;
+    nbRings.clear();
+    for(int i=0; i<unitPath.size(); ++i){
+        for(int j=0; j<units[unitPath[i]].rings.n;++j){
+            nbRings.push_back(units[unitPath[i]].rings.ids[j]);
+        }
+    }
+    sort(nbRings.begin(), nbRings.end());
+    int prevRing=-1, currRing;
+    for(int i=0; i<nbRings.size(); ++i){
+        currRing=nbRings[i];
+        if(currRing!=prevRing && currRing!=ringId){
+            addRingRingCnx(currRing,ringId);
+            prevRing=currRing;
+        }
+    }
+
+    //generate new coordinates by projecting onto x-y plane, then offsetting in z-direction
+    //generate vectors
+    Cart2D uvPar, uvPer; //unit vectors parallel and perpendicular to L->R
+    uvPar=(atoms[atomIdR].coordinate-atoms[atomIdL].coordinate).xyProjection();
+    Cart2D vClockwise(uvPar.y,-uvPar.x);
+    Cart2D vAntiClockwise(-uvPar.y,uvPar.x);
+//    Cart2D dir=atoms[atomIdL].coordinate-atoms[units[unitPath[0]].atomM].coordinate;
+    Cart2D dir=((atoms[atomIdL].coordinate+atoms[atomIdR].coordinate)*0.5).xyProjection();
+    if(vClockwise*dir>0) uvPer=vClockwise;
+    else uvPer=vAntiClockwise;
+    double perLen, parLen; //lengths of original perpendicular and parallel vectors
+    uvPar.normalise(parLen);
+    uvPer.normalise(perLen);
+
+    if (nNewTriangles%2==0){
+        //generate polygon of x4 atoms, and then m and x3 atoms
+        Cart3D vx, vy;
+        vx=uvPar*parLen;
+        vy=Cart3D(uvPer*potentialModel[3],-potentialModel[3]);
+        //X4
+        int index=0;
+        Cart3D crd=atoms[atomIdL].coordinate;
+        for(int i=0; i<(nNewX4-1)/2; ++i){
+            crd+=vy;
+            atoms[x4AtomIds[index]].coordinate=crd;
+            ++index;
+        }
+        crd+=vx*0.5+vy;
+        atoms[x4AtomIds[index]].coordinate=crd;
+        ++index;
+        crd+=vx*0.5-vy;
+        for(int i=0; i<nNewX4/2; ++i){
+            atoms[x4AtomIds[index]].coordinate=crd;
+            ++index;
+            crd-=vy;
+        }
+        //M
+        index=0;
+        vx=uvPar*(parLen+potentialModel[1]);
+        crd=atoms[atomIdL].coordinate-uvPar*potentialModel[1]*0.5+vy*0.5;
+        for(int i=0; i<nNewM/2-1; ++i){
+            atoms[mAtomIds[index]].coordinate=crd;
+            ++index;
+            crd+=vy;
+        }
+        crd+=vy;
+        for(int i=0; i<2; ++i){
+            crd+=vx/3.0;
+            atoms[mAtomIds[index]].coordinate=crd;
+            ++index;
+        }
+        crd+=vx/3.0-vy*2.0;
+        for(int i=0; i<nNewM/2-1; ++i){
+            atoms[mAtomIds[index]].coordinate=crd;
+            ++index;
+            crd-=vy;
+        }
+        //X3
+        index=0;
+        vx=uvPar*(parLen+potentialModel[1]*3.0);
+        crd=atoms[atomIdL].coordinate-uvPar*potentialModel[1]*1.5+vy*0.5;
+        for(int i=0; i<nNewX3/2-1; ++i){
+            atoms[x3AtomIds[index]].coordinate=crd;
+            ++index;
+            crd+=vy;
+        }
+        crd+=vy*2.0;
+        for(int i=0; i<2; ++i){
+            crd+=vx/3.0;
+            atoms[x3AtomIds[index]].coordinate=crd;
+            ++index;
+        }
+        crd+=vx/3.0-vy*3.0;
+        for(int i=0; i<nNewX3/2-1; ++i){
+            atoms[x3AtomIds[index]].coordinate=crd;
+            ++index;
+            crd-=vy;
+        }
+    }
+    else if (nNewTriangles%2==1){
+        //generate polygon of x4 atoms, and then m and x3 atoms
+        int index=0;
+        Cart3D vx, vy;
+        vx=uvPar*parLen;
+        vy=Cart3D(uvPer*potentialModel[3],-potentialModel[3]);
+        //X4
+        Cart3D crd=atoms[atomIdL].coordinate;
+        for(int i=0; i<nNewX4/2; ++i){
+            crd+=vy;
+            atoms[x4AtomIds[index]].coordinate=crd;
+            ++index;
+        }
+        crd+=vx;
+        for(int i=0; i<nNewX4/2; ++i){
+            atoms[x4AtomIds[index]].coordinate=crd;
+            ++index;
+            crd-=vy;
+        }
+        //M
+        index=0;
+        vx=uvPar*(parLen+potentialModel[1]);
+        crd=atoms[atomIdL].coordinate-uvPar*potentialModel[1]*0.5+vy*0.5;
+        for(int i=0; i<(nNewM-1)/2; ++i){
+            atoms[mAtomIds[index]].coordinate=crd;
+            ++index;
+            crd+=vy;
+        }
+        crd+=vx*0.5;
+        atoms[mAtomIds[index]].coordinate=crd;
+        ++index;
+        crd+=vx*0.5-vy;
+        for(int i=0; i<(nNewM-1)/2; ++i){
+            atoms[mAtomIds[index]].coordinate=crd;
+            ++index;
+            crd-=vy;
+        }
+        //X3
+        index=0;
+        vx=uvPar*(parLen+potentialModel[1]*3.0);
+        crd=atoms[atomIdL].coordinate-uvPar*potentialModel[1]*1.5+vy*0.5;
+        for(int i=0; i<(nNewX3-1)/2; ++i){
+            atoms[x3AtomIds[index]].coordinate=crd;
+            ++index;
+            crd+=vy;
+        }
+        crd+=vx*0.5+vy;
+        atoms[x3AtomIds[index]].coordinate=crd;
+        ++index;
+        crd+=vx*0.5-vy*2.0;
+        for(int i=0; i<(nNewM-1)/2; ++i){
+            atoms[x3AtomIds[index]].coordinate=crd;
+            ++index;
+            crd-=vy;
+        }
+    }
     return;
 }
 void NetworkCart3DS::popRing(int ringSize, vector<int> &unitPath){
+     //remove last built ring
+
+    //calculate number of species
+    int nNewTriangles=ringSize-unitPath.size();
+    int nNewM=nNewTriangles;
+    int nNewX=3*nNewM-1-nNewM;
+
+    //remove atoms, units and ring
+    for(int i=0; i<nNewM; ++i) delAtom();
+    for(int i=0; i<nNewX; ++i) delAtom();
+    for(int i=0; i<nNewTriangles; ++i) delUnit();
+    delRing();
+
+    //decrease coordination of dangling atoms in unit path
+    int atomIdL = boundaryStatus[find(boundaryUnits.begin(), boundaryUnits.end(), unitPath[0]) - boundaryUnits.begin()];
+    int atomIdR = boundaryStatus[find(boundaryUnits.begin(), boundaryUnits.end(), unitPath.rbegin()[0]) - boundaryUnits.begin()];
+    --atoms[atomIdL].coordination;
+    --atoms[atomIdR].coordination;
+
+    //remove triangle-triangle connections
+    delUnitUnitCnx(unitPath[0],nUnits);
+    delUnitUnitCnx(unitPath.rbegin()[0],nUnits+nNewTriangles-1);
+
+    //remove triangle-ring connections
+    for(int i=0; i<unitPath.size(); ++i) delUnitRingCnx(unitPath[i],nRings);
+
+    //remove ring-ring connections
+    vector<int> nbRings;
+    nbRings.clear();
+    for(int i=0; i<unitPath.size(); ++i){
+        for(int j=0; j<units[unitPath[i]].rings.n;++j){
+            nbRings.push_back(units[unitPath[i]].rings.ids[j]);
+        }
+    }
+    sort(nbRings.begin(), nbRings.end());
+    int prevRing=-1, currRing;
+    for(int i=0; i<nbRings.size(); ++i){
+        currRing=nbRings[i];
+        if(currRing!=prevRing && currRing!=nRings){
+            delRingRingCnx(currRing,nRings);
+            prevRing=currRing;
+        }
+    }
     return;
 }
-void NetworkCart3DS::trialRing(int ringSize, vector<int> &unitPath, vector<double> &potentialModel){
-    return;
-}
-void NetworkCart3DS::acceptRing(int ringSize, vector<int> &unitPath, vector<double> &potentialModel){
-    return;
-}
+
 void NetworkCart3DS::checkOverlap(){
+     //check for overlap of any triangles by projecting onto x-y plane
+
+    unitOverlap=false;
+
+    //make list of all lines that make up triangles
+    int a, b, c;
+    vector<int> lines;
+    lines.clear();
+    for(int i=0; i<nUnits; ++i){
+        a=units[i].atomsX.ids[0];
+        b=units[i].atomsX.ids[1];
+        c=units[i].atomsX.ids[2];
+        lines.push_back(a);
+        lines.push_back(b);
+        lines.push_back(a);
+        lines.push_back(c);
+        lines.push_back(b);
+        lines.push_back(c);
+    }
+
+    //check overlap of all pairs of lines
+    int n=lines.size()/2;
+    double x0,x1,x2,x3,y0,y1,y2,y3;
+    for(int i=0; i<n-1; ++i){
+        x0=atoms[lines[2*i]].coordinate.x;
+        y0=atoms[lines[2*i]].coordinate.y;
+        x1=atoms[lines[2*i+1]].coordinate.x;
+        y1=atoms[lines[2*i+1]].coordinate.y;
+        for(int j=i+1; j<n; ++j){
+            x2=atoms[lines[2*j]].coordinate.x;
+            y2=atoms[lines[2*j]].coordinate.y;
+            x3=atoms[lines[2*j+1]].coordinate.x;
+            y3=atoms[lines[2*j+1]].coordinate.y;
+            if(properIntersectionLines(x0,y0,x1,y1,x2,y2,x3,y3)){
+                unitOverlap=true;
+                break;
+            }
+        }
+    }
     return;
 }
