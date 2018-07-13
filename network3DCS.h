@@ -18,12 +18,12 @@ protected:
     //Geometry Optimisation
     SteepestDescentArmijo<HLJC3S> optimiser;
 
-//    //Virtual Methods To Define
-//    vector<double> getCrds() override; //get all atom coordinates
-//    vector<double> getCrds(map<int,int> &globalAtomMap, int n); //get local atom coordinates
-//    void setCrds(vector<double> &crds) override; //set all atom coordinates
-//    void setCrds(map<int,int> &globalAtomMap, vector<double> &crds); //set all atom coordinates
-//
+    //Virtual Methods To Define
+    vector<double> getCrds() override; //get all atom coordinates
+    vector<double> getCrds(map<int,int> &globalAtomMap, int n); //get local atom coordinates
+    void setCrds(vector<double> &crds) override; //set all atom coordinates
+    void setCrds(map<int,int> &globalAtomMap, vector<double> &crds); //set all atom coordinates
+
 public:
     //Constructors
     NetworkCart3DS();

@@ -179,11 +179,58 @@ void NetworkCart3DS::writeNetwork(string prefix, Logfile &logfile) {
         atomFile<<atoms[i].element<<"  "<<atoms[i].coordinate.x<<"  "<<atoms[i].coordinate.y<<" "<<atoms[i].coordinate.z<<endl;
     }
     logfile.log("xyz file written to: ", xyzFilename, "", 1, false);
-    
+
     atomFile.close();
     unitFile.close();
     ringFile.close();
     cnxFile.close();
     xyzFile.close();
     logfile.log("Write complete","","",0,true);
+}
+
+vector<double> NetworkCart3DS::getCrds() {
+    //get all atom coordinates collapsed onto 1d
+    vector<double> crds;
+    crds.clear();
+    for(int i=0; i<nAtoms; ++i){
+        crds.push_back(atoms[i].coordinate.x);
+        crds.push_back(atoms[i].coordinate.y);
+        crds.push_back(atoms[i].coordinate.z);
+    }
+    return crds;
+}
+
+vector<double> NetworkCart3DS::getCrds(map<int, int> &globalAtomMap, int n) {
+    //get local atom coordinates collapsed onto 1d
+    vector<double> crds;
+    crds.clear();
+    int id;
+    for(int i=0; i<n; ++i){
+        id=globalAtomMap.at(i);
+        crds.push_back(atoms[id].coordinate.x);
+        crds.push_back(atoms[id].coordinate.y);
+        crds.push_back(atoms[id].coordinate.z);
+    }
+    return crds;
+}
+
+void NetworkCart3DS::setCrds(vector<double> &crds) {
+    //set all atom coordinates
+    for(int i=0; i<nAtoms; ++i){
+        atoms[i].coordinate.x=crds[3*i];
+        atoms[i].coordinate.y=crds[3*i+1];
+        atoms[i].coordinate.z=crds[3*i+2];
+    }
+}
+
+void NetworkCart3DS::setCrds(map<int, int> &globalAtomMap, vector<double> &crds) {
+    //set local atom coordinates
+    int n=crds.size()/3;
+    int id;
+    for(int i=0; i<n; ++i){
+        id=globalAtomMap.at(i);
+        atoms[id].coordinate.x=crds[3*i];
+        atoms[id].coordinate.y=crds[3*i+1];
+        atoms[id].coordinate.z=crds[3*i+2];
+    }
 }
