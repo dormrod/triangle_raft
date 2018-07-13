@@ -26,7 +26,7 @@ protected:
 public:
     //Constructors
     NetworkCart2D();
-    NetworkCart2D(string prefix, Logfile &logfile); //load network from files
+    NetworkCart2D(string prefix, Logfile &logfile, double additionalParams=0.0); //load network from files
 
     //Virtual Methods To Define
     void setGO(int it, double ls, double conv, int loc) override; //set up optimiser

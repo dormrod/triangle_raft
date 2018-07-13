@@ -5,7 +5,7 @@ NetworkCart2D::NetworkCart2D() {
     //default constructor
 }
 
-NetworkCart2D::NetworkCart2D(string prefix, Logfile &logfile):Network<Cart2D>() {
+NetworkCart2D::NetworkCart2D(string prefix, Logfile &logfile, double additionalParams):Network<Cart2D>() {
     //load network from files, except coordinate data
 
     //set up file names

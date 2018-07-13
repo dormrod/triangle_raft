@@ -94,7 +94,8 @@ void Simulation<CrdT,NetT>::loadNetwork(Logfile &logfile) {
     //read in network from file
 
     logfile.log("Intialisation complete","","",0,true);
-    masterNetwork=NetT(prefixIn,logfile);
+    if(dimensionality==2) masterNetwork=NetT(prefixIn,logfile);
+    else if(dimensionality==3) masterNetwork=NetT(prefixIn,logfile,potentialModel[9]);
     masterNetwork.setGO(goMaxIterations,goLineSeachInc,goConvergence,goLocalExtent);
     if(globalPreGO) masterNetwork.geometryOptimiseGlobal(potentialModel);
 }

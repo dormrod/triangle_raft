@@ -27,19 +27,20 @@ protected:
 public:
     //Constructors
     NetworkCart3DS();
-    NetworkCart3DS(string prefix, Logfile &logfile); //load network from files
+    NetworkCart3DS(string prefix, Logfile &logfile, double additionalParams=0.0); //load network from files
 
     //Virtual Methods To Define
     void setGO(int it, double ls, double conv, int loc) override; //set up optimiser
     void geometryOptimiseGlobal(vector<double> &potentialModel) override; //optimise geometry with steepest descent
     void geometryOptimiseLocal(vector<double> &potentialModel) override; //optimise geometry with steepest descent
-//    int getActiveUnit(string shape, double size) override; //find active unit within shape
-//    void buildRing(int ringSize, vector<int> &unitPath, vector<double> &potentialModel) override; //build a ring of given size
-//    void popRing(int ringSize, vector<int> &unitPath) override; //remove last built ring
-//    void trialRing(int ringSize, vector<int> &unitPath, vector<double> &potentialModel) override; //test a trial ring of given size
-//    void acceptRing(int ringSize, vector<int> &unitPath, vector<double> &potentialModel) override; //accept a ring of given size
     void writeNetwork(string prefix, Logfile &logfile) override; //write network to files
-//    void checkOverlap() override; //check for overlap
+
+    int getActiveUnit(string shape, double size) override; //find active unit within shape
+    void buildRing(int ringSize, vector<int> &unitPath, vector<double> &potentialModel) override; //build a ring of given size
+    void popRing(int ringSize, vector<int> &unitPath) override; //remove last built ring
+    void trialRing(int ringSize, vector<int> &unitPath, vector<double> &potentialModel) override; //test a trial ring of given size
+    void acceptRing(int ringSize, vector<int> &unitPath, vector<double> &potentialModel) override; //accept a ring of given size
+    void checkOverlap() override; //check for overlap
 };
 
 

@@ -90,17 +90,17 @@ int main(){
         //run simulation
         simulation.run(logfile);
     }
-//    else if(geometry=="3DS") {
-//        Simulation<Cart3D, NetworkCart3DS> simulation(logfile);
-//        simulation.setIO(inputPrefix, outputPrefix, logfile);
-//        simulation.setNP(nTotalRings, minBasicRingSize, maxBasicRingSize, geometry, logfile);
-//        simulation.setMC(randomSeed, temperature, logfile);
-//        simulation.setPM(kMX, r0MX, kXX, a0XX, kMM, a0MM, kLJ, r0LJ, kC, r0C, logfile);
-//        simulation.setGO(preOpt, postOpt, maxIt, lsInc, convTest, localSize, logfile);
-//
-//        //run simulation
-//        simulation.run(logfile);
-//    }
+    else if(geometry=="3DS") {
+        Simulation<Cart3D, NetworkCart3DS> simulation(logfile);
+        simulation.setIO(inputPrefix, outputPrefix, logfile);
+        simulation.setNP(nTotalRings, minBasicRingSize, maxBasicRingSize, geometry, logfile);
+        simulation.setMC(randomSeed, temperature, logfile);
+        simulation.setPM(kMX, r0MX, kXX, a0XX, kMM, a0MM, kLJ, r0LJ, kC, r0C, logfile);
+        simulation.setGO(preOpt, postOpt, maxIt, lsInc, convTest, localSize, logfile);
+
+        //run simulation
+        simulation.run(logfile);
+    }
 
     return 0;
 }

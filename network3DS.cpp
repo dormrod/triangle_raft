@@ -5,7 +5,7 @@ NetworkCart3DS::NetworkCart3DS() {
     //default constructor
 }
 
-NetworkCart3DS::NetworkCart3DS(string prefix, Logfile &logfile):Network<Cart3D>() {
+NetworkCart3DS::NetworkCart3DS(string prefix, Logfile &logfile, double additionalParams):Network<Cart3D>() {
     //load network from files, except coordinate data
 
     //set up file names
@@ -34,7 +34,7 @@ NetworkCart3DS::NetworkCart3DS(string prefix, Logfile &logfile):Network<Cart3D>(
     for(int i=0; i<dataD.size();++i){
         int elem=int(dataD[i][0]);
         int cnd=int(dataD[i][1]);
-        Cart3D crd = Cart3D(dataD[i][2], dataD[i][3]);
+        Cart3D crd = Cart3D(dataD[i][2], dataD[i][3], additionalParams); //set z coordinate as initial sphere radius
         Atom<Cart3D> atom(i,elem,cnd);
         atom.setCoordinate(crd);
         addAtom(atom);
@@ -176,7 +176,7 @@ void NetworkCart3DS::writeNetwork(string prefix, Logfile &logfile) {
     writeFileValue(xyzFile,nAtoms,true);
     writeFileValue(xyzFile," ",true);
     for(int i=0; i<nAtoms; ++i){
-        atomFile<<atoms[i].element<<"  "<<atoms[i].coordinate.x<<"  "<<atoms[i].coordinate.y<<" "<<atoms[i].coordinate.z<<endl;
+        xyzFile<<atoms[i].element<<"  "<<atoms[i].coordinate.x<<"  "<<atoms[i].coordinate.y<<" "<<atoms[i].coordinate.z<<endl;
     }
     logfile.log("xyz file written to: ", xyzFilename, "", 1, false);
 
@@ -448,4 +448,23 @@ void NetworkCart3DS::geometryOptimiseLocal(vector<double> &potentialModel) {
 
     //update coordinates
     setCrds(crds);
+}
+
+int NetworkCart3DS::getActiveUnit(string shape, double size){
+    return 0;
+}
+void NetworkCart3DS::buildRing(int ringSize, vector<int> &unitPath, vector<double> &potentialModel){
+    return;
+}
+void NetworkCart3DS::popRing(int ringSize, vector<int> &unitPath){
+    return;
+}
+void NetworkCart3DS::trialRing(int ringSize, vector<int> &unitPath, vector<double> &potentialModel){
+    return;
+}
+void NetworkCart3DS::acceptRing(int ringSize, vector<int> &unitPath, vector<double> &potentialModel){
+    return;
+}
+void NetworkCart3DS::checkOverlap(){
+    return;
 }
