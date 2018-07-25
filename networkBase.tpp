@@ -482,6 +482,48 @@ void Network<CrdT>::calculateRingStatistics() {
 }
 
 template <typename CrdT>
+void Network<CrdT>::calculateBondDistributions() {
+    //calculate bond length/angle distributions
+
+    //M-X
+    vector<double> bondLengths;
+    bondLengths.clear();
+    int m,x;
+    CrdT crdM, crdX, crdMX;
+    for(int i=0; i<nUnits; ++i){
+        m=units[i].atomM;
+        crdM=atoms[m].coordinate;
+        for(int j=0; j<units[i].atomsX.n; ++j){
+            x=units[i].atomsX.ids[j];
+            crdX=atoms[x].coordinate;
+            crdMX=crdM-crdX;
+            bondLengths.push_back(crdMX.norm());
+        }
+    }
+    ContinuousDistribution bondLenMX(bondLengths);
+    bondLenDistMX=bondLenMX;
+
+    //X-X
+    bondLengths.clear();
+    int x0, x1;
+    CrdT crdX0, crdX1, crdXX;
+    for(int i=0; i<nUnits; ++i){
+        for(int j=0; j<units[i].atomsX.n-1; ++j){
+            x0=units[i].atomsX.ids[j];
+            crdX0=atoms[x0].coordinate;
+            for(int k=j+1; k<units[i].atomsX.n; ++k){
+                x1=units[i].atomsX.ids[k];
+                crdX1=atoms[x1].coordinate;
+                crdXX=crdX1-crdX0;
+                bondLengths.push_back(crdXX.norm());
+            }
+        }
+    }
+    ContinuousDistribution bondLenXX(bondLengths);
+    bondLenDistXX=bondLenXX;
+}
+
+template <typename CrdT>
 void Network<CrdT>::write(string prefix, Logfile &logfile) {
     //write network and analysis to files
     writeNetwork(prefix,logfile);

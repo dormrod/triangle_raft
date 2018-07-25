@@ -421,6 +421,10 @@ void NetworkCart2D::writeNetwork(string prefix, Logfile &logfile) {
     string unitFilename=prefix+"_units.out";
     string ringFilename=prefix+"_rings.out";
     string cnxFilename=prefix+"_connections.out";
+    string bilayerXyzFilename=prefix+"_bilayer.xyz";
+    string bilayerBoundaryFilename=prefix+"_bilayer_boundary.out";
+    string bilayerHarmPairsFilename=prefix+"_bilayer_harmpairs.out";
+    string bilayerLJPairsFilename=prefix+"_bilayer_ljpairs.out";
 
     //write out all atom, unit, ring and connection data
     logfile.log("Writing network","","",0,false);
@@ -428,6 +432,10 @@ void NetworkCart2D::writeNetwork(string prefix, Logfile &logfile) {
     ofstream unitFile(unitFilename, ios::in|ios::trunc);
     ofstream ringFile(ringFilename, ios::in|ios::trunc);
     ofstream cnxFile(cnxFilename, ios::in|ios::trunc);
+    ofstream biFile(bilayerXyzFilename, ios::in|ios::trunc);
+    ofstream biBoundaryFile(bilayerBoundaryFilename, ios::in|ios::trunc);
+    ofstream biHarmFile(bilayerHarmPairsFilename, ios::in|ios::trunc);
+    ofstream biLJFile(bilayerLJPairsFilename, ios::in|ios::trunc);
 
     //write atom element, coordination and x-y coordinate
     atomFile << fixed << showpoint << setprecision(6);
@@ -485,10 +493,186 @@ void NetworkCart2D::writeNetwork(string prefix, Logfile &logfile) {
 
     logfile.log("Additional connections written to: ", cnxFilename, "", 1, false);
 
+    //convert to bilayer
+    //set up maps, as will order M bottom, M top then X bottom, X middle, X top
+    int nM=0, nX=0, nBiM=0, nBiX=0; //number of M and X atoms in network and bilayer
+    map<int,int> biIdMap; //relate old id to id in bilayer
+    map<int,int> mirrorMapXX,mirrorMapMM,mirrorMapMX; //relate old id to mirror in bilayer
+    vector<int> mAtomIds, xAtomIds; //separate atom ids into types
+    mirrorMapMM.clear();
+    mirrorMapMX.clear();
+    mirrorMapXX.clear();
+    mAtomIds.clear();
+    xAtomIds.clear();
+    for(int i=0; i<nAtoms; ++i){
+        if(atoms[i].element==14) mAtomIds.push_back(i);
+        else if(atoms[i].element==8) xAtomIds.push_back(i);
+    }
+    nM=mAtomIds.size();
+    nX=xAtomIds.size();
+    nBiM=nM*2;
+    nBiX=nX*2+nM;
+    for(int i=0,j=nM,k=nBiM+nX; i<nM; ++i,++j,++k){
+        biIdMap[mAtomIds[i]]=i+1;
+        mirrorMapMM[mAtomIds[i]]=j+1;
+        mirrorMapMX[mAtomIds[i]]=k+1;
+    }
+    for(int i=0,j=nBiM,k=nBiM+nX+nM; i<nX; ++i,++j,++k){
+        biIdMap[xAtomIds[i]]=j+1;
+        mirrorMapXX[xAtomIds[i]]=k+1;
+    }
+    //set up geometry and make coordinates
+    double rMX=1.60;
+    double rXX=2.0*rMX*sin(cos(-1.0/3.0));
+    double h=rXX*sqrt(6.0)/3.0;
+    double sf=rXX/bondLenDistXX.mean;
+    Cart3D biCrd;
+    vector<Cart3D> bilayerMCrds,bilayerXCrds;
+    bilayerMCrds.clear();
+    bilayerXCrds.clear();
+    for(int i=0; i<nM; ++i){//M bottom
+        biCrd=Cart3D(atoms[mAtomIds[i]].coordinate*sf,0.0);
+        biCrd.z=h-rMX;
+        bilayerMCrds.push_back(biCrd);
+    }
+    for(int i=0; i<nM; ++i){//M top
+        biCrd=Cart3D(atoms[mAtomIds[i]].coordinate*sf,0.0);
+        biCrd.z=h+rMX;
+        bilayerMCrds.push_back(biCrd);
+    }
+    for(int i=0; i<nX; ++i){//X bottom
+        biCrd=Cart3D(atoms[xAtomIds[i]].coordinate*sf,0.0);
+        bilayerXCrds.push_back(biCrd);
+    }
+    for(int i=0; i<nM; ++i){//X middle
+        biCrd=Cart3D(atoms[mAtomIds[i]].coordinate*sf,h);
+        bilayerXCrds.push_back(biCrd);
+    }
+    for(int i=0; i<nX; ++i){//X top
+        biCrd=Cart3D(atoms[xAtomIds[i]].coordinate*sf,2.0*h);
+        bilayerXCrds.push_back(biCrd);
+    }
+    //find edge X atoms
+    vector<int> danglingX;
+    danglingX.clear();
+    int x0, x1;
+    for(int i=0; i<boundaryStatus.size(); ++i){
+        if(boundaryStatus[i]>=0){
+            x0=biIdMap.at(boundaryStatus[i]);
+            x1=mirrorMapXX.at(boundaryStatus[i]);
+            danglingX.push_back(x0);
+            danglingX.push_back(x1);
+        }
+    }
+    //set up lj and harmonic pairs
+    vector<int> ljMM, harmMX, harmXX;
+    ljMM.clear();
+    ljMM.clear();
+    harmMX.clear();
+    harmXX.clear();
+    int mL0, mL1, mU0, mU1; //metal atoms in lower and upper layers
+    for(int i=0; i<nUnits; ++i){//lj
+        mL0=biIdMap.at(units[i].atomM); //lower layer
+        mU0=mirrorMapMM.at(units[i].atomM); //upper layer
+        for(int j=0; j<units[i].units.n; ++j){//lower-lower
+            mL1=biIdMap.at(units[units[i].units.ids[j]].atomM);
+            if(mL0<mL1){//prevent double counting
+                ljMM.push_back(mL0);
+                ljMM.push_back(mL1);
+            }
+        }
+        for(int j=0; j<units[i].units.n; ++j){//upper-upper, need two loops for better positioning, speed not important here
+            mL1=biIdMap.at(units[units[i].units.ids[j]].atomM);
+            mU1=mirrorMapMM.at(units[units[i].units.ids[j]].atomM);
+            if(mL0<mL1){//prevent double counting
+                ljMM.push_back(mU0);
+                ljMM.push_back(mU1);
+            }
+        }
+        ljMM.push_back(mL0);//lower-upper
+        ljMM.push_back(mU0);
+    }
+    int xL0, xL1, xL2, xM, xU0, xU1, xU2; //x atoms in lower, middle and upper layers
+    for(int i=0; i<nUnits; ++i){//harmonic
+        mL0=biIdMap.at(units[i].atomM); //lower layer m
+        mU0=mirrorMapMM.at(units[i].atomM); //upper layer m
+        xM=mirrorMapMX.at(units[i].atomM); //middle layer x
+        xL0=biIdMap.at(units[i].atomsX.ids[0]);//lower layer x
+        xL1=biIdMap.at(units[i].atomsX.ids[1]);//lower layer x
+        xL2=biIdMap.at(units[i].atomsX.ids[2]);//lower layer x
+        xU0=mirrorMapXX.at(units[i].atomsX.ids[0]);//upper layer x
+        xU1=mirrorMapXX.at(units[i].atomsX.ids[1]);//upper layer x
+        xU2=mirrorMapXX.at(units[i].atomsX.ids[2]);//upper layer x
+        //lower M-X
+        harmMX.push_back(mL0);
+        harmMX.push_back(xL0);
+        harmMX.push_back(mL0);
+        harmMX.push_back(xL1);
+        harmMX.push_back(mL0);
+        harmMX.push_back(xL2);
+        harmMX.push_back(mL0);
+        harmMX.push_back(xM);
+        //upper M-X
+        harmMX.push_back(mU0);
+        harmMX.push_back(xU0);
+        harmMX.push_back(mU0);
+        harmMX.push_back(xU1);
+        harmMX.push_back(mU0);
+        harmMX.push_back(xU2);
+        harmMX.push_back(mU0);
+        harmMX.push_back(xM);
+        //lower X-X
+        harmXX.push_back(xM);
+        harmXX.push_back(xL0);
+        harmXX.push_back(xM);
+        harmXX.push_back(xL1);
+        harmXX.push_back(xM);
+        harmXX.push_back(xL2);
+        harmXX.push_back(xL0);
+        harmXX.push_back(xL1);
+        harmXX.push_back(xL0);
+        harmXX.push_back(xL2);
+        harmXX.push_back(xL1);
+        harmXX.push_back(xL2);
+        //upper X-X
+        harmXX.push_back(xM);
+        harmXX.push_back(xU0);
+        harmXX.push_back(xM);
+        harmXX.push_back(xU1);
+        harmXX.push_back(xM);
+        harmXX.push_back(xU2);
+        harmXX.push_back(xU0);
+        harmXX.push_back(xU1);
+        harmXX.push_back(xU0);
+        harmXX.push_back(xU2);
+        harmXX.push_back(xU1);
+        harmXX.push_back(xU2);
+    }
+    //write to files
+    biFile << fixed << showpoint << setprecision(6);
+    writeFileValue(biFile,nBiM+nBiX,true);
+    writeFileValue(biFile,"",true);
+    for(int i=0; i<bilayerMCrds.size(); ++i) biFile<<"Si"<<i+1<<"    "<<bilayerMCrds[i].x<<"     "<<bilayerMCrds[i].y<<"     "<<bilayerMCrds[i].z<<"     "<<endl;
+    for(int i=0; i<bilayerXCrds.size(); ++i) biFile<<"O"<<i+nBiM+1<<"    "<<bilayerXCrds[i].x<<"     "<<bilayerXCrds[i].y<<"     "<<bilayerXCrds[i].z<<"     "<<endl;
+//    for(int i=0; i<bilayerMCrds.size(); ++i) biFile<<"Si"<<"    "<<bilayerMCrds[i].x<<"     "<<bilayerMCrds[i].y<<"     "<<bilayerMCrds[i].z<<"     "<<endl;
+//    for(int i=0; i<bilayerXCrds.size(); ++i) biFile<<"O"<<"    "<<bilayerXCrds[i].x<<"     "<<bilayerXCrds[i].y<<"     "<<bilayerXCrds[i].z<<"     "<<endl;
+    writeFileValue(biBoundaryFile,danglingX.size()/2,true);
+    for(int i=0; i<danglingX.size()/2; ++i) writeFileValue(biBoundaryFile,danglingX[2*i],danglingX[2*i+1]);
+    writeFileValue(biLJFile,ljMM.size()/2,true);
+    for(int i=0; i<ljMM.size()/2; ++i) writeFileValue(biLJFile,ljMM[2*i],ljMM[2*i+1]);
+    writeFileValue(biHarmFile,harmMX.size()/2+harmXX.size()/2,true);
+    for(int i=0; i<harmMX.size()/2;++i) writeFileValue(biHarmFile,harmMX[2*i],harmMX[2*i+1]);
+    for(int i=0; i<harmXX.size()/2;++i) writeFileValue(biHarmFile,harmXX[2*i],harmXX[2*i+1]);
+
+
     atomFile.close();
     unitFile.close();
     ringFile.close();
     cnxFile.close();
+    biFile.close();
+    biBoundaryFile.close();
+    biHarmFile.close();
+    biLJFile.close();
     logfile.log("Write complete","","",0,true);
 }
 

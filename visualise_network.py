@@ -6,6 +6,7 @@ import matplotlib._color_data as mcd
 import matplotlib.colors as colors
 import matplotlib.pylab as pylab
 import numpy as np
+import os
 
 def main():
 
@@ -18,8 +19,7 @@ def main():
     vis_ring=vis_options.get("ring",False)
     vis_atom_label=vis_options.get("atom_label",False)
     vis_tri_label=vis_options.get("triangle_label",False)
-    # vis_atom_label=vis_options.get("atom_label",False)
-    # vis_ring_label=vis_options.get("ring_label",False)
+    vis_boundary=vis_options.get("boundary",False)
     vis_save_pdf=vis_options.get("save_pdf",False)
     vis_save_png=vis_options.get("save_png",False)
 
@@ -35,6 +35,8 @@ def main():
         plot_triangle_network(data,vis_x,vis_m,vis_atom_label,vis_tri_label,fig,ax)
     if vis_ring:
         plot_ring_network(data,fig,ax)
+    if vis_boundary:
+        plot_boundary(data,fig,ax)
 
     # Save and Show plot
     if vis_save_pdf: savePlot(vis_prefix,fmt="pdf")
@@ -61,6 +63,8 @@ def get_options():
         else: options["atom_label"]=False
         if("T" in sys.argv[2]): options["triangle_label"]=True
         else: options["triangle_label"]=False
+        if("b" in sys.argv[2]): options["boundary"]=True
+        else: options["boundary"]=False
         if("s" in sys.argv[2]): options["save_pdf"]=True
         if("S" in sys.argv[2]): options["save_png"]=True
     return options
@@ -80,6 +84,7 @@ def get_data(prefix):
     atom_filename = "{0}_atoms.out".format(prefix)
     unit_filename = "{0}_units.out".format(prefix)
     ring_filename = "{0}_rings.out".format(prefix)
+    boundary_filename = "{0}_boundary.out".format(prefix)
 
     data={}
     atoms=np.genfromtxt(atom_filename,dtype=float)
@@ -96,6 +101,9 @@ def get_data(prefix):
     ring_sizes=[]
     for r in rings: ring_sizes.append(r.size)
     ring_sizes=np.array(ring_sizes)
+    if os.path.isfile(boundary_filename):
+        boundary=np.genfromtxt(boundary_filename)
+    else: boundary=[]
 
     data["elements"]=elements
     data["coordination"]=coordination
@@ -104,6 +112,7 @@ def get_data(prefix):
     data["unit_x"]=units[:,1:]
     data["rings"]=rings
     data["ring_sizes"]=ring_sizes
+    data["boundary"]=boundary
 
     return data
 
@@ -184,6 +193,12 @@ def plot_ring_network(data,fig,ax):
     limUb=-limLb
     ax.set_xlim(limLb,limUb)
     ax.set_ylim(limLb,limUb)
+    return
+
+def plot_boundary(data,fix,ax):
+    #unpack
+    boundary=data.get("boundary")
+    ax.plot(boundary[:,0],boundary[:,1],lw=2)
     return
 
 def generate_polygon_commands(min, max):

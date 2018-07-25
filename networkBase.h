@@ -42,6 +42,7 @@ protected:
     DiscreteDistribution ringStatistics; //ring size distribution for entire network
     map<int,DiscreteDistribution> indRingStatistics; //ring size distributions around each individual ring
     vector<double> aboavWeaireParameters; //alpha, mu and rsq
+    ContinuousDistribution bondLenDistXX, bondLenDistMX; //bond length distributions
 
     //Methods
     virtual vector<double> getCrds()=0; //get all atom coordinates - virtual as have different number of variables and will be faster
@@ -91,6 +92,7 @@ public:
     virtual void geometryOptimiseLocal(vector<double> &potentialModel)=0;
     //Analyse Network
     void calculateRingStatistics(); //ring stats analysis
+    void calculateBondDistributions(); //bond len/angle distributions
     virtual void checkOverlap()=0; //check for overlap
 
     //Write Out

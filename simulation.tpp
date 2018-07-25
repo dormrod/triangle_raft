@@ -248,6 +248,9 @@ void Simulation<CrdT,NetT>::analyseNetwork(Logfile &logfile) {
     masterNetwork.calculateRingStatistics();
     logfile.log("Ring statistics calculated","","",1,false);
 
+    //bond distributions - not written out explicitly but used for bilayer formation
+    masterNetwork.calculateBondDistributions();
+
     logfile.log("Analysis complete","","",0,true);
 }
 

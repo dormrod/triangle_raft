@@ -63,6 +63,24 @@ double DiscreteDistribution::getProbability(int xValue) {
     return probability;
 }
 
+ContinuousDistribution::ContinuousDistribution() {
+    //default constructor
+}
+
+ContinuousDistribution::ContinuousDistribution(vector<double> values) {
+    //sort values and calculate mean
+
+    //set distribution values and size
+    sort(values.begin(),values.end());
+    n=values.size();
+    x=col_vector<double>(values);
+
+    //calculate mean
+    mean=0.0;
+    for(int i=0; i<n; ++i) mean+=x[i];
+    mean/=n;
+}
+
 vector<double> leastSquaresLinearRegression(vector<double> x, vector<double> y){
     //perform least squares linear regression and return gradient, intercept and r-squared
 

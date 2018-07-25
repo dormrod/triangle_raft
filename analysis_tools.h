@@ -33,6 +33,23 @@ struct DiscreteDistribution{
 
 };
 
+struct ContinuousDistribution{
+    //holds continuous probability distribution and statistics
+
+    //distribution variables
+    int n; //number of values
+    col_vector<double> x; //values
+
+    //statistics
+    double mean;
+
+    //constructors, destructors
+    ContinuousDistribution(); //default
+    ContinuousDistribution(vector<double> values);
+
+};
+
+
 //standalone functions
 vector<double> leastSquaresLinearRegression(vector<double> x, vector<double> y);
 
