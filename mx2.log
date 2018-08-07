@@ -1,4 +1,4 @@
-Simulation run: Tue Aug  7 10:01:11 2018
+Simulation run: Tue Aug  7 11:55:21 2018
 
 Grows MX2 Aperiodic Networks                    
 Written By: David OM, Wilson Group, 2018                    
@@ -24,43 +24,11 @@ Load complete
 ----------------------------------------------------------------------
 Monte Carlo process                     
     Network growth begun after 0 seconds
-        All rings built, time elapsed:  25 seconds
-    Network growth complete                    
-    Monte Carlo monitoring                    
-        Ring proposal probabilities                    
-            4         5         6         7         8         9         10        
-            0.0791139 0.14557   0.155063  0.155063  0.155063  0.155063  0.155063  
-        Warning: large discrepancy in move proposal probability                    
-        Geometry optimisation monitoring                    
-            Average iterations: 1313.47             
-            Number of times iteration limit reached: 1                   
-        Iteration limit satisfactory                    
-    Monitoring analysis complete                    
-Monte Carlo process complete                    
-----------------------------------------------------------------------
-Analysing network                       
-    Network checked for unit overlap                    
-    Ring statistics calculated                    
-Analysis complete                       
-----------------------------------------------------------------------
 Writing network                         
-    Atoms written to:   ./output_files/testt_atoms.out
-    Units written to:   ./output_files/testt_units.out
-    Rings written to:   ./output_files/testt_rings.out
-    Additional connections written to: ./output_files/testt_connections.out
+    Atoms written to:   ./output_files/test_atoms.out
+    Units written to:   ./output_files/test_units.out
+    Rings written to:   ./output_files/test_rings.out
+    Additional connections written to: ./output_files/test_connections.out
 Write complete                          
 ----------------------------------------------------------------------
-Writing network bilayer                    
-    XYZ data written to: ./output_files/testt_bilayer.xyz
-    Boundary information written to: ./output_files/testt_bilayer_boundary.out
-    Harmonic pairs written to: ./output_files/testt_bilayer_harmpairs.out
-    Lennard-Jones pairs written to: ./output_files/testt_bilayer_ljpairs.out
-Write complete                          
-----------------------------------------------------------------------
-Writing network analysis                    
-    Ring statistics written to: ./output_files/testt_analysis.out
-    Aboav-Weaire parameters written to: ./output_files/testt_analysis.out
-Writing complete                        
-----------------------------------------------------------------------
-Simulation complete: Tue Aug  7 10:01:37 2018
-
+Critical error at 11:55:42: Growth prematurely killed as no trial rings could be formed

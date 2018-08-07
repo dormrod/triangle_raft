@@ -145,7 +145,7 @@ bool Network<CrdT>::checkEdgeUnit(int &uId, int ringCheck) {
 }
 
 template <typename CrdT>
-void Network<CrdT>::trialRing(int ringSize, vector<int> &unitPath, vector<double> &potentialModel) {
+bool Network<CrdT>::trialRing(int ringSize, vector<int> &unitPath, vector<double> &potentialModel) {
     //build a ring of a given size to a starting path
     //minimise and calculate energy
     //remove ring
@@ -157,9 +157,13 @@ void Network<CrdT>::trialRing(int ringSize, vector<int> &unitPath, vector<double
     geometryOptimiseLocal(potentialModel);
 //    geometryOptimiseGlobal(potentialModel);
 
+    //check for geometry anomalies
+    bool geometryCheck=checkLocalGrowth(nRings-1);
+
     //pop trial ring
     popRing(ringSize, unitPath);
 
+    return geometryCheck;
 }
 
 template <typename CrdT>

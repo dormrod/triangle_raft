@@ -41,6 +41,7 @@ public:
     void popRing(int ringSize, vector<int> &unitPath) override; //remove last built ring
     void checkOverlap() override; //check for overlap
     bool checkGrowth() override; //check to continue growth
+    bool checkLocalGrowth(int rId) override; //check if acceptable local growth
 };
 
 

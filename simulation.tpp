@@ -141,6 +141,11 @@ void Simulation<CrdT,NetT>::growNetwork(Logfile &logfile) {
                 logfile.log("Growth constrained by geometry","","",2,false);
                 break;
             }
+            else if(killGrowth==3){
+                masterNetwork.writeNetwork(prefixOut,logfile);
+                logfile.errorlog("Growth prematurely killed as no trial rings could be formed","critical");
+                break;
+            }
         }while(nRings<nTargetRings);
     }
     logfile.log("All rings built, time elapsed: ","","sec",2,false);
@@ -213,27 +218,33 @@ void Simulation<CrdT,NetT>::addBasicRing(vector<int> unitPath) {
 
     vector<int> trialSizes;
     vector<double> trialEnergies;
+    bool trialFlag; //if geometrically acceptable ring
     trialSizes.clear();
     trialEnergies.clear();
     for(int i=0, j=basicMinSize; i<nBasicRingSizes; ++i, ++j){
         if(j>unitPath.size()){
             //trial ring
-            masterNetwork.trialRing(j,unitPath,potentialModel);
-            trialSizes.push_back(j);
-            trialEnergies.push_back(masterNetwork.getEnergy());
-            //monitoring
-            mcMonitoring[i]+=1.0;
-            int iterations=masterNetwork.getIterations();
-            ++goMonitoring[0];
-            goMonitoring[1]+=iterations;
-            if(iterations==goMaxIterations) ++goMonitoring[2];
+            trialFlag=masterNetwork.trialRing(j,unitPath,potentialModel);
+            if(trialFlag) {
+                trialSizes.push_back(j);
+                trialEnergies.push_back(masterNetwork.getEnergy());
+                //monitoring
+                mcMonitoring[i] += 1.0;
+                int iterations = masterNetwork.getIterations();
+                ++goMonitoring[0];
+                goMonitoring[1] += iterations;
+                if (iterations == goMaxIterations) ++goMonitoring[2];
+            }
         }
     }
-    int acceptedRing=monteCarlo.metropolis(trialEnergies);
-    if(trialEnergies[acceptedRing]>energyCutoff) killGrowth=1;
-    int acceptedSize=trialSizes[acceptedRing];
-    masterNetwork.acceptRing(acceptedSize,unitPath,potentialModel);
-    if(masterNetwork.checkGrowth()) killGrowth=2;
+    if(trialEnergies.size()==0) killGrowth=3;
+    else{
+        int acceptedRing=monteCarlo.metropolis(trialEnergies);
+        if(trialEnergies[acceptedRing]>energyCutoff) killGrowth=1;
+        int acceptedSize=trialSizes[acceptedRing];
+        masterNetwork.acceptRing(acceptedSize,unitPath,potentialModel);
+        if(masterNetwork.checkGrowth()) killGrowth=2;
+    }
 }
 //template <typename CrdT, typename NetT>
 //Simulation<CrdT,NetT>::

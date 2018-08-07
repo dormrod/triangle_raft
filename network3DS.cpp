@@ -469,6 +469,11 @@ bool NetworkCart3DS::checkGrowth() {
     return flag;
 }
 
+bool NetworkCart3DS::checkLocalGrowth(int rId) {
+    //placeholder
+    return true;
+}
+
 int NetworkCart3DS::getActiveUnit(string shape, double size){
 //    find active unit within given shape, return -1 if cannot find
 

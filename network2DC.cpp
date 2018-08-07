@@ -1084,3 +1084,61 @@ bool NetworkCart2D::checkGrowth() {
     //placeholder
     return false;
 }
+
+bool NetworkCart2D::checkLocalGrowth(int rId) {
+    //check overlap of triangles local to given ring
+
+    bool overlap=false;
+
+    //make list of unique local units
+    int rIdNb;
+    vector<int> uIds;
+    uIds.clear();
+    for(int i=0; i<rings[rId].units.n;++i) uIds.push_back(rings[rId].units.ids[i]);
+    for(int i=0; i<rings[rId].rings.n;++i){
+        rIdNb=rings[rId].rings.ids[i];
+        for(int j=0; j<rings[rIdNb].units.n; ++j){
+            uIds.push_back(rings[rIdNb].units.ids[j]);
+        }
+    }
+    sort(uIds.begin(), uIds.end());
+    uIds.erase(unique(uIds.begin(), uIds.end()), uIds.end());
+
+    //make list of all lines that make up triangles
+    int a, b, c;
+    vector<int> lines;
+    lines.clear();
+    for(int i=0; i<uIds.size(); ++i){
+        a=units[uIds[i]].atomsX.ids[0];
+        b=units[uIds[i]].atomsX.ids[1];
+        c=units[uIds[i]].atomsX.ids[2];
+        lines.push_back(a);
+        lines.push_back(b);
+        lines.push_back(a);
+        lines.push_back(c);
+        lines.push_back(b);
+        lines.push_back(c);
+    }
+
+    //check overlap of all pairs of lines
+    int n=lines.size()/2;
+    double x0,x1,x2,x3,y0,y1,y2,y3;
+    for(int i=0; i<n-1; ++i){
+        x0=atoms[lines[2*i]].coordinate.x;
+        y0=atoms[lines[2*i]].coordinate.y;
+        x1=atoms[lines[2*i+1]].coordinate.x;
+        y1=atoms[lines[2*i+1]].coordinate.y;
+        for(int j=i+1; j<n; ++j){
+            x2=atoms[lines[2*j]].coordinate.x;
+            y2=atoms[lines[2*j]].coordinate.y;
+            x3=atoms[lines[2*j+1]].coordinate.x;
+            y3=atoms[lines[2*j+1]].coordinate.y;
+            if(properIntersectionLines(x0,y0,x1,y1,x2,y2,x3,y3)){
+                overlap=true;
+                break;
+            }
+        }
+    }
+
+    return !overlap;
+}
