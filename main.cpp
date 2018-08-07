@@ -76,6 +76,10 @@ int main(){
     readFileValue(inputFile,localSize); //size of local region
     preOpt=globalOpt[0];
     postOpt=globalOpt[1];
+    //Additional options
+    bool bilayer;
+    readFileSkipLines(inputFile,2); //skip
+    readFileValue(inputFile,bilayer); //convert to bilayer
     inputFile.close();
 
     //set up simulation of correct geometry
@@ -86,6 +90,7 @@ int main(){
         simulation.setMC(randomSeed, temperature, logfile);
         simulation.setPM(kMX, r0MX, kXX, a0XX, kMM, a0MM, kLJ, r0LJ, kC, r0C, logfile);
         simulation.setGO(preOpt, postOpt, maxIt, lsInc, convTest, localSize, logfile);
+        simulation.setFO(bilayer,logfile);
 
         //run simulation
         simulation.run(logfile);
@@ -97,6 +102,7 @@ int main(){
         simulation.setMC(randomSeed, temperature, logfile);
         simulation.setPM(kMX, r0MX, kXX, a0XX, kMM, a0MM, kLJ, r0LJ, kC, r0C, logfile);
         simulation.setGO(preOpt, postOpt, maxIt, lsInc, convTest, localSize, logfile);
+        simulation.setFO(bilayer,logfile);
 
         //run simulation
         simulation.run(logfile);

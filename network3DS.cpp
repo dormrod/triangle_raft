@@ -188,6 +188,11 @@ void NetworkCart3DS::writeNetwork(string prefix, Logfile &logfile) {
     logfile.log("Write complete","","",0,true);
 }
 
+void NetworkCart3DS::writeNetworkSpecial(string prefix, Logfile &logfile) {
+    //placeholder
+    return;
+}
+
 vector<double> NetworkCart3DS::getCrds() {
     //get all atom coordinates collapsed onto 1d
     vector<double> crds;

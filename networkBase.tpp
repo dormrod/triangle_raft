@@ -267,7 +267,7 @@ void Network<CrdT>::calculateBoundary() {
                             cout<<"Boundary failed"<<endl;
 //                            consoleVector(boundaryUnits);
                             Logfile dump;
-                            write("dump",dump);
+                            write("dump",false,dump);
                             exit(9);
                         }
                     }
@@ -524,9 +524,10 @@ void Network<CrdT>::calculateBondDistributions() {
 }
 
 template <typename CrdT>
-void Network<CrdT>::write(string prefix, Logfile &logfile) {
+void Network<CrdT>::write(string prefix, bool special, Logfile &logfile) {
     //write network and analysis to files
     writeNetwork(prefix,logfile);
+    if(special) writeNetworkSpecial(prefix,logfile);
     writeAnalysis(prefix,logfile);
 }
 

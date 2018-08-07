@@ -74,6 +74,13 @@ void Simulation<CrdT,NetT>::setGO(bool global0, bool global1, int it, double ls,
     logfile.log("Initialised: ","geometry optimisation","",1,false);
 }
 
+template <typename CrdT, typename NetT>
+void Simulation<CrdT,NetT>::setFO(bool bi, Logfile &logfile) {
+    //set further options
+    convertToBilayer=bi;
+    logfile.log("Initialised: ","additional options","",1,false);
+}
+
 //##### MAIN #####
 template <typename CrdT, typename NetT>
 void Simulation<CrdT,NetT>::run(Logfile &logfile) {
@@ -258,7 +265,7 @@ void Simulation<CrdT,NetT>::analyseNetwork(Logfile &logfile) {
 template <typename CrdT, typename NetT>
 void Simulation<CrdT,NetT>::writeNetwork(Logfile &logfile) {
     //write network to file
-    masterNetwork.write(prefixOut,logfile);
+    masterNetwork.write(prefixOut,convertToBilayer,logfile);
 }
 //template <typename CrdT, typename NetT>
 //Simulation<CrdT,NetT>::

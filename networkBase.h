@@ -96,8 +96,9 @@ public:
     virtual void checkOverlap()=0; //check for overlap
 
     //Write Out
-    void write(string prefix, Logfile &logfile); //write out to files
+    void write(string prefix, bool special, Logfile &logfile); //write out to files
     virtual void writeNetwork(string prefix, Logfile &logfile)=0; //write network to files
+    virtual void writeNetworkSpecial(string prefix, Logfile &logfile)=0; //write network in different format
     void writeAnalysis(string prefix, Logfile &logfile); //write analysis out to files
 };
 

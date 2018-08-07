@@ -421,10 +421,6 @@ void NetworkCart2D::writeNetwork(string prefix, Logfile &logfile) {
     string unitFilename=prefix+"_units.out";
     string ringFilename=prefix+"_rings.out";
     string cnxFilename=prefix+"_connections.out";
-    string bilayerXyzFilename=prefix+"_bilayer.xyz";
-    string bilayerBoundaryFilename=prefix+"_bilayer_boundary.out";
-    string bilayerHarmPairsFilename=prefix+"_bilayer_harmpairs.out";
-    string bilayerLJPairsFilename=prefix+"_bilayer_ljpairs.out";
 
     //write out all atom, unit, ring and connection data
     logfile.log("Writing network","","",0,false);
@@ -432,10 +428,6 @@ void NetworkCart2D::writeNetwork(string prefix, Logfile &logfile) {
     ofstream unitFile(unitFilename, ios::in|ios::trunc);
     ofstream ringFile(ringFilename, ios::in|ios::trunc);
     ofstream cnxFile(cnxFilename, ios::in|ios::trunc);
-    ofstream biFile(bilayerXyzFilename, ios::in|ios::trunc);
-    ofstream biBoundaryFile(bilayerBoundaryFilename, ios::in|ios::trunc);
-    ofstream biHarmFile(bilayerHarmPairsFilename, ios::in|ios::trunc);
-    ofstream biLJFile(bilayerLJPairsFilename, ios::in|ios::trunc);
 
     //write atom element, coordination and x-y coordinate
     atomFile << fixed << showpoint << setprecision(6);
@@ -490,8 +482,30 @@ void NetworkCart2D::writeNetwork(string prefix, Logfile &logfile) {
     }
     writeFileValue(cnxFile,ringRingCnxs.size(),true);
     for(int i=0; i<ringRingCnxs.size(); ++i) writeFileVector(cnxFile,ringRingCnxs[i]);
-
     logfile.log("Additional connections written to: ", cnxFilename, "", 1, false);
+
+    atomFile.close();
+    unitFile.close();
+    ringFile.close();
+    cnxFile.close();
+    logfile.log("Write complete","","",0,true);
+}
+
+void NetworkCart2D::writeNetworkSpecial(string prefix, Logfile &logfile) {
+    //convert network to bilayer and write to files
+
+    //set up file names
+    string bilayerXyzFilename=prefix+"_bilayer.xyz";
+    string bilayerBoundaryFilename=prefix+"_bilayer_boundary.out";
+    string bilayerHarmPairsFilename=prefix+"_bilayer_harmpairs.out";
+    string bilayerLJPairsFilename=prefix+"_bilayer_ljpairs.out";
+
+    //write out all atom, unit, ring and connection data
+    logfile.log("Writing network bilayer","","",0,false);
+    ofstream biFile(bilayerXyzFilename, ios::in|ios::trunc);
+    ofstream biBoundaryFile(bilayerBoundaryFilename, ios::in|ios::trunc);
+    ofstream biHarmFile(bilayerHarmPairsFilename, ios::in|ios::trunc);
+    ofstream biLJFile(bilayerLJPairsFilename, ios::in|ios::trunc);
 
     //convert to bilayer
     //set up maps, as will order M bottom, M top then X bottom, X middle, X top
@@ -652,8 +666,9 @@ void NetworkCart2D::writeNetwork(string prefix, Logfile &logfile) {
     biFile << fixed << showpoint << setprecision(6);
     writeFileValue(biFile,nBiM+nBiX,true);
     writeFileValue(biFile,"",true);
-    for(int i=0; i<bilayerMCrds.size(); ++i) biFile<<"Si"<<i+1<<"    "<<bilayerMCrds[i].x<<"     "<<bilayerMCrds[i].y<<"     "<<bilayerMCrds[i].z<<"     "<<endl;
-    for(int i=0; i<bilayerXCrds.size(); ++i) biFile<<"O"<<i+nBiM+1<<"    "<<bilayerXCrds[i].x<<"     "<<bilayerXCrds[i].y<<"     "<<bilayerXCrds[i].z<<"     "<<endl;
+    double crdShift=500.0;
+    for(int i=0; i<bilayerMCrds.size(); ++i) biFile<<"Si"<<i+1<<"    "<<bilayerMCrds[i].x+crdShift<<"     "<<bilayerMCrds[i].y+crdShift<<"     "<<bilayerMCrds[i].z+crdShift<<"     "<<endl;
+    for(int i=0; i<bilayerXCrds.size(); ++i) biFile<<"O"<<i+nBiM+1<<"    "<<bilayerXCrds[i].x+crdShift<<"     "<<bilayerXCrds[i].y+crdShift<<"     "<<bilayerXCrds[i].z+crdShift<<"     "<<endl;
 //    for(int i=0; i<bilayerMCrds.size(); ++i) biFile<<"Si"<<"    "<<bilayerMCrds[i].x<<"     "<<bilayerMCrds[i].y<<"     "<<bilayerMCrds[i].z<<"     "<<endl;
 //    for(int i=0; i<bilayerXCrds.size(); ++i) biFile<<"O"<<"    "<<bilayerXCrds[i].x<<"     "<<bilayerXCrds[i].y<<"     "<<bilayerXCrds[i].z<<"     "<<endl;
     writeFileValue(biBoundaryFile,danglingX.size()/2,true);
@@ -664,17 +679,18 @@ void NetworkCart2D::writeNetwork(string prefix, Logfile &logfile) {
     for(int i=0; i<harmMX.size()/2;++i) writeFileValue(biHarmFile,harmMX[2*i],harmMX[2*i+1]);
     for(int i=0; i<harmXX.size()/2;++i) writeFileValue(biHarmFile,harmXX[2*i],harmXX[2*i+1]);
 
+    logfile.log("XYZ data written to: ", bilayerXyzFilename, "", 1, false);
+    logfile.log("Boundary information written to: ", bilayerBoundaryFilename, "", 1, false);
+    logfile.log("Harmonic pairs written to: ", bilayerHarmPairsFilename, "", 1, false);
+    logfile.log("Lennard-Jones pairs written to: ", bilayerLJPairsFilename, "", 1, false);
 
-    atomFile.close();
-    unitFile.close();
-    ringFile.close();
-    cnxFile.close();
     biFile.close();
     biBoundaryFile.close();
     biHarmFile.close();
     biLJFile.close();
     logfile.log("Write complete","","",0,true);
 }
+
 
 void NetworkCart2D::setGO(int it, double ls, double conv, int loc) {
     //set up optimiser with geometry optimisation parameters
