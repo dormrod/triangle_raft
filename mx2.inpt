@@ -1,5 +1,5 @@
 I0
-./output_files/test ./input_files/6                       input prefix
+./output_files/test    ./input_files/6                       input prefix
 ./output_files/test        output prefix
 -------------------------------------------------
 Network Properties

@@ -483,6 +483,10 @@ void Network<CrdT>::calculateRingStatistics() {
     aboavWeaireParameters=leastSquaresLinearRegression(x,y);
     aboavWeaireParameters[0]=1.0-aboavWeaireParameters[0]; //alpha
     aboavWeaireParameters[1]-=ringStatistics.mean*ringStatistics.mean; //mu
+
+    //initialise ring colours
+    ringColours.resize(nRings,col_vector<int>(3));
+    for(int i=0; i<nRings; ++i) ringColours[i][0]=rings[i].units.n;
 }
 
 template <typename CrdT>

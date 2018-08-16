@@ -1,4 +1,4 @@
-Simulation run: Thu Aug 16 16:02:11 2018
+Simulation run: Thu Aug 16 16:48:51 2018
 
 Grows MX2 Aperiodic Networks                    
 Written By: David OM, Wilson Group, 2018                    
@@ -29,10 +29,10 @@ Monte Carlo process
     Monte Carlo monitoring                    
         Ring proposal probabilities                    
             5         6         7         
-            -nan      -nan      -nan      
+            nan       nan       nan       
         Ring proposal probabilities within expected range                    
         Geometry optimisation monitoring                    
-            Average iterations: -nan                
+            Average iterations: nan                 
             Number of times iteration limit reached: 0                   
         Iteration limit satisfactory                    
     Monitoring analysis complete                    
@@ -49,6 +49,7 @@ Writing network
     Units written to:   ./output_files/test_units.out
     Rings written to:   ./output_files/test_rings.out
     Additional connections written to: ./output_files/test_connections.out
+    Visualisation helper file written to: ./output_files/test_vis.out
 Write complete                          
 ----------------------------------------------------------------------
 Writing network analysis                    
@@ -56,5 +57,5 @@ Writing network analysis
     Aboav-Weaire parameters written to: ./output_files/test_analysis.out
 Writing complete                        
 ----------------------------------------------------------------------
-Simulation complete: Thu Aug 16 16:02:11 2018
+Simulation complete: Thu Aug 16 16:48:51 2018
 

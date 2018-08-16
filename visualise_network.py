@@ -17,6 +17,7 @@ def main():
     vis_x=vis_options.get("x_atom",False)
     vis_m=vis_options.get("m_atom",False)
     vis_ring=vis_options.get("ring",False)
+    vis_ring_colour=vis_options.get("ring_colour_style",0)
     vis_atom_label=vis_options.get("atom_label",False)
     vis_tri_label=vis_options.get("triangle_label",False)
     vis_boundary=vis_options.get("boundary",False)
@@ -34,7 +35,7 @@ def main():
     if vis_tri:
         plot_triangle_network(data,vis_x,vis_m,vis_atom_label,vis_tri_label,fig,ax)
     if vis_ring:
-        plot_ring_network(data,fig,ax)
+        plot_ring_network(data,fig,ax,vis_ring_colour)
     if vis_boundary:
         plot_boundary(data,fig,ax)
 
@@ -57,7 +58,9 @@ def get_options():
         else: options["x_atom"]=False
         if("m" in sys.argv[2]): options["m_atom"]=True
         else: options["m_atom"]=False
-        if("r" in sys.argv[2]): options["ring"]=True
+        if("r" in sys.argv[2]):
+            options["ring"]=True
+            options["ring_colour_style"]=0
         else: options["ring"]=False
         if("A" in sys.argv[2]): options["atom_label"]=True
         else: options["atom_label"]=False
@@ -65,6 +68,7 @@ def get_options():
         else: options["triangle_label"]=False
         if("b" in sys.argv[2]): options["boundary"]=True
         else: options["boundary"]=False
+        if("e" in sys.argv[2]): options["ring_colour_style"]=1
         if("s" in sys.argv[2]): options["save_pdf"]=True
         if("S" in sys.argv[2]): options["save_png"]=True
     return options
@@ -85,6 +89,7 @@ def get_data(prefix):
     unit_filename = "{0}_units.out".format(prefix)
     ring_filename = "{0}_rings.out".format(prefix)
     boundary_filename = "{0}_boundary.out".format(prefix)
+    colour_filename="{0}_vis.out".format(prefix)
 
     data={}
     atoms=np.genfromtxt(atom_filename,dtype=float)
@@ -104,6 +109,8 @@ def get_data(prefix):
     if os.path.isfile(boundary_filename):
         boundary=np.genfromtxt(boundary_filename)
     else: boundary=[]
+    colours=np.genfromtxt(colour_filename,dtype="int")
+    ring_edges=colours[:,1]
 
     data["elements"]=elements
     data["coordination"]=coordination
@@ -113,6 +120,7 @@ def get_data(prefix):
     data["rings"]=rings
     data["ring_sizes"]=ring_sizes
     data["boundary"]=boundary
+    data["ring_edges"]=ring_edges
 
     return data
 
@@ -158,17 +166,19 @@ def plot_triangle_network(data,show_x,show_m,atom_label,tri_label,fig,ax):
     ax.set_xlim(limLb,limUb)
     ax.set_ylim(limLb,limUb)
 
-def plot_ring_network(data,fig,ax):
+def plot_ring_network(data,fig,ax,colour_style):
 
     # Unpack dictionary
     crds=data.get("crds")
     unit_m=data.get("unit_m")
     rings=data.get("rings")
     ring_sizes=data.get("ring_sizes")
+    ring_edges=data.get("ring_edges")
 
     # Generate patch drawing commands and colours
     polygon_cmds=generate_polygon_commands(3,np.max(ring_sizes));
-    ring_colours=generate_colours(ring_sizes)
+    if colour_style==0: ring_colours=generate_colours(ring_sizes,colour_style)
+    elif colour_style==1: ring_colours=generate_colours(ring_edges,colour_style)
 
     # rings=rings[::-1]
     # ring_sizes=ring_sizes[::-1]
@@ -212,8 +222,8 @@ def generate_polygon_commands(min, max):
         all_poly_codes.append(polygon_code[:])
     return all_poly_codes
 
-def generate_colours(ring_sizes):
-    n_rings=ring_sizes.size
+def generate_colours(ring_codes, colour_set=0):
+    n_rings=ring_codes.size
     colours=[]
     colormap_greens=plt.cm.get_cmap("Greens")
     colormap_blues=plt.cm.get_cmap("Blues")
@@ -231,12 +241,17 @@ def generate_colours(ring_sizes):
     purple=colormap_purples(100)
     pink=colormap_pinks(80)
 
-    colourList=[green,blue,grey,red,orange,purple,pink]
-
-    for i in range(n_rings):
-        size=int(ring_sizes[i])
-        if(size<4 or size>10): colours.append("white")
-        else: colours.append(colourList[size-4])
+    if colour_set==0:
+        colourList=[green,blue,grey,red,orange,purple,pink]
+        for i in range(n_rings):
+            size=int(ring_codes[i])
+            if(size<4 or size>10): colours.append("white")
+            else: colours.append(colourList[size-4])
+    elif colour_set==1:
+        colourList=["red","blue","green","orange",grey]
+        for code in ring_codes:
+            print code
+            colours.append(colourList[code])
 
     return colours
 

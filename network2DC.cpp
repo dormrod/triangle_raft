@@ -421,6 +421,7 @@ void NetworkCart2D::writeNetwork(string prefix, Logfile &logfile) {
     string unitFilename=prefix+"_units.out";
     string ringFilename=prefix+"_rings.out";
     string cnxFilename=prefix+"_connections.out";
+    string visFilename=prefix+"_vis.out";
 
     //write out all atom, unit, ring and connection data
     logfile.log("Writing network","","",0,false);
@@ -428,6 +429,7 @@ void NetworkCart2D::writeNetwork(string prefix, Logfile &logfile) {
     ofstream unitFile(unitFilename, ios::in|ios::trunc);
     ofstream ringFile(ringFilename, ios::in|ios::trunc);
     ofstream cnxFile(cnxFilename, ios::in|ios::trunc);
+    ofstream visFile(visFilename, ios::in|ios::trunc);
 
     //write atom element, coordination and x-y coordinate
     atomFile << fixed << showpoint << setprecision(6);
@@ -484,10 +486,16 @@ void NetworkCart2D::writeNetwork(string prefix, Logfile &logfile) {
     for(int i=0; i<ringRingCnxs.size(); ++i) writeFileVector(cnxFile,ringRingCnxs[i]);
     logfile.log("Additional connections written to: ", cnxFilename, "", 1, false);
 
+    //write ring colour codes
+    for(int i=0; i<nRings; ++i) writeFileVector(visFile,ringColours[i]);
+    logfile.log("Visualisation helper file written to: ", visFilename, "", 1, false);
+
+
     atomFile.close();
     unitFile.close();
     ringFile.close();
     cnxFile.close();
+    visFile.close();
     logfile.log("Write complete","","",0,true);
 }
 
@@ -1158,7 +1166,6 @@ void NetworkCart2D::calculatePercolation(string shape) {
             if(crd.y<bottom) bottom=crd.y;
             if(crd.y>top) top=crd.y;
         }
-        cout<<top<<" "<<bottom<<" "<<left<<" "<<right<<endl;
 
         //loop over boundary units and assign boundary rings
         vector<int> boundaryRings(nRings,-1);
@@ -1169,17 +1176,17 @@ void NetworkCart2D::calculatePercolation(string shape) {
             dt=fabs(crd.y-top);
             db=fabs(crd.y-bottom);
             dl=fabs(crd.x-left);
-            dr=fabs(crd.y-right);
-            if(dt<db && dt<dl && dt<dr) edge=0;
-            else if(db<dt && db<dl && db<dr) edge=1;
-            else if(dl<dt && dl<db && dl<dr) edge=2;
-            else if(dr<dt && dr<db && dr<dl) edge=3;
+            dr=fabs(crd.x-right);
+            if(dt<=db && dt<=dl && dt<=dr) edge=0;
+            else if(db<=dt && db<=dl && db<=dr) edge=1;
+            else if(dl<=dt && dl<=db && dl<=dr) edge=2;
+            else if(dr<=dt && dr<=db && dr<=dl) edge=3;
+            else cout<<"ERROR IN PERCOLATION"<<endl;
+            for(int j=0; j<units[boundaryUnits[i]].rings.n; ++j) boundaryRings[units[boundaryUnits[i]].rings.ids[j]]=edge;
         }
 
+        //update ring colours
+        for(int i=0; i<nRings; ++i) ringColours[i][1]=boundaryRings[i];
     }
 
-//    vector<int> ringBoundaryStatus(nRings,-1);
-//    for(int i=0; i<nRings; ++i){
-//
-//    }
 }

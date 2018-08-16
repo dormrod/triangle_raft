@@ -43,6 +43,7 @@ protected:
     map<int,DiscreteDistribution> indRingStatistics; //ring size distributions around each individual ring
     vector<double> aboavWeaireParameters; //alpha, mu and rsq
     ContinuousDistribution bondLenDistXX, bondLenDistMX; //bond length distributions
+    vector< col_vector<int> > ringColours; //for visualisation
 
     //Methods
     virtual vector<double> getCrds()=0; //get all atom coordinates - virtual as have different number of variables and will be faster
