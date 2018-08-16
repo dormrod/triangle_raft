@@ -96,6 +96,7 @@ public:
     void calculateRingStatistics(); //ring stats analysis
     void calculateBondDistributions(); //bond len/angle distributions
     virtual void checkOverlap()=0; //check for overlap
+    virtual void calculatePercolation(string shape)=0; //clusters and percolation
 
     //Write Out
     void write(string prefix, bool special, Logfile &logfile); //write out to files

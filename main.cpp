@@ -83,7 +83,7 @@ int main(){
     inputFile.close();
 
     //set up simulation of correct geometry
-    if(geometry=="2DC") {
+    if(geometry=="2DC" || geometry=="2DS") {
         Simulation<Cart2D, NetworkCart2D> simulation(logfile);
         simulation.setIO(inputPrefix, outputPrefix, logfile);
         simulation.setNP(nTotalRings, minBasicRingSize, maxBasicRingSize, geometry, logfile);

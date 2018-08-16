@@ -1142,3 +1142,44 @@ bool NetworkCart2D::checkLocalGrowth(int rId) {
 
     return !overlap;
 }
+
+void NetworkCart2D::calculatePercolation(string shape) {
+    //calculate cluster sizes of rings and percolation
+
+    if(shape=="S"){
+        //if square percolation is defined as a cluster reaching all 4 edges
+
+        //calculate sample size limits
+        double top=0,bottom=0,left=0,right=0;
+        for(int i=0; i<boundaryUnits.size(); ++i){
+            Cart2D crd=atoms[units[boundaryUnits[i]].atomM].coordinate;
+            if(crd.x<left) left=crd.x;
+            if(crd.x>right) right=crd.x;
+            if(crd.y<bottom) bottom=crd.y;
+            if(crd.y>top) top=crd.y;
+        }
+        cout<<top<<" "<<bottom<<" "<<left<<" "<<right<<endl;
+
+        //loop over boundary units and assign boundary rings
+        vector<int> boundaryRings(nRings,-1);
+        double dt,db,dl,dr;
+        int edge;
+        for(int i=0; i<boundaryUnits.size(); ++i){
+            Cart2D crd=atoms[units[boundaryUnits[i]].atomM].coordinate;
+            dt=fabs(crd.y-top);
+            db=fabs(crd.y-bottom);
+            dl=fabs(crd.x-left);
+            dr=fabs(crd.y-right);
+            if(dt<db && dt<dl && dt<dr) edge=0;
+            else if(db<dt && db<dl && db<dr) edge=1;
+            else if(dl<dt && dl<db && dl<dr) edge=2;
+            else if(dr<dt && dr<db && dr<dl) edge=3;
+        }
+
+    }
+
+//    vector<int> ringBoundaryStatus(nRings,-1);
+//    for(int i=0; i<nRings; ++i){
+//
+//    }
+}

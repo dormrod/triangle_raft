@@ -269,6 +269,10 @@ void Simulation<CrdT,NetT>::analyseNetwork(Logfile &logfile) {
     //bond distributions - not written out explicitly but used for bilayer formation
     masterNetwork.calculateBondDistributions();
 
+    //percolation
+    masterNetwork.calculatePercolation(growthGeometry);
+    logfile.log("Analysing clusters and percolation","","",1,false);
+
     logfile.log("Analysis complete","","",0,true);
 }
 

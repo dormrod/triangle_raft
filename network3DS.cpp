@@ -806,3 +806,8 @@ void NetworkCart3DS::checkOverlap(){
     }
     return;
 }
+
+void NetworkCart3DS::calculatePercolation(string shape) {
+    //calculate cluster sizes and if percolation occurs
+    return;
+}

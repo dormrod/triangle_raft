@@ -40,6 +40,7 @@ public:
     void checkOverlap() override; //check for overlap
     bool checkGrowth() override; //check to continue growth
     bool checkLocalGrowth(int rId) override; //check if acceptable local growth
+    void calculatePercolation(string shape) override; //clusters and percolation
 };
 
 #endif //MX2_NETWORK2DC_H
