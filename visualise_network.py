@@ -18,6 +18,7 @@ def main():
     vis_m=vis_options.get("m_atom",False)
     vis_ring=vis_options.get("ring",False)
     vis_ring_colour=vis_options.get("ring_colour_style",0)
+    vis_ring_filter=vis_options.get("ring_size_filter",None)
     vis_atom_label=vis_options.get("atom_label",False)
     vis_tri_label=vis_options.get("triangle_label",False)
     vis_boundary=vis_options.get("boundary",False)
@@ -35,7 +36,7 @@ def main():
     if vis_tri:
         plot_triangle_network(data,vis_x,vis_m,vis_atom_label,vis_tri_label,fig,ax)
     if vis_ring:
-        plot_ring_network(data,fig,ax,vis_ring_colour)
+        plot_ring_network(data,fig,ax,vis_ring_colour,vis_ring_filter)
     if vis_boundary:
         plot_boundary(data,fig,ax)
 
@@ -69,8 +70,11 @@ def get_options():
         if("b" in sys.argv[2]): options["boundary"]=True
         else: options["boundary"]=False
         if("e" in sys.argv[2]): options["ring_colour_style"]=1
+        if("c" in sys.argv[2]): options["ring_colour_style"]=2
         if("s" in sys.argv[2]): options["save_pdf"]=True
         if("S" in sys.argv[2]): options["save_png"]=True
+    if len(sys.argv)==4:
+        options["ring_size_filter"]=int(sys.argv[3][1:])
     return options
 
 def updateParams():
@@ -111,6 +115,7 @@ def get_data(prefix):
     else: boundary=[]
     colours=np.genfromtxt(colour_filename,dtype="int")
     ring_edges=colours[:,1]
+    ring_clusters=colours[:,2]
 
     data["elements"]=elements
     data["coordination"]=coordination
@@ -121,6 +126,7 @@ def get_data(prefix):
     data["ring_sizes"]=ring_sizes
     data["boundary"]=boundary
     data["ring_edges"]=ring_edges
+    data["ring_clusters"]=ring_clusters
 
     return data
 
@@ -166,7 +172,7 @@ def plot_triangle_network(data,show_x,show_m,atom_label,tri_label,fig,ax):
     ax.set_xlim(limLb,limUb)
     ax.set_ylim(limLb,limUb)
 
-def plot_ring_network(data,fig,ax,colour_style):
+def plot_ring_network(data,fig,ax,colour_style,size_filter):
 
     # Unpack dictionary
     crds=data.get("crds")
@@ -174,11 +180,17 @@ def plot_ring_network(data,fig,ax,colour_style):
     rings=data.get("rings")
     ring_sizes=data.get("ring_sizes")
     ring_edges=data.get("ring_edges")
+    ring_clusters=data.get("ring_clusters")
 
     # Generate patch drawing commands and colours
     polygon_cmds=generate_polygon_commands(3,np.max(ring_sizes));
     if colour_style==0: ring_colours=generate_colours(ring_sizes,colour_style)
     elif colour_style==1: ring_colours=generate_colours(ring_edges,colour_style)
+    elif colour_style==2:
+        if size_filter is not None:
+            for i,s in enumerate(ring_sizes):
+                if s!=size_filter: ring_clusters[i]=-1
+        ring_colours=generate_colours(ring_clusters,colour_style)
 
     # rings=rings[::-1]
     # ring_sizes=ring_sizes[::-1]
@@ -232,6 +244,7 @@ def generate_colours(ring_codes, colour_set=0):
     colormap_oranges=plt.cm.get_cmap("YlOrBr")
     colormap_purples=plt.cm.get_cmap("PuRd")
     colormap_pinks=plt.cm.get_cmap("RdPu")
+    colormaps=[colormap_greens,colormap_blues,colormap_reds,colormap_oranges,colormap_purples,colormap_pinks]
 
     green=colormap_greens(100)
     blue=colormap_blues(150)
@@ -250,28 +263,18 @@ def generate_colours(ring_codes, colour_set=0):
     elif colour_set==1:
         colourList=["red","blue","green","orange",grey]
         for code in ring_codes:
-            print code
             colours.append(colourList[code])
-
+    elif colour_set==2:
+        colourList=[]
+        np.random.seed(seed=0)
+        for i in range(np.max(ring_codes)):
+            rand1=np.random.randint(low=0,high=6)
+            rand2=np.random.randint(low=50,high=200)
+            colourList.append(colormaps[rand1](rand2))
+        colourList.append(grey)
+        for code in ring_codes:
+            colours.append(colourList[code])
     return colours
-
-# def plot_ring_network(ring_data,label,fig,ax):
-#
-#     # Unpack dictionary
-#     crds = ring_data.get("crds")
-#     cnxs = ring_data.get("cnxs")
-#     ring_sizes = ring_data.get("ring_sizes")
-#
-#     for cnxList in cnxs:
-#         cnx0 = cnxList[0]
-#         for cnx1 in cnxList[1:]:
-#             if (cnx0 < cnx1): plt.plot([crds[cnx0][0], crds[cnx1][0]], [crds[cnx0][1], crds[cnx1][1]], color="k",
-#                                        lw=0.5, zorder=2)
-#     plt.scatter(crds[:, 0], crds[:, 1], c='k', s=2, zorder=3)
-#
-#     if label:
-#         for i, crd in enumerate(crds):
-#             plt.text(crd[0],crd[1],i)
 
 def savePlot(prefix,fmt="pdf"):
     filename="{0}.{1}".format(prefix,fmt)

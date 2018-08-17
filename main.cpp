@@ -77,9 +77,10 @@ int main(){
     preOpt=globalOpt[0];
     postOpt=globalOpt[1];
     //Additional options
-    bool bilayer;
+    bool bilayer,analyseClusters;
     readFileSkipLines(inputFile,2); //skip
     readFileValue(inputFile,bilayer); //convert to bilayer
+    readFileValue(inputFile,analyseClusters); //cluster and percolation analysis
     inputFile.close();
 
     //set up simulation of correct geometry
@@ -90,7 +91,7 @@ int main(){
         simulation.setMC(randomSeed, temperature, logfile);
         simulation.setPM(kMX, r0MX, kXX, a0XX, kMM, a0MM, kLJ, r0LJ, kC, r0C, logfile);
         simulation.setGO(preOpt, postOpt, maxIt, lsInc, convTest, localSize, logfile);
-        simulation.setFO(bilayer,logfile);
+        simulation.setFO(bilayer,analyseClusters,logfile);
 
         //run simulation
         simulation.run(logfile);
@@ -102,7 +103,7 @@ int main(){
         simulation.setMC(randomSeed, temperature, logfile);
         simulation.setPM(kMX, r0MX, kXX, a0XX, kMM, a0MM, kLJ, r0LJ, kC, r0C, logfile);
         simulation.setGO(preOpt, postOpt, maxIt, lsInc, convTest, localSize, logfile);
-        simulation.setFO(bilayer,logfile);
+        simulation.setFO(bilayer,analyseClusters,logfile);
 
         //run simulation
         simulation.run(logfile);

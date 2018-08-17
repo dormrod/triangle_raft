@@ -485,7 +485,7 @@ void Network<CrdT>::calculateRingStatistics() {
     aboavWeaireParameters[1]-=ringStatistics.mean*ringStatistics.mean; //mu
 
     //initialise ring colours
-    ringColours.resize(nRings,col_vector<int>(3));
+    ringColours.resize(nRings,col_vector<int>(4));
     for(int i=0; i<nRings; ++i) ringColours[i][0]=rings[i].units.n;
 }
 
@@ -550,7 +550,7 @@ void Network<CrdT>::writeAnalysis(string prefix, Logfile &logfile) {
 
     //overlap
     writeFileValue(analysisFile,"Valid geometry",true);
-    writeFileValue(analysisFile,unitOverlap,true);
+    writeFileValue(analysisFile,!unitOverlap,true);
 
     //ring statistics
     writeFileValue(analysisFile,"p_n and <n>",true);
@@ -582,6 +582,19 @@ void Network<CrdT>::writeAnalysis(string prefix, Logfile &logfile) {
     data=aboavWeaireParameters;
     writeFileVector(analysisFile,data);
     logfile.log("Aboav-Weaire parameters written to: ",analysisFilename,"", 1, false);
+
+    //clustering and percolation
+    if(clusterDistributions.size()>0){//only write if performed analysis
+        writeFileValue(analysisFile,"Raw Cluster Distributions",true);
+        for(int i=0; i<ringSizes.size(); ++i){
+            writeFileVector(analysisFile,clusterDistributions.at(ringSizes[i]).getValues());
+            writeFileVector(analysisFile,clusterDistributions.at(ringSizes[i]).getRawProbabilities());
+        }
+        writeFileValue(analysisFile,"Percolation",true);
+        for(int i=0;i<ringSizes.size();++i) writeFileValue(analysisFile,percolation.at(ringSizes[i]),false);
+        writeFileValue(analysisFile,"  ",true);
+        logfile.log("Cluster distributions and percolation written to: ",analysisFilename,"", 1, false);
+    }
 
     logfile.log("Writing complete","","",0,true);
 }

@@ -1,4 +1,4 @@
-Simulation run: Thu Aug 16 16:48:51 2018
+Simulation run: Fri Aug 17 16:05:26 2018
 
 Grows MX2 Aperiodic Networks                    
 Written By: David OM, Wilson Group, 2018                    
@@ -16,23 +16,24 @@ Initialising network parameters
 Intialisation complete                    
 ----------------------------------------------------------------------
 Loading network                         
-    Atoms read from:    ./output_files/test_atoms.out
-    Units read from:    ./output_files/test_units.out
-    Rings read from:    ./output_files/test_rings.out
-    Additional connections read from: ./output_files/test_connections.out
+    Atoms read from:    ./input_files/6_atoms.out
+    Units read from:    ./input_files/6_units.out
+    Rings read from:    ./input_files/6_rings.out
+    Additional connections read from: ./input_files/6_connections.out
 Load complete                           
 ----------------------------------------------------------------------
 Monte Carlo process                     
     Network growth begun after 0 seconds
+        100 rings, time elapsed:  23 seconds
         All rings built, time elapsed:  0 seconds
     Network growth complete                    
     Monte Carlo monitoring                    
         Ring proposal probabilities                    
             5         6         7         
-            nan       nan       nan       
+            0.319588  0.340206  0.340206  
         Ring proposal probabilities within expected range                    
         Geometry optimisation monitoring                    
-            Average iterations: nan                 
+            Average iterations: 1127.2              
             Number of times iteration limit reached: 0                   
         Iteration limit satisfactory                    
     Monitoring analysis complete                    
@@ -55,7 +56,8 @@ Write complete
 Writing network analysis                    
     Ring statistics written to: ./output_files/test_analysis.out
     Aboav-Weaire parameters written to: ./output_files/test_analysis.out
+    Cluster distributions and percolation written to: ./output_files/test_analysis.out
 Writing complete                        
 ----------------------------------------------------------------------
-Simulation complete: Thu Aug 16 16:48:51 2018
+Simulation complete: Fri Aug 17 16:05:49 2018
 

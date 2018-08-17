@@ -46,6 +46,12 @@ vector<int> DiscreteDistribution::getValues() {
     return values;
 }
 
+vector<int> DiscreteDistribution::getRawProbabilities() {
+    vector<int> probabilities;
+    for(int i=0; i<n; ++i) probabilities.push_back(p_raw[i]);
+    return probabilities;
+}
+
 vector<double> DiscreteDistribution::getProbabilities() {
     vector<double> probabilities;
     for(int i=0; i<n; ++i) probabilities.push_back(p[i]);

@@ -1,5 +1,5 @@
 I0
-./output_files/test    ./input_files/6                       input prefix
+./input_files/6                       input prefix
 ./output_files/test        output prefix
 -------------------------------------------------
 Network Properties
@@ -27,3 +27,4 @@ Minimisation Control
 -------------------------------------------------
 Additional Options
 0      convert to bilayer
+1      cluster and percolation analysis (2DS)

@@ -75,9 +75,10 @@ void Simulation<CrdT,NetT>::setGO(bool global0, bool global1, int it, double ls,
 }
 
 template <typename CrdT, typename NetT>
-void Simulation<CrdT,NetT>::setFO(bool bi, Logfile &logfile) {
+void Simulation<CrdT,NetT>::setFO(bool bi, bool aClst, Logfile &logfile) {
     //set further options
     convertToBilayer=bi;
+    analyseCluster=aClst;
     logfile.log("Initialised: ","additional options","",1,false);
 }
 
@@ -270,8 +271,10 @@ void Simulation<CrdT,NetT>::analyseNetwork(Logfile &logfile) {
     masterNetwork.calculateBondDistributions();
 
     //percolation
-    masterNetwork.calculatePercolation(growthGeometry);
-    logfile.log("Analysing clusters and percolation","","",1,false);
+    if(analyseCluster){
+        masterNetwork.calculatePercolation(growthGeometry);
+        logfile.log("Analysing clusters and percolation","","",1,false);
+    }
 
     logfile.log("Analysis complete","","",0,true);
 }

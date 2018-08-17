@@ -28,6 +28,7 @@ struct DiscreteDistribution{
 
     //getters
     vector<int> getValues();
+    vector<int> getRawProbabilities();
     vector<double> getProbabilities();
     double getProbability(int xValue);
 

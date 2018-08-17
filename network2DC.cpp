@@ -490,7 +490,6 @@ void NetworkCart2D::writeNetwork(string prefix, Logfile &logfile) {
     for(int i=0; i<nRings; ++i) writeFileVector(visFile,ringColours[i]);
     logfile.log("Visualisation helper file written to: ", visFilename, "", 1, false);
 
-
     atomFile.close();
     unitFile.close();
     ringFile.close();
@@ -1157,6 +1156,8 @@ void NetworkCart2D::calculatePercolation(string shape) {
     if(shape=="S"){
         //if square percolation is defined as a cluster reaching all 4 edges
 
+        vector< col_vector<int> > ringClusters; //connected rings of given sizes
+
         //calculate sample size limits
         double top=0,bottom=0,left=0,right=0;
         for(int i=0; i<boundaryUnits.size(); ++i){
@@ -1187,6 +1188,92 @@ void NetworkCart2D::calculatePercolation(string shape) {
 
         //update ring colours
         for(int i=0; i<nRings; ++i) ringColours[i][1]=boundaryRings[i];
+
+        //find clusters
+        ringClusters.clear();
+        vector<int> cluster; //stores single cluster ring ids
+        vector<int> clusterTypes; //stores type of cluster i.e. ring size
+        vector<bool> checkRing(nRings,true); //checks if ring already in cluster
+        for(int i=0; i<nRings; ++i){
+            if(checkRing[i]){//if ring not in cluster, find all connected rings of same size
+                cluster.clear();
+                cluster.push_back(i);
+                checkRing[i]=false;
+                int ringSize=rings[i].units.n;
+                clusterTypes.push_back(ringSize);
+                bool searchComplete=false;
+                vector<int> prevSearch,search;
+                prevSearch.clear();
+                prevSearch.push_back(i);
+                int n0,n1;
+                do{
+                    search.clear();
+                    for(int j=0; j<prevSearch.size();++j){
+                        n0=prevSearch[j];
+                        for(int k=0;k<rings[n0].rings.n; ++k){
+                            n1=rings[n0].rings.ids[k];
+                            if(checkRing[n1] && rings[n1].units.n==ringSize){
+                                search.push_back(n1);
+                                checkRing[n1]=false;
+                            }
+                        }
+                    }
+                    for(int j=0; j<search.size(); ++j) cluster.push_back(search[j]);
+                    prevSearch=search;
+                    if(search.size()==0) searchComplete=true;
+                }while(!searchComplete);
+                col_vector<int> colCluster(cluster);
+                ringClusters.push_back(colCluster);
+            }
+        }
+
+        //split clusters into types
+        clusterDistributions.clear();
+        percolation.clear();
+        int nClusters=ringClusters.size();
+        vector<int> clusterSizes;
+        vector<int> indRingClusters; //clusters of rings of a specific size
+        vector<bool> checkCluster(nClusters,true);
+        for(int i=0; i<nClusters; ++i){
+            if(checkCluster[i]){//find all clusters of a given ring size, not necessarily in order of increasing size
+                //find clusters
+                indRingClusters.clear();
+                int ringSize=clusterTypes[i];
+                for(int j=i; j<nClusters; ++j){
+                    if(checkCluster[j] && clusterTypes[j]==ringSize){
+                        indRingClusters.push_back(j);
+                        checkCluster[j]=false;
+                    }
+                }
+                //analyse clusters
+                clusterSizes.clear();
+                for(int j=0; j<indRingClusters.size(); ++j){//get cluster sizes
+                    int clstId=indRingClusters[j];
+                    clusterSizes.push_back(ringClusters[clstId].n);
+                    for(int k=0; k<ringClusters[clstId].n; ++k) ringColours[ringClusters[clstId].values[k]][2]=j;
+                }
+                DiscreteDistribution clusterDist(clusterSizes);//make size distribution
+                clusterDistributions[ringSize]=clusterDist;
+                bool spanningCluster=false;
+                for(int j=0; j<indRingClusters.size(); ++j){//check for spanning cluster
+                    int clstId=indRingClusters[j];
+                    bool edgeT=false, edgeB=false, edgeL=false, edgeR=false; //flags to check cluster extent to edge
+                    int boundaryCode;
+                    for(int k=0; k<ringClusters[clstId].n; ++k){
+                        boundaryCode=boundaryRings[ringClusters[clstId].values[k]];
+                        if(boundaryCode==0) edgeT=true;
+                        if(boundaryCode==1) edgeB=true;
+                        if(boundaryCode==2) edgeL=true;
+                        if(boundaryCode==3) edgeR=true;
+                    }
+                    if(edgeT && edgeB && edgeL && edgeR){
+                        spanningCluster=true;
+                        break;
+                    }
+                }
+                percolation[ringSize]=spanningCluster;
+            }
+        }
     }
 
 }

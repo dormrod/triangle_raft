@@ -43,6 +43,8 @@ protected:
     map<int,DiscreteDistribution> indRingStatistics; //ring size distributions around each individual ring
     vector<double> aboavWeaireParameters; //alpha, mu and rsq
     ContinuousDistribution bondLenDistXX, bondLenDistMX; //bond length distributions
+    map<int,DiscreteDistribution> clusterDistributions; //cluster size distributions for ring sizes
+    map<int,bool> percolation; //logs if spanning cluster present for different ring sizes
     vector< col_vector<int> > ringColours; //for visualisation
 
     //Methods

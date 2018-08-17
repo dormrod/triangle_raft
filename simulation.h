@@ -31,6 +31,7 @@ private:
     double goLineSeachInc, goConvergence; //for descent algorithm
     //Further options
     bool convertToBilayer; //convert structure to bilayer
+    bool analyseCluster; //cluster and percolation analysis
 
     //Monitoring
     col_vector<int> goMonitoring; //monitor geometry optimisation
@@ -64,7 +65,7 @@ public:
     void setMC(int seed, double temperature, Logfile &logfile);
     void setPM(double kMX, double r0MX, double kXX, double a0XX, double kMM, double a0MM, double kLJ, double r0LJ, double kC, double r0C, Logfile &logfile);
     void setGO(bool global0, bool global1, int it, double ls, double conv, int loc, Logfile &logfile);
-    void setFO(bool bi, Logfile &logfile);
+    void setFO(bool bi, bool aClst, Logfile &logfile);
 
     //methods
     void run(Logfile &logfile);
