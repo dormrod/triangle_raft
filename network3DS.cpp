@@ -105,6 +105,7 @@ void NetworkCart3DS::writeNetwork(string prefix, Logfile &logfile) {
     string unitFilename=prefix+"_units.out";
     string ringFilename=prefix+"_rings.out";
     string cnxFilename=prefix+"_connections.out";
+    string visFilename=prefix+"_vis.out";
     string xyzFilename=prefix+".xyz";
 
     //write out all atom, unit, ring and connection data
@@ -113,6 +114,7 @@ void NetworkCart3DS::writeNetwork(string prefix, Logfile &logfile) {
     ofstream unitFile(unitFilename, ios::in|ios::trunc);
     ofstream ringFile(ringFilename, ios::in|ios::trunc);
     ofstream cnxFile(cnxFilename, ios::in|ios::trunc);
+    ofstream visFile(visFilename, ios::in|ios::trunc);
 
     //write atom element, coordination and x,y,z coordinate
     atomFile << fixed << showpoint << setprecision(6);
@@ -170,6 +172,10 @@ void NetworkCart3DS::writeNetwork(string prefix, Logfile &logfile) {
 
     logfile.log("Additional connections written to: ", cnxFilename, "", 1, false);
 
+    //write ring colour codes
+    for(int i=0; i<nRings; ++i) writeFileVector(visFile,ringColours[i]);
+    logfile.log("Visualisation helper file written to: ", visFilename, "", 1, false);
+
     //write x,y,z file
     ofstream xyzFile(xyzFilename, ios::in|ios::trunc);
     atomFile << fixed << showpoint << setprecision(6);
@@ -184,6 +190,7 @@ void NetworkCart3DS::writeNetwork(string prefix, Logfile &logfile) {
     unitFile.close();
     ringFile.close();
     cnxFile.close();
+    visFile.close();
     xyzFile.close();
     logfile.log("Write complete","","",0,true);
 }

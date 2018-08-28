@@ -106,6 +106,7 @@ public:
     virtual void writeNetwork(string prefix, Logfile &logfile)=0; //write network to files
     virtual void writeNetworkSpecial(string prefix, Logfile &logfile)=0; //write network in different format
     void writeAnalysis(string prefix, Logfile &logfile); //write analysis out to files
+    void kill(string prefix, Logfile &logfile); //prepare network for early termination and write out
 };
 
 #include "networkBase.tpp"

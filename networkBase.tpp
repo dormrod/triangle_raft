@@ -598,7 +598,17 @@ void Network<CrdT>::writeAnalysis(string prefix, Logfile &logfile) {
 
     logfile.log("Writing complete","","",0,true);
 }
-//template <typename CrdT>
-//Network<CrdT>::
+
+template <typename CrdT>
+void Network<CrdT>::kill(string prefix, Logfile &logfile) {
+    //kill network growth early and write out files
+
+    //initialise and get ring colours
+    ringColours.resize(nRings,col_vector<int>(2));
+    for(int i=0; i<nRings; ++i) ringColours[i][0]=rings[i].units.n;
+
+    //write network only - not analysis
+    writeNetwork(prefix,logfile);
+}
 //template <typename CrdT>
 //Network<CrdT>::

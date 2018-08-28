@@ -1,4 +1,4 @@
-Simulation run: Fri Aug 17 16:05:26 2018
+Simulation run: Wed Aug 22 13:54:31 2018
 
 Grows MX2 Aperiodic Networks                    
 Written By: David OM, Wilson Group, 2018                    
@@ -24,25 +24,25 @@ Load complete
 ----------------------------------------------------------------------
 Monte Carlo process                     
     Network growth begun after 0 seconds
-        100 rings, time elapsed:  23 seconds
-        All rings built, time elapsed:  0 seconds
+        Growth constrained by geometry                    
+        All rings built, time elapsed:  14 seconds
     Network growth complete                    
     Monte Carlo monitoring                    
         Ring proposal probabilities                    
             5         6         7         
-            0.319588  0.340206  0.340206  
+            0.328125  0.335938  0.335938  
         Ring proposal probabilities within expected range                    
         Geometry optimisation monitoring                    
-            Average iterations: 1127.2              
+            Average iterations: 1370.86             
             Number of times iteration limit reached: 0                   
         Iteration limit satisfactory                    
     Monitoring analysis complete                    
+    Performing global geometry optimisation                    
 Monte Carlo process complete                    
 ----------------------------------------------------------------------
 Analysing network                       
     Network checked for unit overlap                    
     Ring statistics calculated                    
-    Analysing clusters and percolation                    
 Analysis complete                       
 ----------------------------------------------------------------------
 Writing network                         
@@ -51,13 +51,13 @@ Writing network
     Rings written to:   ./output_files/test_rings.out
     Additional connections written to: ./output_files/test_connections.out
     Visualisation helper file written to: ./output_files/test_vis.out
+    xyz file written to: ./output_files/test.xyz
 Write complete                          
 ----------------------------------------------------------------------
 Writing network analysis                    
     Ring statistics written to: ./output_files/test_analysis.out
     Aboav-Weaire parameters written to: ./output_files/test_analysis.out
-    Cluster distributions and percolation written to: ./output_files/test_analysis.out
 Writing complete                        
 ----------------------------------------------------------------------
-Simulation complete: Fri Aug 17 16:05:49 2018
+Simulation complete: Wed Aug 22 13:54:46 2018
 

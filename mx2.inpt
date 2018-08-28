@@ -1,25 +1,25 @@
 I0
-./input_files/6                       input prefix
-./output_files/test        output prefix
+./input_files/6     input prefix
+./output_files/test  output prefix
 -------------------------------------------------
 Network Properties
-100           number of rings
+100  number of rings
 5 7        basic ring size limits
-2DS         geometry code
+3DS         geometry code
 -------------------------------------------------
 Monte Carlo Process
 0           random seed
-0.0001     temperature
+0.000001     temperature
 -------------------------------------------------
 Potential Model
 1.0     1.0     M-X (k,r0)
 1.0     120.0   X-X (k,a0)
 0.0     180.0   M-M (k,a0)
-0.001     2.0     L-J (k,r0)
-10.0   20.0   Constr (k,r0)
+0.01     2.0     L-J (k,r0)
+10.0   10.0   Constr (k,r0)
 -------------------------------------------------
 Minimisation Control
-0 0     global optimisation before/after simulation
+1 1     global optimisation before/after simulation
 10000    maximum iterations
 0.5     tau (backtracking line search coefficient)
 1e-07   convergence test
@@ -27,4 +27,4 @@ Minimisation Control
 -------------------------------------------------
 Additional Options
 0      convert to bilayer
-1      cluster and percolation analysis (2DS)
+0      cluster and percolation analysis (2DS)

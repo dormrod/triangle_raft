@@ -113,9 +113,13 @@ def get_data(prefix):
     if os.path.isfile(boundary_filename):
         boundary=np.genfromtxt(boundary_filename)
     else: boundary=[]
-    colours=np.genfromtxt(colour_filename,dtype="int")
-    ring_edges=colours[:,1]
-    ring_clusters=colours[:,2]
+    try: #if seg fault before can write colour file
+        colours=np.genfromtxt(colour_filename,dtype="int")
+        ring_edges=colours[:,1]
+        ring_clusters=colours[:,2]
+    except:
+        ring_edges=[]
+        ring_clusters=[]
 
     data["elements"]=elements
     data["coordination"]=coordination

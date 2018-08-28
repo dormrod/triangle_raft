@@ -135,7 +135,7 @@ void Simulation<CrdT,NetT>::growNetwork(Logfile &logfile) {
             }
             cout<<nRings<<endl;
             if(killGrowth==1){
-                masterNetwork.writeNetwork(prefixOut,logfile);
+                masterNetwork.kill(prefixOut,logfile);
                 logfile.errorlog("Growth prematurely killed due to excessive energy","critical");
             }
             else if(killGrowth==2){
@@ -143,7 +143,7 @@ void Simulation<CrdT,NetT>::growNetwork(Logfile &logfile) {
                 break;
             }
             else if(killGrowth==3){
-                masterNetwork.writeNetwork(prefixOut,logfile);
+                masterNetwork.kill(prefixOut,logfile);
                 logfile.errorlog("Growth prematurely killed as no trial rings could be formed","critical");
                 break;
             }
