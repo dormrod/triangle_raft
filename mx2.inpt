@@ -1,11 +1,11 @@
 I0
-./input_files/6     input prefix
-./output_files/test  output prefix
+./output_files/test   ./input_files/30     input prefix
+./output_files/testt  output prefix
 -------------------------------------------------
 Network Properties
-100  number of rings
-5 7        basic ring size limits
-3DS         geometry code
+31  number of rings
+4 4        basic ring size limits
+2DC         geometry code
 -------------------------------------------------
 Monte Carlo Process
 0           random seed
@@ -19,7 +19,7 @@ Potential Model
 10.0   10.0   Constr (k,r0)
 -------------------------------------------------
 Minimisation Control
-1 1     global optimisation before/after simulation
+0 0     global optimisation before/after simulation
 10000    maximum iterations
 0.5     tau (backtracking line search coefficient)
 1e-07   convergence test

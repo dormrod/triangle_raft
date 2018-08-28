@@ -83,10 +83,13 @@ public:
     void delUnitUnitCnx(int uId1, int uId2);
     void delUnitRingCnx(int uId, int rId);
     void delRingRingCnx(int rId1, int rId2);
+    void changeUnitAtomXCnx(int uId, int aId1, int aId2);
     bool trialRing(int ringSize, vector<int> &unitPath, vector<double> &potentialModel); //test a trial ring of given size
     void acceptRing(int ringSize, vector<int> &unitPath, vector<double> &potentialModel); //accept a ring of given size
     virtual void buildRing(int ringSize, vector<int> &unitPath, vector<double> &potentialModel)=0; //build a ring of given size
+    virtual void buildRing0(vector<int> &unitPath)=0; //build a ring of same size as unit path
     virtual void popRing(int ringSize, vector<int> &unitPath)=0; //remove last built ring
+    virtual void popRing0(vector<int> &unitPath)=0; //remove last built ring of same size as unit path
     virtual bool checkGrowth()=0; //check to continue growth
     virtual bool checkLocalGrowth(int rId)=0; //check if acceptable local growth
 

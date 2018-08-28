@@ -27,6 +27,7 @@ struct Connector {
     //methods
     int add(int cnx); //add a connection
     int del(int cnx); //delete a connection
+    int change(int del, int add); //change connection for another
 };
 
 #endif //MX2_CONNECTOR_H

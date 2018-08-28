@@ -38,7 +38,9 @@ public:
 
     int getActiveUnit(string shape, double size) override; //find active unit within shape
     void buildRing(int ringSize, vector<int> &unitPath, vector<double> &potentialModel) override; //build a ring of given size
+    void buildRing0(vector<int> &unitPath) override; //build a ring of same size as unit path
     void popRing(int ringSize, vector<int> &unitPath) override; //remove last built ring
+    void popRing0(vector<int> &unitPath) override; //remove last built ring of same size as unit path
     void checkOverlap() override; //check for overlap
     bool checkGrowth() override; //check to continue growth
     bool checkLocalGrowth(int rId) override; //check if acceptable local growth

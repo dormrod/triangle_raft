@@ -34,7 +34,9 @@ public:
     void geometryOptimiseLocal(vector<double> &potentialModel) override; //optimise geometry with steepest descent
     int getActiveUnit(string shape, double size) override; //find active unit within shape
     void buildRing(int ringSize, vector<int> &unitPath, vector<double> &potentialModel) override; //build a ring of given size
+    void buildRing0(vector<int> &unitPath) override; //build a ring of same size as unit path
     void popRing(int ringSize, vector<int> &unitPath) override; //remove last built ring
+    void popRing0(vector<int> &unitPath) override; //remove last built ring of same size as unit path
     void writeNetwork(string prefix, Logfile &logfile) override; //write network to files
     void writeNetworkSpecial(string prefix, Logfile &logfile) override; //write network in different format
     void checkOverlap() override; //check for overlap

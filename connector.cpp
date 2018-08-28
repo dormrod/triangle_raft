@@ -87,3 +87,16 @@ int Connector::del(int cnx) {
 
     return 0;
 }
+
+int Connector::change(int del, int add) {
+    //change a connection for another
+
+    for(int i=0; i<n; ++i){
+        if(ids[i]==del){
+            ids[i]=add;
+            return 0;
+        }
+    }
+
+    return 1;
+}

@@ -127,6 +127,13 @@ void Network<CrdT>::delRingRingCnx(int rId1, int rId2) {
 }
 
 template <typename CrdT>
+void Network<CrdT>::changeUnitAtomXCnx(int uId, int aId1, int aId2) {
+    //change unit-atom x connection
+    units[uId].atomsX.change(aId1,aId2);
+}
+
+
+template <typename CrdT>
 bool Network<CrdT>::checkActiveUnit(int &uId, int sumCheck) {
     //checks if a unit is active by summing coordination of associated x atoms
     double cndSum=0;
@@ -150,8 +157,14 @@ bool Network<CrdT>::trialRing(int ringSize, vector<int> &unitPath, vector<double
     //minimise and calculate energy
     //remove ring
 
+    //check build type - path closure or need to add units
+    bool ring0; //flag for path closure, auxiliary index
+    if(ringSize==unitPath.size()) ring0=true;
+    else ring0=false;
+
     //build trial ring
-    buildRing(ringSize, unitPath, potentialModel);
+    if(ring0) buildRing0(unitPath);
+    else buildRing(ringSize, unitPath, potentialModel);
 
     //geometry optimise
     geometryOptimiseLocal(potentialModel);
@@ -161,7 +174,8 @@ bool Network<CrdT>::trialRing(int ringSize, vector<int> &unitPath, vector<double
     bool geometryCheck=checkLocalGrowth(nRings-1);
 
     //pop trial ring
-    popRing(ringSize, unitPath);
+    if(ring0) popRing0(unitPath);
+    else popRing(ringSize, unitPath);
 
     return geometryCheck;
 }
@@ -170,7 +184,8 @@ template <typename CrdT>
 void Network<CrdT>::acceptRing(int ringSize, vector<int> &unitPath, vector<double> &potentialModel) {
     //build ring of given size to a starting path, minimise and calculate boundary
 
-    buildRing(ringSize, unitPath, potentialModel);
+    if(ringSize==unitPath.size()) buildRing0(unitPath);
+    else buildRing(ringSize, unitPath, potentialModel);
     geometryOptimiseLocal(potentialModel);
 //    geometryOptimiseGlobal(potentialModel);
     calculateBoundary();

@@ -504,6 +504,11 @@ int NetworkCart3DS::getActiveUnit(string shape, double size){
     return unitId;
 }
 
+void NetworkCart3DS::buildRing0(vector<int> &unitPath) {
+    //NOT IMPLEMENTED
+    return;
+}
+
 void NetworkCart3DS::buildRing(int ringSize, vector<int> &unitPath, vector<double> &potentialModel){
     //build a ring of a given size to a starting path
 
@@ -724,6 +729,11 @@ void NetworkCart3DS::buildRing(int ringSize, vector<int> &unitPath, vector<doubl
     }
     return;
 }
+
+void NetworkCart3DS::popRing0(vector<int> &unitPath) {
+    //NOT IMPLEMENTED
+}
+
 void NetworkCart3DS::popRing(int ringSize, vector<int> &unitPath){
      //remove last built ring
 

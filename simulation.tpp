@@ -205,8 +205,8 @@ vector<int> Simulation<CrdT,NetT>::selectUnitPath(int activeUnit) {
     unitPathR=masterNetwork.getBoundarySection(activeUnit,true);
 
     //for now pick longest if not longer than the basic ring size that can be made
-    if(unitPathL.size()>=basicMaxSize) unitPath=unitPathR;
-    else if(unitPathR.size()>=basicMaxSize) unitPath=unitPathL;
+    if(unitPathL.size()>basicMaxSize) unitPath=unitPathR;
+    else if(unitPathR.size()>basicMaxSize) unitPath=unitPathL;
     else if(unitPathL.size()>unitPathR.size()) unitPath=unitPathL;
     else unitPath=unitPathR;
 
@@ -223,7 +223,7 @@ void Simulation<CrdT,NetT>::addBasicRing(vector<int> unitPath) {
     trialSizes.clear();
     trialEnergies.clear();
     for(int i=0, j=basicMinSize; i<nBasicRingSizes; ++i, ++j){
-        if(j>unitPath.size()){
+        if(j>=unitPath.size()){
             //trial ring
             trialFlag=masterNetwork.trialRing(j,unitPath,potentialModel);
             if(trialFlag) {
