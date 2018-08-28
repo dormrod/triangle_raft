@@ -86,6 +86,7 @@ public:
     void changeUnitAtomXCnx(int uId, int aId1, int aId2);
     bool trialRing(int ringSize, vector<int> &unitPath, vector<double> &potentialModel); //test a trial ring of given size
     void acceptRing(int ringSize, vector<int> &unitPath, vector<double> &potentialModel); //accept a ring of given size
+    void clean(); //clean network of dead atoms
     virtual void buildRing(int ringSize, vector<int> &unitPath, vector<double> &potentialModel)=0; //build a ring of given size
     virtual void buildRing0(vector<int> &unitPath)=0; //build a ring of same size as unit path
     virtual void popRing(int ringSize, vector<int> &unitPath)=0; //remove last built ring

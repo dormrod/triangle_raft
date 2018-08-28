@@ -1,4 +1,4 @@
-Simulation run: Tue Aug 28 10:56:20 2018
+Simulation run: Tue Aug 28 12:00:50 2018
 
 Grows MX2 Aperiodic Networks                    
 Written By: David OM, Wilson Group, 2018                    
@@ -56,5 +56,5 @@ Writing network analysis
     Aboav-Weaire parameters written to: ./output_files/testt_analysis.out
 Writing complete                        
 ----------------------------------------------------------------------
-Simulation complete: Tue Aug 28 10:56:20 2018
+Simulation complete: Tue Aug 28 12:00:50 2018
 

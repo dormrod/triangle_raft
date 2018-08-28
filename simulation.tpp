@@ -149,6 +149,7 @@ void Simulation<CrdT,NetT>::growNetwork(Logfile &logfile) {
             }
         }while(nRings<nTargetRings);
     }
+    masterNetwork.clean();
     logfile.log("All rings built, time elapsed: ","","sec",2,false);
     logfile.log("Network growth complete","","",1,false);
 

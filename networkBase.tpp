@@ -192,6 +192,46 @@ void Network<CrdT>::acceptRing(int ringSize, vector<int> &unitPath, vector<doubl
 }
 
 template <typename CrdT>
+void Network<CrdT>::clean() {
+    //remove any uncoordinated atoms and reassign ids
+
+    //loop over atoms and find zero-coordinate species
+    map<int,int> updatedAtomIds; //reassigned ids
+    vector<int> removeAtoms; //atoms with zero coordination - artefacts of build process from buildRing0
+    removeAtoms.clear();
+    int aId=0;
+    for(int i=0; i<nAtoms; ++i){
+        if(atoms[i].coordination==0){
+            removeAtoms.push_back(i);
+            updatedAtomIds[i]=-1;
+        }
+        else{
+            updatedAtomIds[i]=aId;
+            ++aId;
+        }
+    }
+
+    //remove atoms from list in reverse order
+    for(int i=0; i<removeAtoms.size(); ++i) atoms.erase(atoms.begin()+removeAtoms.rbegin()[i]);
+
+    //update atom ids in unit connections
+    int aId0, aId1;
+    for(int i=0; i<nUnits; ++i){
+        for(int j=0; j<units[i].atomsX.n; ++j){//update x atom ids
+            aId0=units[i].atomsX.ids[j];
+            aId1=updatedAtomIds[aId0];
+            if(aId1==-1) cout<<"ERROR IN NETWORK CLEANING"<<endl;
+            units[i].atomsX.ids[j]=aId1;
+        }
+        //update m atom id
+        aId0=units[i].atomM;
+        aId1=updatedAtomIds[aId0];
+        if(aId1==-1) cout<<"ERROR IN NETWORK CLEANING"<<endl;
+        units[i].atomM=aId1;
+    }
+}
+
+template <typename CrdT>
 void Network<CrdT>::calculateBoundary() {
     //find units on boundary of network
     //follow units on edge, flag when traversed
@@ -618,7 +658,8 @@ template <typename CrdT>
 void Network<CrdT>::kill(string prefix, Logfile &logfile) {
     //kill network growth early and write out files
 
-    //initialise and get ring colours
+    //clean, initialise and get ring colours
+    clean();
     ringColours.resize(nRings,col_vector<int>(2));
     for(int i=0; i<nRings; ++i) ringColours[i][0]=rings[i].units.n;
 
