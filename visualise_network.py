@@ -101,6 +101,7 @@ def get_data(prefix):
     coordination=np.array(atoms[:,1],dtype=int)
     crds=np.array(atoms[:,2:],dtype=float)
     units=np.genfromtxt(unit_filename,dtype=int)
+    dimensionality=crds.shape[1]
     file=open(ring_filename,"r")
     rings=[]
     for line in file:
@@ -113,8 +114,8 @@ def get_data(prefix):
     if os.path.isfile(boundary_filename):
         boundary=np.genfromtxt(boundary_filename)
     else: boundary=[]
-    try: #if seg fault before can write colour file
-        colours=np.genfromtxt(colour_filename,dtype="int")
+    colours=np.genfromtxt(colour_filename,dtype="int")
+    try:
         ring_edges=colours[:,1]
         ring_clusters=colours[:,2]
     except:
@@ -131,6 +132,7 @@ def get_data(prefix):
     data["boundary"]=boundary
     data["ring_edges"]=ring_edges
     data["ring_clusters"]=ring_clusters
+    data["dimensionality"]=dimensionality
 
     return data
 
@@ -185,6 +187,7 @@ def plot_ring_network(data,fig,ax,colour_style,size_filter):
     ring_sizes=data.get("ring_sizes")
     ring_edges=data.get("ring_edges")
     ring_clusters=data.get("ring_clusters")
+    dimensionality=data.get("dimensionality")
 
     # Generate patch drawing commands and colours
     polygon_cmds=generate_polygon_commands(3,np.max(ring_sizes));
@@ -200,15 +203,33 @@ def plot_ring_network(data,fig,ax,colour_style,size_filter):
     # ring_sizes=ring_sizes[::-1]
     # ring_colours=ring_colours[::-1]
     #
-    # Loop over rings and draw polygons
-    for i, ring in enumerate(rings):
-        ring_crds=np.array([crds[unit_m[a]] for a in ring])
-        ring_crds=np.append(ring_crds, [crds[0]], axis=0)
-    # depth=np.average(np.array([depth_cueing[a] for a in ring]))
-        path=Path(ring_crds, polygon_cmds[ring_sizes[i]-3])
-        patch = patches.PathPatch(path, facecolor=ring_colours[i], lw=1.0, alpha=1.0, zorder=0)
-        # patch = patches.PathPatch(path, facecolor="white", lw=1.0, alpha=1.0, zorder=0)
-        ax.add_patch(patch)
+
+    if dimensionality==2:
+        # Loop over rings and draw polygons
+        for i, ring in enumerate(rings):
+            ring_crds=np.array([crds[unit_m[a]] for a in ring])
+            ring_crds=np.append(ring_crds, [crds[0]], axis=0)
+        # depth=np.average(np.array([depth_cueing[a] for a in ring]))
+            path=Path(ring_crds, polygon_cmds[ring_sizes[i]-3])
+            patch = patches.PathPatch(path, facecolor=ring_colours[i], lw=1.0, alpha=1.0, zorder=0)
+            # patch = patches.PathPatch(path, facecolor="white", lw=1.0, alpha=1.0, zorder=0)
+            ax.add_patch(patch)
+        #plt.text(ring_crds[0,0],ring_crds[0,1],i)
+    elif dimensionality==3:
+        # Add depth cueing
+        z=crds[:,2]
+        crds=crds[:,:2]
+        z=z/np.max(z)
+        for i,a in enumerate(z):
+            if a<0: z[i]=0
+        for i, ring in enumerate(rings):
+            ring_crds=np.array([crds[unit_m[a]] for a in ring])
+            ring_crds=np.append(ring_crds, [crds[0]], axis=0)
+            depth=np.average(np.array([z[a] for a in ring]))
+            path=Path(ring_crds, polygon_cmds[ring_sizes[i]-3])
+            patch = patches.PathPatch(path, facecolor=ring_colours[i], lw=1.0, alpha=depth, zorder=0)
+            ax.add_patch(patch)
+        pass
 
     # if(label):
     #     for i, c in enumerate(crds):

@@ -505,7 +505,44 @@ int NetworkCart3DS::getActiveUnit(string shape, double size){
 }
 
 void NetworkCart3DS::buildRing0(vector<int> &unitPath) {
-    //NOT IMPLEMENTED
+    //build ring of same size as unit path - change X atom of one unit
+
+    //get ids of dangling atoms in path
+    int atomIdL = boundaryStatus[find(boundaryUnits.begin(), boundaryUnits.end(), unitPath[0]) - boundaryUnits.begin()];
+    int atomIdR = boundaryStatus[find(boundaryUnits.begin(), boundaryUnits.end(), unitPath.rbegin()[0]) - boundaryUnits.begin()];
+
+    //change dangling x atom connection of right unit to left unit
+    changeUnitAtomXCnx(unitPath.rbegin()[0],atomIdR,atomIdL);
+    ++atoms[atomIdL].coordination;
+    atoms[atomIdR].coordination=0;
+
+    //close path - add unit-unit connection between ends
+    addUnitUnitCnx(unitPath[0],unitPath.rbegin()[0]);
+
+    //make new ring
+    int ringId=nRings;
+    int ringSize=unitPath.size();
+    Ring ring(nRings,ringSize,ringSize);
+    addRing(ring);
+    //assign ring-units
+    for(int i=0; i<unitPath.size(); ++i) addUnitRingCnx(unitPath.rbegin()[i],ringId);
+    //assign ring-rings
+    vector<int> nbRings;
+    nbRings.clear();
+    for(int i=0; i<unitPath.size(); ++i){
+        for(int j=0; j<units[unitPath[i]].rings.n;++j){
+            nbRings.push_back(units[unitPath[i]].rings.ids[j]);
+        }
+    }
+    sort(nbRings.begin(), nbRings.end());
+    int prevRing=-1, currRing;
+    for(int i=0; i<nbRings.size(); ++i){
+        currRing=nbRings[i];
+        if(currRing!=prevRing && currRing!=ringId){
+            addRingRingCnx(currRing,ringId);
+            prevRing=currRing;
+        }
+    }
     return;
 }
 
@@ -731,7 +768,44 @@ void NetworkCart3DS::buildRing(int ringSize, vector<int> &unitPath, vector<doubl
 }
 
 void NetworkCart3DS::popRing0(vector<int> &unitPath) {
-    //NOT IMPLEMENTED
+    //remove last built ring (of same size as unit path)
+
+    //get ids of x-atoms to dis/reconnect
+    int atomIdL = boundaryStatus[find(boundaryUnits.begin(), boundaryUnits.end(), unitPath[0]) - boundaryUnits.begin()];
+    int atomIdR = boundaryStatus[find(boundaryUnits.begin(), boundaryUnits.end(), unitPath.rbegin()[0]) - boundaryUnits.begin()];
+
+    //re-change dangling x atom connection of right unit
+    changeUnitAtomXCnx(unitPath.rbegin()[0],atomIdL,atomIdR);
+    --atoms[atomIdL].coordination;
+    atoms[atomIdR].coordination=3;
+
+    //delete ring and unit-unit connection
+    delRing();
+
+    //close path - add unit-unit connection between ends
+    delUnitUnitCnx(unitPath[0],unitPath.rbegin()[0]);
+    delUnitUnitCnx(unitPath.rbegin()[0],unitPath[0]);
+
+    //remove unit-ring connections
+    for(int i=0; i<unitPath.size(); ++i) delUnitRingCnx(unitPath[i],nRings);
+
+    //remove ring-ring connections
+    vector<int> nbRings;
+    nbRings.clear();
+    for(int i=0; i<unitPath.size(); ++i){
+        for(int j=0; j<units[unitPath[i]].rings.n;++j){
+            nbRings.push_back(units[unitPath[i]].rings.ids[j]);
+        }
+    }
+    sort(nbRings.begin(), nbRings.end());
+    int prevRing=-1, currRing;
+    for(int i=0; i<nbRings.size(); ++i){
+        currRing=nbRings[i];
+        if(currRing!=prevRing && currRing!=nRings){
+            delRingRingCnx(currRing,nRings);
+            prevRing=currRing;
+        }
+    }
 }
 
 void NetworkCart3DS::popRing(int ringSize, vector<int> &unitPath){

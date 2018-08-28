@@ -1,11 +1,11 @@
 I0
-./output_files/test   ./input_files/30     input prefix
-./output_files/testt  output prefix
+./input_files/6  ./output_files/testtt ./input_files/30     input prefix
+./output_files/test_sphere  output prefix
 -------------------------------------------------
 Network Properties
-31  number of rings
-4 4        basic ring size limits
-2DC         geometry code
+200  number of rings
+5 7        basic ring size limits
+3DS         geometry code
 -------------------------------------------------
 Monte Carlo Process
 0           random seed

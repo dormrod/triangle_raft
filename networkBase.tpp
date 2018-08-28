@@ -213,6 +213,7 @@ void Network<CrdT>::clean() {
 
     //remove atoms from list in reverse order
     for(int i=0; i<removeAtoms.size(); ++i) atoms.erase(atoms.begin()+removeAtoms.rbegin()[i]);
+    nAtoms-=removeAtoms.size();
 
     //update atom ids in unit connections
     int aId0, aId1;

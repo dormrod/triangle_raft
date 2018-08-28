@@ -164,6 +164,7 @@ void NetworkCart2D::popRing0(vector<int> &unitPath) {
 
     //close path - add unit-unit connection between ends
     delUnitUnitCnx(unitPath[0],unitPath.rbegin()[0]);
+    delUnitUnitCnx(unitPath.rbegin()[0],unitPath[0]);
 
     //remove unit-ring connections
     for(int i=0; i<unitPath.size(); ++i) delUnitRingCnx(unitPath[i],nRings);
