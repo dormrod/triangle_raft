@@ -294,7 +294,7 @@ inline void HLJC2::angleEnergy(double &cx0, double &cy0, double &cx1, double &cy
 }
 
 inline void HLJC2::repEnergy(double &cx0, double &cy0, double &cx1, double &cy1, double &e, int paramRef) {
-    //shifted and truncated LJ potential U=ep*(r-12-2r-6)
+    //shifted and truncated LJ potential U=ep*(r-24-2r-12)+ep
     double dx=cx1-cx0;
     double dy=cy1-cy0;
     double r02=repR02[paramRef];

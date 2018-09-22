@@ -75,8 +75,9 @@ void Simulation<CrdT,NetT>::setGO(bool global0, bool global1, int it, double ls,
 }
 
 template <typename CrdT, typename NetT>
-void Simulation<CrdT,NetT>::setFO(bool bi, bool aClst, Logfile &logfile) {
+void Simulation<CrdT,NetT>::setFO(bool bDist, bool bi, bool aClst, Logfile &logfile) {
     //set further options
+    fullDistributions=bDist;
     convertToBilayer=bi;
     analyseCluster=aClst;
     logfile.log("Initialised: ","additional options","",1,false);
@@ -133,7 +134,7 @@ void Simulation<CrdT,NetT>::growNetwork(Logfile &logfile) {
                 cout<<nRings<<endl;
                 logfile.log(to_string(nRings)+" rings, time elapsed: ","","sec",2,false);
             }
-            cout<<nRings<<endl;
+//            cout<<nRings<<endl;
             if(killGrowth==1){
                 masterNetwork.kill(prefixOut,logfile);
                 logfile.errorlog("Growth prematurely killed due to excessive energy","critical");
@@ -268,8 +269,8 @@ void Simulation<CrdT,NetT>::analyseNetwork(Logfile &logfile) {
     masterNetwork.calculateRingStatistics();
     logfile.log("Ring statistics calculated","","",1,false);
 
-    //bond distributions - not written out explicitly but used for bilayer formation
-    masterNetwork.calculateBondDistributions();
+    //bond distributions
+    masterNetwork.calculateBondDistributions(fullDistributions);
 
     //percolation
     if(analyseCluster){

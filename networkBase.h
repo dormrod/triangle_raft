@@ -38,11 +38,11 @@ protected:
     map<int,int> localAtomMap, globalAtomMap; //maps local to global atoms
     vector<int> flexLocalUnits, fixedLocalUnits, fixedLocalAtoms; //units that make up local region, and fixed atoms
     //Analysis
-    bool unitOverlap; //check for overlap of units
+    bool unitOverlap, writeFullDistributions; //check for overlap of units, calculate full bond len/angle distributions
     DiscreteDistribution ringStatistics; //ring size distribution for entire network
     map<int,DiscreteDistribution> indRingStatistics; //ring size distributions around each individual ring
     vector<double> aboavWeaireParameters; //alpha, mu and rsq
-    ContinuousDistribution bondLenDistXX, bondLenDistMX; //bond length distributions
+    ContinuousDistribution bondLenDistXX, bondLenDistMX, bondAngDistMXM; //bond length/angle distributions
     map<int,DiscreteDistribution> clusterDistributions; //cluster size distributions for ring sizes
     map<int,bool> percolation; //logs if spanning cluster present for different ring sizes
     vector< col_vector<int> > ringColours; //for visualisation
@@ -101,7 +101,7 @@ public:
     virtual void geometryOptimiseLocal(vector<double> &potentialModel)=0;
     //Analyse Network
     void calculateRingStatistics(); //ring stats analysis
-    void calculateBondDistributions(); //bond len/angle distributions
+    void calculateBondDistributions(bool fullDist); //bond len/angle distributions
     virtual void checkOverlap()=0; //check for overlap
     virtual void calculatePercolation(string shape)=0; //clusters and percolation
 

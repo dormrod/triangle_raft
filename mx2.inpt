@@ -1,22 +1,22 @@
 I0
-./input_files/6  ./output_files/testtt ./input_files/30     input prefix
-./output_files/test_sphere  output prefix
+./input_files/6     input prefix
+./output_files/test2 output prefix
 -------------------------------------------------
 Network Properties
-200  number of rings
-5 7        basic ring size limits
-3DS         geometry code
+100  number of rings
+4 10        basic ring size limits
+2DC         geometry code
 -------------------------------------------------
 Monte Carlo Process
 0           random seed
-0.000001     temperature
+0.0002     temperature
 -------------------------------------------------
 Potential Model
 1.0     1.0     M-X (k,r0)
 1.0     120.0   X-X (k,a0)
 0.0     180.0   M-M (k,a0)
-0.01     2.0     L-J (k,r0)
-10.0   10.0   Constr (k,r0)
+0.1     1.879     L-J (k,r0)
+10.0   20.0   Constr (k,r0)
 -------------------------------------------------
 Minimisation Control
 0 0     global optimisation before/after simulation
@@ -26,5 +26,6 @@ Minimisation Control
 5      size of local region
 -------------------------------------------------
 Additional Options
+1      full bond length/angle distributions
 0      convert to bilayer
 0      cluster and percolation analysis (2DS)

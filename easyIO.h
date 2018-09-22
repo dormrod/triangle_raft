@@ -82,7 +82,21 @@ void writeFileVector(ofstream &file, col_vector<T> values, int width=10){
     file<<endl;
 }
 template <typename T>
-void writeFileArray(ofstream &file, T values, int n, bool endLine ,int width=10){
+void writeFileVectorTranspose(ofstream &file, vector<T> values, int width=10){
+    //write vector of values to file
+    for(int i=0; i<values.size(); ++i){
+        file<<setw(width)<<left<<values[i]<<endl;
+    }
+}
+template <typename T>
+void writeFileVectorTranspose(ofstream &file, col_vector<T> values, int width=10){
+    //write vector of values to file
+    for(int i=0; i<values.n; ++i){
+        file<<setw(width)<<left<<values[i]<<endl;
+    }
+}
+template <typename T>
+void writeFileArray(ofstream &file, T values, int n, bool endLine, int width=10){
     //write array of values to file
     for(int i=0; i<n; ++i){
         file<<setw(width)<<left<<values[i];

@@ -42,12 +42,14 @@ struct ContinuousDistribution{
     col_vector<double> x; //values
 
     //statistics
-    double mean;
+    double mean, sdev;
 
     //constructors, destructors
     ContinuousDistribution(); //default
     ContinuousDistribution(vector<double> values);
 
+    //getters
+    vector<double> getValues();
 };
 
 

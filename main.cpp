@@ -77,21 +77,22 @@ int main(){
     preOpt=globalOpt[0];
     postOpt=globalOpt[1];
     //Additional options
-    bool bilayer,analyseClusters;
+    bool bondDistributions,bilayer,analyseClusters;
     readFileSkipLines(inputFile,2); //skip
+    readFileValue(inputFile,bondDistributions); //explicit distributions
     readFileValue(inputFile,bilayer); //convert to bilayer
     readFileValue(inputFile,analyseClusters); //cluster and percolation analysis
     inputFile.close();
 
     //set up simulation of correct geometry
-    if(geometry=="2DC" || geometry=="2DS") {
+    if(geometry=="2DC" || geometry=="2DS" || geometry=="2DH") {
         Simulation<Cart2D, NetworkCart2D> simulation(logfile);
         simulation.setIO(inputPrefix, outputPrefix, logfile);
         simulation.setNP(nTotalRings, minBasicRingSize, maxBasicRingSize, geometry, logfile);
         simulation.setMC(randomSeed, temperature, logfile);
         simulation.setPM(kMX, r0MX, kXX, a0XX, kMM, a0MM, kLJ, r0LJ, kC, r0C, logfile);
         simulation.setGO(preOpt, postOpt, maxIt, lsInc, convTest, localSize, logfile);
-        simulation.setFO(bilayer,analyseClusters,logfile);
+        simulation.setFO(bondDistributions,bilayer,analyseClusters,logfile);
 
         //run simulation
         simulation.run(logfile);
@@ -103,7 +104,7 @@ int main(){
         simulation.setMC(randomSeed, temperature, logfile);
         simulation.setPM(kMX, r0MX, kXX, a0XX, kMM, a0MM, kLJ, r0LJ, kC, r0C, logfile);
         simulation.setGO(preOpt, postOpt, maxIt, lsInc, convTest, localSize, logfile);
-        simulation.setFO(bilayer,analyseClusters,logfile);
+        simulation.setFO(bondDistributions,bilayer,analyseClusters,logfile);
 
         //run simulation
         simulation.run(logfile);

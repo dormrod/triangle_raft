@@ -546,10 +546,13 @@ void Network<CrdT>::calculateRingStatistics() {
 }
 
 template <typename CrdT>
-void Network<CrdT>::calculateBondDistributions() {
+void Network<CrdT>::calculateBondDistributions(bool fullDist) {
     //calculate bond length/angle distributions
 
-    //M-X
+    //flag whether to write full distributions
+    writeFullDistributions=fullDist;
+
+    //M-X length
     vector<double> bondLengths;
     bondLengths.clear();
     int m,x;
@@ -567,7 +570,7 @@ void Network<CrdT>::calculateBondDistributions() {
     ContinuousDistribution bondLenMX(bondLengths);
     bondLenDistMX=bondLenMX;
 
-    //X-X
+    //X-X length
     bondLengths.clear();
     int x0, x1;
     CrdT crdX0, crdX1, crdXX;
@@ -585,6 +588,54 @@ void Network<CrdT>::calculateBondDistributions() {
     }
     ContinuousDistribution bondLenXX(bondLengths);
     bondLenDistXX=bondLenXX;
+
+    //M-X-M angle
+    vector<double> bondAngles;
+    bondAngles.clear();
+    int u0,u1,m0,m1;
+    int x00, x01, x02, x10, x11, x12;
+    CrdT crdM0, crdM1, crdMX0, crdMX1;
+    double theta0, theta1;
+    for(int i=0; i<nUnits; ++i){
+        u0=i;
+        m0=units[u0].atomM;
+        x00=units[u0].atomsX.ids[0];
+        x01=units[u0].atomsX.ids[1];
+        x02=units[u0].atomsX.ids[2];
+        crdM0=atoms[m0].coordinate;
+        for(int j=0; j<units[i].units.n; ++j){
+            u1=units[i].units.ids[j];
+            if(u0<u1){//prevent double counting
+                m1=units[u1].atomM;
+                x10=units[u1].atomsX.ids[0];
+                x11=units[u1].atomsX.ids[1];
+                x12=units[u1].atomsX.ids[2];
+                crdM1=atoms[m1].coordinate;
+                //find bridging x atom
+                if(x00==x10) x=x00;
+                else if(x01==x10) x=x01;
+                else if(x02==x10) x=x02;
+                else if(x00==x11) x=x00;
+                else if(x01==x11) x=x01;
+                else if(x02==x11) x=x02;
+                else if(x00==x12) x=x00;
+                else if(x01==x12) x=x01;
+                else if(x02==x12) x=x02;
+                else cout<<"ERROR IN BOND ANGLE CALCULATION"<<endl;
+                crdX=atoms[x].coordinate;
+                crdMX0=crdM0-crdX;
+                crdMX1=crdM1-crdX;
+                crdMX0.normalise();
+                crdMX1.normalise();
+                theta0=acos(crdMX0*crdMX1);
+                theta1=2.0*M_PI-theta0;
+                bondAngles.push_back(theta0);
+                bondAngles.push_back(theta1);
+            }
+        }
+    }
+    ContinuousDistribution bondAngMXM(bondAngles);
+    bondAngDistMXM=bondAngMXM;
 }
 
 template <typename CrdT>
@@ -638,6 +689,33 @@ void Network<CrdT>::writeAnalysis(string prefix, Logfile &logfile) {
     data=aboavWeaireParameters;
     writeFileVector(analysisFile,data);
     logfile.log("Aboav-Weaire parameters written to: ",analysisFilename,"", 1, false);
+
+    //bond length/angle distributions
+    writeFileValue(analysisFile,"Bond Length/Angle Distributions: MX, XX, MXM",true);
+    writeFileValue(analysisFile,bondLenDistMX.mean,bondLenDistMX.sdev);
+    writeFileValue(analysisFile,bondLenDistXX.mean,bondLenDistXX.sdev);
+    writeFileValue(analysisFile,bondAngDistMXM.mean,bondAngDistMXM.sdev);
+    logfile.log("Bond length and angle distribution summaries written to: ",analysisFilename,"",1,false);
+    if(writeFullDistributions){
+        string mxAnalysisFilename = prefix + "_analysis_mx.out";
+        string xxAnalysisFilename = prefix + "_analysis_xx.out";
+        string mxmAnalysisFilename = prefix + "_analysis_mxm.out";
+        ofstream mxAnalysisFile(mxAnalysisFilename,ios::in|ios::trunc);
+        ofstream xxAnalysisFile(xxAnalysisFilename,ios::in|ios::trunc);
+        ofstream mxmAnalysisFile(mxmAnalysisFilename,ios::in|ios::trunc);
+        vector<double> rawDistribution=bondLenDistMX.getValues();
+        writeFileVectorTranspose(mxAnalysisFile,rawDistribution);
+        rawDistribution=bondLenDistXX.getValues();
+        writeFileVectorTranspose(xxAnalysisFile,rawDistribution);
+        rawDistribution=bondAngDistMXM.getValues();
+        writeFileVectorTranspose(mxmAnalysisFile,rawDistribution);
+        logfile.log("MX bond length distribution written to: ",mxAnalysisFilename,"",1,false);
+        logfile.log("XX bond length distribution written to: ",xxAnalysisFilename,"",1,false);
+        logfile.log("MXM bond angle distribution written to: ",mxmAnalysisFilename,"",1,false);
+        mxAnalysisFile.close();
+        xxAnalysisFile.close();
+        mxmAnalysisFile.close();
+    }
 
     //clustering and percolation
     if(clusterDistributions.size()>0){//only write if performed analysis

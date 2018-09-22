@@ -85,6 +85,17 @@ ContinuousDistribution::ContinuousDistribution(vector<double> values) {
     mean=0.0;
     for(int i=0; i<n; ++i) mean+=x[i];
     mean/=n;
+
+    //calculate standard deviation
+    sdev=0.0;
+    for(int i=0; i<n; ++i) sdev+=x[i]*x[i];
+    sdev=sqrt(sdev/n-mean*mean);
+}
+
+vector<double> ContinuousDistribution::getValues() {
+    vector<double> values;
+    for(int i=0; i<n; ++i) values.push_back(x[i]);
+    return values;
 }
 
 vector<double> leastSquaresLinearRegression(vector<double> x, vector<double> y){
