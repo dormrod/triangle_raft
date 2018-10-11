@@ -20,6 +20,7 @@ struct DiscreteDistribution{
     col_vector<double> p, p_raw; //(normalised) probabilities
 
     //statistics
+    int sampleSize;
     double mean;
 
     //constructors, destructors

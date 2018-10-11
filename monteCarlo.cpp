@@ -30,7 +30,6 @@ int MonteCarlo::metropolis(vector<double> energies) {
         pTot += p;
     }
     for (int j = 0; j < n; ++j) probabilities[j] /= pTot;
-//    consoleVector(probabilities);
     double r01 = rand01(mtGen);
     int acceptedNetwork;
     pTot = 0.0;

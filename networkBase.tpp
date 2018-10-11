@@ -505,6 +505,14 @@ void Network<CrdT>::calculateRingStatistics() {
     DiscreteDistribution ringStats(ringSizes);
     ringStatistics=ringStats;
 
+    //calculate distribution of ring sizes excluding edge rings
+    ringSizes.clear();
+    for(int i=0; i<nRings; ++i){
+        if(rings[i].rings.full) ringSizes.push_back(rings[i].units.n);
+    }
+    ringStats=DiscreteDistribution(ringSizes);
+    bulkRingStatistics=ringStats;
+
     //calculate distributions for each ring size (excluding edge rings)
     int ringRef;
     indRingStatistics.clear();
@@ -660,25 +668,35 @@ void Network<CrdT>::writeAnalysis(string prefix, Logfile &logfile) {
     writeFileValue(analysisFile,!unitOverlap,true);
 
     //ring statistics
-    writeFileValue(analysisFile,"p_n and <n>",true);
+    writeFileValue(analysisFile,"p_n, <n>, s for total, bulk, individual",true);
     analysisFile << fixed << showpoint << setprecision(1);
+    //total ring statistics
     vector<int> ringSizes=ringStatistics.getValues();
     writeFileVector(analysisFile,ringSizes);
     analysisFile << fixed << showpoint << setprecision(6);
     vector<double> data=ringStatistics.getProbabilities();
     data.push_back(ringStatistics.mean);
+    data.push_back(double(ringStatistics.sampleSize));
     writeFileVector(analysisFile,data);
+    //bulk rings statistics
+    data.clear();
+    for(int i=0; i<ringSizes.size(); ++i) data.push_back(bulkRingStatistics.getProbability(ringSizes[i]));
+    data.push_back(bulkRingStatistics.mean);
+    data.push_back(double(bulkRingStatistics.sampleSize));
+    writeFileVector(analysisFile,data);
+    //individual ring statistics
     for(int i=0; i<ringSizes.size(); ++i){
         data.clear();
         int s=ringSizes[i];
         if(indRingStatistics.count(s)==0){
-            for(int j=0; j<ringSizes.size()+1; ++j) data.push_back(0.0);
+            for(int j=0; j<ringSizes.size()+2; ++j) data.push_back(0.0);
         }
         else{
             for(int j=0; j<ringSizes.size(); ++j){
                 data.push_back(indRingStatistics.at(s).getProbability(ringSizes[j]));
             }
             data.push_back(indRingStatistics.at(s).mean);
+            data.push_back(double(indRingStatistics.at(s).sampleSize));
         }
         writeFileVector(analysisFile,data);
     }

@@ -9,10 +9,12 @@ DiscreteDistribution::DiscreteDistribution(vector<int> values) {
 
     if(values.size()==0){
         n=0;
+        sampleSize=0;
         return;
     }
 
     //generate unique list of values
+    sampleSize=values.size();
     sort(values.begin(),values.end());
     vector<int> uniqueValues;
     uniqueValues.clear();

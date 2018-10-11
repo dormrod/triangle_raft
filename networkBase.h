@@ -39,7 +39,7 @@ protected:
     vector<int> flexLocalUnits, fixedLocalUnits, fixedLocalAtoms; //units that make up local region, and fixed atoms
     //Analysis
     bool unitOverlap, writeFullDistributions; //check for overlap of units, calculate full bond len/angle distributions
-    DiscreteDistribution ringStatistics; //ring size distribution for entire network
+    DiscreteDistribution ringStatistics, bulkRingStatistics; //ring size distribution for entire network, and excluding edges
     map<int,DiscreteDistribution> indRingStatistics; //ring size distributions around each individual ring
     vector<double> aboavWeaireParameters; //alpha, mu and rsq
     ContinuousDistribution bondLenDistXX, bondLenDistMX, bondAngDistMXM; //bond length/angle distributions
