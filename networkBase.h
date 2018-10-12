@@ -42,7 +42,8 @@ protected:
     DiscreteDistribution ringStatistics, bulkRingStatistics; //ring size distribution for entire network, and excluding edges
     map<int,DiscreteDistribution> indRingStatistics; //ring size distributions around each individual ring
     vector<double> aboavWeaireParameters; //alpha, mu and rsq
-    ContinuousDistribution bondLenDistXX, bondLenDistMX, bondAngDistMXM; //bond length/angle distributions
+    ContinuousDistribution bondLenDistXX, bondLenDistMX, bondLenDistMM, bondAngDistMXM, bondAngDistMMM; //bond length/angle distributions
+    map<int,ContinuousDistribution> ringAreas; //areas of rings of each size
     map<int,DiscreteDistribution> clusterDistributions; //cluster size distributions for ring sizes
     map<int,bool> percolation; //logs if spanning cluster present for different ring sizes
     vector< col_vector<int> > ringColours; //for visualisation
@@ -102,6 +103,7 @@ public:
     //Analyse Network
     void calculateRingStatistics(); //ring stats analysis
     void calculateBondDistributions(bool fullDist); //bond len/angle distributions
+    void calculateRingAreas(); //area of rings analysis
     virtual void checkOverlap()=0; //check for overlap
     virtual void calculatePercolation(string shape)=0; //clusters and percolation
 

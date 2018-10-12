@@ -554,6 +554,37 @@ void Network<CrdT>::calculateRingStatistics() {
 }
 
 template <typename CrdT>
+void Network<CrdT>::calculateRingAreas() {
+    //calculate dimensionless areas of rings separated by size
+
+    //loop over rings, calculate dimensionless area and store in vector according to ring size
+    map<int, vector<double> > ringSizeAreas;
+    double area;
+    double mm_sq=bondLenDistMM.mean*bondLenDistMM.mean; //to make dimensionless
+    int ringSize,m0, m1;
+    for(int i=0; i<nRings; ++i){
+        area=0.0;
+        ringSize=rings[i].units.n;
+        for(int j=0; j<ringSize; ++j){
+            m0=units[rings[i].units.ids[j]].atomM;
+            m1=units[rings[i].units.ids[(j+1)%ringSize]].atomM;
+            area+=atoms[m0].coordinate.x*atoms[m1].coordinate.y;
+            area-=atoms[m1].coordinate.x*atoms[m0].coordinate.y;
+        }
+        area=fabs(0.5*area/mm_sq);
+        ringSizeAreas[ringSize].push_back(area);
+    }
+
+    //make distributions according to ring size
+    vector<int> ringSizes=ringStatistics.getValues();
+    for(int i=0; i<ringSizes.size(); ++i){
+        ContinuousDistribution areaDistribution(ringSizeAreas.at(ringSizes[i]));
+        ringAreas[ringSizes[i]]=areaDistribution;
+    }
+
+}
+
+template <typename CrdT>
 void Network<CrdT>::calculateBondDistributions(bool fullDist) {
     //calculate bond length/angle distributions
 
@@ -597,12 +628,31 @@ void Network<CrdT>::calculateBondDistributions(bool fullDist) {
     ContinuousDistribution bondLenXX(bondLengths);
     bondLenDistXX=bondLenXX;
 
+    //M-M length
+    bondLengths.clear();
+    int m0, m1;
+    CrdT crdM0, crdM1, crdMM;
+    for(int i=0; i<nUnits; ++i){
+        m0=units[i].atomM;
+        crdM0=atoms[m0].coordinate;
+        for(int j=0; j<units[i].units.n; ++j){
+            m1=units[units[i].units.ids[j]].atomM;
+            if(m0<m1){//prevent double  counting
+                crdM1=atoms[m1].coordinate;
+                crdMM=crdM1-crdM0;
+                bondLengths.push_back(crdMM.norm());
+            }
+        }
+    }
+    ContinuousDistribution bondLenMM(bondLengths);
+    bondLenDistMM=bondLenMM;
+
     //M-X-M angle
     vector<double> bondAngles;
     bondAngles.clear();
-    int u0,u1,m0,m1;
+    int u0,u1;
     int x00, x01, x02, x10, x11, x12;
-    CrdT crdM0, crdM1, crdMX0, crdMX1;
+    CrdT crdMX0, crdMX1;
     double theta0, theta1;
     for(int i=0; i<nUnits; ++i){
         u0=i;
@@ -644,6 +694,45 @@ void Network<CrdT>::calculateBondDistributions(bool fullDist) {
     }
     ContinuousDistribution bondAngMXM(bondAngles);
     bondAngDistMXM=bondAngMXM;
+
+    //M-M-M angle
+    bondAngles.clear();
+    double theta;
+    CrdT crdM2, crdMM0, crdMM1, crdMM2;
+    for(int i=0; i<nUnits; ++i){
+        crdM=atoms[units[i].atomM].coordinate;
+        if(units[i].units.n==2){
+            crdM0=atoms[units[units[i].units.ids[0]].atomM].coordinate;
+            crdM1=atoms[units[units[i].units.ids[1]].atomM].coordinate;
+            crdMM0=crdM0-crdM;
+            crdMM1=crdM1-crdM;
+            crdMM0.normalise();
+            crdMM1.normalise();
+            theta=acos(crdMM0*crdMM1);
+            bondAngles.push_back(theta);
+        }
+        else if(units[i].units.n==3){
+            crdM0=atoms[units[units[i].units.ids[0]].atomM].coordinate;
+            crdM1=atoms[units[units[i].units.ids[1]].atomM].coordinate;
+            crdM2=atoms[units[units[i].units.ids[2]].atomM].coordinate;
+            crdMM0=crdM0-crdM;
+            crdMM1=crdM1-crdM;
+            crdMM2=crdM2-crdM;
+            crdMM0.normalise();
+            crdMM1.normalise();
+            crdMM2.normalise();
+            theta=acos(crdMM0*crdMM1);
+            bondAngles.push_back(theta);
+            theta=acos(crdMM1*crdMM2);
+            bondAngles.push_back(theta);
+            theta=acos(crdMM0*crdMM2);
+            bondAngles.push_back(theta);
+        }
+        else cout<<"ERROR IN BOND ANGLE CALCULATION"<<endl;
+    }
+    ContinuousDistribution bondAngMMM(bondAngles);
+    bondAngDistMMM=bondAngMMM;
+
 }
 
 template <typename CrdT>
@@ -709,30 +798,51 @@ void Network<CrdT>::writeAnalysis(string prefix, Logfile &logfile) {
     logfile.log("Aboav-Weaire parameters written to: ",analysisFilename,"", 1, false);
 
     //bond length/angle distributions
-    writeFileValue(analysisFile,"Bond Length/Angle Distributions: MX, XX, MXM",true);
+    writeFileValue(analysisFile,"Bond Length/Angle Distributions: MX, XX, MM, MXM, MMM",true);
     writeFileValue(analysisFile,bondLenDistMX.mean,bondLenDistMX.sdev);
     writeFileValue(analysisFile,bondLenDistXX.mean,bondLenDistXX.sdev);
+    writeFileValue(analysisFile,bondLenDistMM.mean,bondLenDistMM.sdev);
     writeFileValue(analysisFile,bondAngDistMXM.mean,bondAngDistMXM.sdev);
+    writeFileValue(analysisFile,bondAngDistMMM.mean,bondAngDistMMM.sdev);
     logfile.log("Bond length and angle distribution summaries written to: ",analysisFilename,"",1,false);
     if(writeFullDistributions){
         string mxAnalysisFilename = prefix + "_analysis_mx.out";
         string xxAnalysisFilename = prefix + "_analysis_xx.out";
+        string mmAnalysisFilename = prefix + "_analysis_mm.out";
         string mxmAnalysisFilename = prefix + "_analysis_mxm.out";
+        string mmmAnalysisFilename = prefix + "_analysis_mmm.out";
         ofstream mxAnalysisFile(mxAnalysisFilename,ios::in|ios::trunc);
         ofstream xxAnalysisFile(xxAnalysisFilename,ios::in|ios::trunc);
+        ofstream mmAnalysisFile(mmAnalysisFilename,ios::in|ios::trunc);
         ofstream mxmAnalysisFile(mxmAnalysisFilename,ios::in|ios::trunc);
+        ofstream mmmAnalysisFile(mmmAnalysisFilename,ios::in|ios::trunc);
         vector<double> rawDistribution=bondLenDistMX.getValues();
         writeFileVectorTranspose(mxAnalysisFile,rawDistribution);
         rawDistribution=bondLenDistXX.getValues();
         writeFileVectorTranspose(xxAnalysisFile,rawDistribution);
+        rawDistribution=bondLenDistMM.getValues();
+        writeFileVectorTranspose(mmAnalysisFile,rawDistribution);
         rawDistribution=bondAngDistMXM.getValues();
         writeFileVectorTranspose(mxmAnalysisFile,rawDistribution);
+        rawDistribution=bondAngDistMMM.getValues();
+        writeFileVectorTranspose(mmmAnalysisFile,rawDistribution);
         logfile.log("MX bond length distribution written to: ",mxAnalysisFilename,"",1,false);
         logfile.log("XX bond length distribution written to: ",xxAnalysisFilename,"",1,false);
+        logfile.log("MM bond length distribution written to: ",xxAnalysisFilename,"",1,false);
         logfile.log("MXM bond angle distribution written to: ",mxmAnalysisFilename,"",1,false);
+        logfile.log("MMM bond angle distribution written to: ",mmmAnalysisFilename,"",1,false);
         mxAnalysisFile.close();
         xxAnalysisFile.close();
         mxmAnalysisFile.close();
+    }
+
+    //ring areas
+    if(ringAreas.size()>0){//only write if performed analysis
+        writeFileValue(analysisFile,"Average Ring Areas",true);
+        writeFileVector(analysisFile,ringSizes);
+        vector<double> meanRingAreas;
+        for(int i=0; i<ringSizes.size(); ++i) meanRingAreas.push_back(ringAreas.at(ringSizes[i]).mean);
+        writeFileVector(analysisFile,meanRingAreas);
     }
 
     //clustering and percolation

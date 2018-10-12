@@ -1,4 +1,4 @@
-Simulation run: Thu Oct 11 15:21:03 2018
+Simulation run: Fri Oct 12 17:41:04 2018
 
 Grows MX2 Aperiodic Networks                    
 Written By: David OM, Wilson Group, 2018                    
@@ -24,15 +24,15 @@ Load complete
 ----------------------------------------------------------------------
 Monte Carlo process                     
     Network growth begun after 0 seconds
-        All rings built, time elapsed:  10 seconds
+        All rings built, time elapsed:  8 seconds
     Network growth complete                    
     Monte Carlo monitoring                    
         Ring proposal probabilities                    
-            5         6         7         
-            0.333333  0.333333  0.333333  
+            4         5         6         7         8         9         10        
+            0.142857  0.142857  0.142857  0.142857  0.142857  0.142857  0.142857  
         Ring proposal probabilities within expected range                    
         Geometry optimisation monitoring                    
-            Average iterations: 2212.09             
+            Average iterations: 3120.38             
             Number of times iteration limit reached: 0                   
         Iteration limit satisfactory                    
     Monitoring analysis complete                    
@@ -42,6 +42,7 @@ Monte Carlo process complete
 Analysing network                       
     Network checked for unit overlap                    
     Ring statistics calculated                    
+    Ring areas calculated                    
 Analysis complete                       
 ----------------------------------------------------------------------
 Writing network                         
@@ -58,8 +59,10 @@ Writing network analysis
     Bond length and angle distribution summaries written to: ./output_files/test_analysis.out
     MX bond length distribution written to: ./output_files/test_analysis_mx.out
     XX bond length distribution written to: ./output_files/test_analysis_xx.out
+    MM bond length distribution written to: ./output_files/test_analysis_xx.out
     MXM bond angle distribution written to: ./output_files/test_analysis_mxm.out
+    MMM bond angle distribution written to: ./output_files/test_analysis_mmm.out
 Writing complete                        
 ----------------------------------------------------------------------
-Simulation complete: Thu Oct 11 15:21:13 2018
+Simulation complete: Fri Oct 12 17:41:13 2018
 

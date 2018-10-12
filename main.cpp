@@ -77,9 +77,10 @@ int main(){
     preOpt=globalOpt[0];
     postOpt=globalOpt[1];
     //Additional options
-    bool bondDistributions,bilayer,analyseClusters;
+    bool bondDistributions,ringAreas,bilayer,analyseClusters;
     readFileSkipLines(inputFile,2); //skip
     readFileValue(inputFile,bondDistributions); //explicit distributions
+    readFileValue(inputFile,ringAreas); //area of rings
     readFileValue(inputFile,bilayer); //convert to bilayer
     readFileValue(inputFile,analyseClusters); //cluster and percolation analysis
     inputFile.close();
@@ -92,7 +93,7 @@ int main(){
         simulation.setMC(randomSeed, temperature, logfile);
         simulation.setPM(kMX, r0MX, kXX, a0XX, kMM, a0MM, kLJ, r0LJ, kC, r0C, logfile);
         simulation.setGO(preOpt, postOpt, maxIt, lsInc, convTest, localSize, logfile);
-        simulation.setFO(bondDistributions,bilayer,analyseClusters,logfile);
+        simulation.setFO(bondDistributions,ringAreas,bilayer,analyseClusters,logfile);
 
         //run simulation
         simulation.run(logfile);
@@ -104,7 +105,7 @@ int main(){
         simulation.setMC(randomSeed, temperature, logfile);
         simulation.setPM(kMX, r0MX, kXX, a0XX, kMM, a0MM, kLJ, r0LJ, kC, r0C, logfile);
         simulation.setGO(preOpt, postOpt, maxIt, lsInc, convTest, localSize, logfile);
-        simulation.setFO(bondDistributions,bilayer,analyseClusters,logfile);
+        simulation.setFO(bondDistributions,ringAreas,bilayer,analyseClusters,logfile);
 
         //run simulation
         simulation.run(logfile);

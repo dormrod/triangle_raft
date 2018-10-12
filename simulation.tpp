@@ -75,9 +75,10 @@ void Simulation<CrdT,NetT>::setGO(bool global0, bool global1, int it, double ls,
 }
 
 template <typename CrdT, typename NetT>
-void Simulation<CrdT,NetT>::setFO(bool bDist, bool bi, bool aClst, Logfile &logfile) {
+void Simulation<CrdT,NetT>::setFO(bool bDist, bool rArea, bool bi, bool aClst, Logfile &logfile) {
     //set further options
     fullDistributions=bDist;
+    analyseArea=rArea;
     convertToBilayer=bi;
     analyseCluster=aClst;
     logfile.log("Initialised: ","additional options","",1,false);
@@ -271,6 +272,12 @@ void Simulation<CrdT,NetT>::analyseNetwork(Logfile &logfile) {
 
     //bond distributions
     masterNetwork.calculateBondDistributions(fullDistributions);
+
+    //ring areas
+    if(analyseArea){
+        masterNetwork.calculateRingAreas();
+        logfile.log("Ring areas calculated","","",1,false);
+    }
 
     //percolation
     if(analyseCluster){
