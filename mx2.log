@@ -1,4 +1,4 @@
-Simulation run: Fri Oct 12 17:41:04 2018
+Simulation run: Fri Oct 12 17:52:48 2018
 
 Grows MX2 Aperiodic Networks                    
 Written By: David OM, Wilson Group, 2018                    
@@ -62,7 +62,8 @@ Writing network analysis
     MM bond length distribution written to: ./output_files/test_analysis_xx.out
     MXM bond angle distribution written to: ./output_files/test_analysis_mxm.out
     MMM bond angle distribution written to: ./output_files/test_analysis_mmm.out
+    Average ring areas written to: ./output_files/test_analysis.out
 Writing complete                        
 ----------------------------------------------------------------------
-Simulation complete: Fri Oct 12 17:41:13 2018
+Simulation complete: Fri Oct 12 17:52:57 2018
 

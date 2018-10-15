@@ -843,6 +843,7 @@ void Network<CrdT>::writeAnalysis(string prefix, Logfile &logfile) {
         vector<double> meanRingAreas;
         for(int i=0; i<ringSizes.size(); ++i) meanRingAreas.push_back(ringAreas.at(ringSizes[i]).mean);
         writeFileVector(analysisFile,meanRingAreas);
+        logfile.log("Average ring areas written to: ",analysisFilename,"",1,false);
     }
 
     //clustering and percolation
