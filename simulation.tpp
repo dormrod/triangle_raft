@@ -135,7 +135,7 @@ void Simulation<CrdT,NetT>::growNetwork(Logfile &logfile) {
                 cout<<nRings<<endl;
                 logfile.log(to_string(nRings)+" rings, time elapsed: ","","sec",2,false);
             }
-//            cout<<nRings<<endl;
+            cout<<nRings<<endl;
             if(killGrowth==1){
                 masterNetwork.kill(prefixOut,logfile);
                 logfile.errorlog("Growth prematurely killed due to excessive energy","critical");

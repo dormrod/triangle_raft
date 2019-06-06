@@ -1,4 +1,4 @@
-Simulation run: Fri Oct 12 17:52:48 2018
+Simulation run: Thu Jun  6 15:31:54 2019
 
 Grows MX2 Aperiodic Networks                    
 Written By: David OM, Wilson Group, 2018                    
@@ -24,25 +24,24 @@ Load complete
 ----------------------------------------------------------------------
 Monte Carlo process                     
     Network growth begun after 0 seconds
-        All rings built, time elapsed:  8 seconds
+        100 rings, time elapsed:  160 seconds
+        All rings built, time elapsed:  0 seconds
     Network growth complete                    
     Monte Carlo monitoring                    
         Ring proposal probabilities                    
             4         5         6         7         8         9         10        
-            0.142857  0.142857  0.142857  0.142857  0.142857  0.142857  0.142857  
+            0.134307  0.143066  0.144526  0.144526  0.144526  0.144526  0.144526  
         Ring proposal probabilities within expected range                    
         Geometry optimisation monitoring                    
-            Average iterations: 3120.38             
-            Number of times iteration limit reached: 0                   
+            Average iterations: 2389.7              
+            Number of times iteration limit reached: 5                   
         Iteration limit satisfactory                    
     Monitoring analysis complete                    
-    Performing global geometry optimisation                    
 Monte Carlo process complete                    
 ----------------------------------------------------------------------
 Analysing network                       
     Network checked for unit overlap                    
     Ring statistics calculated                    
-    Ring areas calculated                    
 Analysis complete                       
 ----------------------------------------------------------------------
 Writing network                         
@@ -57,13 +56,7 @@ Writing network analysis
     Ring statistics written to: ./output_files/test_analysis.out
     Aboav-Weaire parameters written to: ./output_files/test_analysis.out
     Bond length and angle distribution summaries written to: ./output_files/test_analysis.out
-    MX bond length distribution written to: ./output_files/test_analysis_mx.out
-    XX bond length distribution written to: ./output_files/test_analysis_xx.out
-    MM bond length distribution written to: ./output_files/test_analysis_xx.out
-    MXM bond angle distribution written to: ./output_files/test_analysis_mxm.out
-    MMM bond angle distribution written to: ./output_files/test_analysis_mmm.out
-    Average ring areas written to: ./output_files/test_analysis.out
 Writing complete                        
 ----------------------------------------------------------------------
-Simulation complete: Fri Oct 12 17:52:57 2018
+Simulation complete: Thu Jun  6 15:34:35 2019
 

@@ -523,7 +523,10 @@ void Network<CrdT>::calculateRingStatistics() {
             if(rings[j].rings.full){//only include rings not on edge
                 if(rings[j].units.n==s){
                     for(int k=0; k<rings[j].rings.n; ++k){
-                        ringSizes.push_back(rings[rings[j].rings.ids[k]].units.n);
+                        ringRef=rings[j].rings.ids[k];
+                        if(rings[ringRef].rings.full){
+                            ringSizes.push_back(rings[ringRef].units.n);
+                        }
                     }
                 }
             }
@@ -761,18 +764,18 @@ void Network<CrdT>::writeAnalysis(string prefix, Logfile &logfile) {
     analysisFile << fixed << showpoint << setprecision(1);
     //total ring statistics
     vector<int> ringSizes=ringStatistics.getValues();
-    writeFileVector(analysisFile,ringSizes);
-    analysisFile << fixed << showpoint << setprecision(6);
+    writeFileVector(analysisFile,ringSizes,20);
+    analysisFile << fixed << showpoint << setprecision(8);
     vector<double> data=ringStatistics.getProbabilities();
     data.push_back(ringStatistics.mean);
     data.push_back(double(ringStatistics.sampleSize));
-    writeFileVector(analysisFile,data);
+    writeFileVector(analysisFile,data,20);
     //bulk rings statistics
     data.clear();
     for(int i=0; i<ringSizes.size(); ++i) data.push_back(bulkRingStatistics.getProbability(ringSizes[i]));
     data.push_back(bulkRingStatistics.mean);
     data.push_back(double(bulkRingStatistics.sampleSize));
-    writeFileVector(analysisFile,data);
+    writeFileVector(analysisFile,data,20);
     //individual ring statistics
     for(int i=0; i<ringSizes.size(); ++i){
         data.clear();
@@ -787,23 +790,23 @@ void Network<CrdT>::writeAnalysis(string prefix, Logfile &logfile) {
             data.push_back(indRingStatistics.at(s).mean);
             data.push_back(double(indRingStatistics.at(s).sampleSize));
         }
-        writeFileVector(analysisFile,data);
+        writeFileVector(analysisFile,data,20);
     }
     logfile.log("Ring statistics written to: ",analysisFilename,"", 1, false);
 
     //ring correlations
     writeFileValue(analysisFile,"Aboav-Weaire alpha, mu and rsq",true);
     data=aboavWeaireParameters;
-    writeFileVector(analysisFile,data);
+    writeFileVector(analysisFile,data,20);
     logfile.log("Aboav-Weaire parameters written to: ",analysisFilename,"", 1, false);
 
     //bond length/angle distributions
     writeFileValue(analysisFile,"Bond Length/Angle Distributions: MX, XX, MM, MXM, MMM",true);
-    writeFileValue(analysisFile,bondLenDistMX.mean,bondLenDistMX.sdev);
-    writeFileValue(analysisFile,bondLenDistXX.mean,bondLenDistXX.sdev);
-    writeFileValue(analysisFile,bondLenDistMM.mean,bondLenDistMM.sdev);
-    writeFileValue(analysisFile,bondAngDistMXM.mean,bondAngDistMXM.sdev);
-    writeFileValue(analysisFile,bondAngDistMMM.mean,bondAngDistMMM.sdev);
+    writeFileValue(analysisFile,bondLenDistMX.mean,bondLenDistMX.sdev,bondLenDistMX.n,20);
+    writeFileValue(analysisFile,bondLenDistXX.mean,bondLenDistXX.sdev,bondLenDistXX.n,20);
+    writeFileValue(analysisFile,bondLenDistMM.mean,bondLenDistMM.sdev,bondLenDistMM.n,20);
+    writeFileValue(analysisFile,bondAngDistMXM.mean,bondAngDistMXM.sdev,bondAngDistMXM.n,20);
+    writeFileValue(analysisFile,bondAngDistMMM.mean,bondAngDistMMM.sdev,bondAngDistMMM.n,20);
     logfile.log("Bond length and angle distribution summaries written to: ",analysisFilename,"",1,false);
     if(writeFullDistributions){
         string mxAnalysisFilename = prefix + "_analysis_mx.out";

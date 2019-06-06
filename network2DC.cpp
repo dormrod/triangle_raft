@@ -128,6 +128,19 @@ int NetworkCart2D::getActiveUnit(string shape, double size) {
             }
         }
     }
+    else if(shape=="X"){
+        Cart2D c;
+        for (int i = 0; i < boundaryUnits.size(); ++i) {
+            atomId = boundaryStatus[i];
+            if (atomId >= 0) {
+                c=atoms[atomId].coordinate;
+                if (c.x < size && c.x > 0.0 && c.y < size && c.y > 0.0) {
+                    unitId = boundaryUnits[i];
+                    break;
+                }
+            }
+        }
+    }
     else if(shape=="H"){
         Cart2D c;
         double f;

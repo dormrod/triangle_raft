@@ -3,13 +3,13 @@ I0
 ./output_files/test output prefix
 -------------------------------------------------
 Network Properties
-7  number of rings
-4 10        basic ring size limits
+100  number of rings
+4 10         basic ring size limits
 2DC         geometry code
 -------------------------------------------------
 Monte Carlo Process
 0           random seed
-0.1    temperature
+0.0101    temperature
 -------------------------------------------------
 Potential Model
 1.0     1.0     M-X (k,r0)
@@ -19,14 +19,14 @@ Potential Model
 10.0   20.0   Constr (k,r0)
 -------------------------------------------------
 Minimisation Control
-0 1     global optimisation before/after simulation
+0 0     global optimisation before/after simulation
 10000    maximum iterations
 0.5     tau (backtracking line search coefficient)
 1e-07   convergence test
 5      size of local region
 -------------------------------------------------
 Additional Options
-1      full bond length/angle distributions
-1      ring areas
+0      full bond length/angle distributions
+0      ring areas
 0      convert to bilayer
 0      cluster and percolation analysis (2DS)
