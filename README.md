@@ -8,6 +8,8 @@ The C++ code to generate these structures is included here, along with some pyth
 
 For some example outputs please check out the gallery!
 
+![Alt text](./gallery/cover.png "Title")
+
 ### Compilation 
 
 Compilation is easiest using CMake.
