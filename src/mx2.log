@@ -1,4 +1,4 @@
-Simulation run: Thu Jun  6 15:31:54 2019
+Simulation run: Tue Aug 13 13:39:03 2019
 
 Grows MX2 Aperiodic Networks                    
 Written By: David OM, Wilson Group, 2018                    
@@ -24,19 +24,19 @@ Load complete
 ----------------------------------------------------------------------
 Monte Carlo process                     
     Network growth begun after 0 seconds
-        100 rings, time elapsed:  160 seconds
-        All rings built, time elapsed:  0 seconds
+        All rings built, time elapsed:  2 seconds
     Network growth complete                    
     Monte Carlo monitoring                    
         Ring proposal probabilities                    
-            4         5         6         7         8         9         10        
-            0.134307  0.143066  0.144526  0.144526  0.144526  0.144526  0.144526  
+            6         
+            1         
         Ring proposal probabilities within expected range                    
         Geometry optimisation monitoring                    
-            Average iterations: 2389.7              
-            Number of times iteration limit reached: 5                   
+            Average iterations: 1127.87             
+            Number of times iteration limit reached: 0                   
         Iteration limit satisfactory                    
     Monitoring analysis complete                    
+    Performing global geometry optimisation                    
 Monte Carlo process complete                    
 ----------------------------------------------------------------------
 Analysing network                       
@@ -45,18 +45,18 @@ Analysing network
 Analysis complete                       
 ----------------------------------------------------------------------
 Writing network                         
-    Atoms written to:   ./output_files/test_atoms.out
-    Units written to:   ./output_files/test_units.out
-    Rings written to:   ./output_files/test_rings.out
-    Additional connections written to: ./output_files/test_connections.out
-    Visualisation helper file written to: ./output_files/test_vis.out
+    Atoms written to:   ./output_files/ph_example_atoms.out
+    Units written to:   ./output_files/ph_example_units.out
+    Rings written to:   ./output_files/ph_example_rings.out
+    Additional connections written to: ./output_files/ph_example_connections.out
+    Visualisation helper file written to: ./output_files/ph_example_vis.out
 Write complete                          
 ----------------------------------------------------------------------
 Writing network analysis                    
-    Ring statistics written to: ./output_files/test_analysis.out
-    Aboav-Weaire parameters written to: ./output_files/test_analysis.out
-    Bond length and angle distribution summaries written to: ./output_files/test_analysis.out
+    Ring statistics written to: ./output_files/ph_example_analysis.out
+    Aboav-Weaire parameters written to: ./output_files/ph_example_analysis.out
+    Bond length and angle distribution summaries written to: ./output_files/ph_example_analysis.out
 Writing complete                        
 ----------------------------------------------------------------------
-Simulation complete: Thu Jun  6 15:34:35 2019
+Simulation complete: Tue Aug 13 13:39:06 2019
 

@@ -1,7 +1,7 @@
 .idea/*
-cmake-build-debug/*
-cmake-build-release/*
-output_files/*
-input_files/*
+*/cmake-build-debug/*
+*/cmake-build-release/*
+*/output_files/*
+*/input_files/*
 videos/*
 .*

@@ -5,9 +5,8 @@ import matplotlib.patches as patches
 import matplotlib._color_data as mcd
 import matplotlib.colors as colors
 import matplotlib.pylab as pylab
-from matplotlib.colors import Normalize
 from matplotlib import cm
-from matplotlib.colors import ListedColormap, LinearSegmentedColormap 
+from matplotlib.colors import ListedColormap, LinearSegmentedColormap, Normalize
 import numpy as np
 import os
 
@@ -24,7 +23,6 @@ def main():
     vis_ring_filter=vis_options.get("ring_size_filter",None)
     vis_atom_label=vis_options.get("atom_label",False)
     vis_tri_label=vis_options.get("triangle_label",False)
-    vis_ring_label=vis_options.get("ring_label",False)
     vis_boundary=vis_options.get("boundary",False)
     vis_save_pdf=vis_options.get("save_pdf",False)
     vis_save_png=vis_options.get("save_png",False)
@@ -40,7 +38,7 @@ def main():
     if vis_tri:
         plot_triangle_network(data,vis_x,vis_m,vis_atom_label,vis_tri_label,fig,ax)
     if vis_ring:
-        plot_ring_network(data,fig,ax,vis_ring_colour,vis_ring_filter,vis_ring_label)
+        plot_ring_network(data,fig,ax,vis_ring_colour,vis_ring_filter)
     if vis_boundary:
         plot_boundary(data,fig,ax)
 
@@ -65,23 +63,20 @@ def get_options():
         else: options["m_atom"]=False
         if("r" in sys.argv[2]):
             options["ring"]=True
-            options["ring_colour_style"]=0
+            options["ring_colour_style"]=3
         else: options["ring"]=False
         if("A" in sys.argv[2]): options["atom_label"]=True
         else: options["atom_label"]=False
         if("T" in sys.argv[2]): options["triangle_label"]=True
         else: options["triangle_label"]=False
-        if("R" in sys.argv[2]): options["ring_label"]=True
-        else: options["triangle_label"]=False
         if("b" in sys.argv[2]): options["boundary"]=True
         else: options["boundary"]=False
         if("e" in sys.argv[2]): options["ring_colour_style"]=1
         if("c" in sys.argv[2]): options["ring_colour_style"]=2
-        if("n" in sys.argv[2]): options["ring_colour_style"]=3
         if("s" in sys.argv[2]): options["save_pdf"]=True
         if("S" in sys.argv[2]): options["save_png"]=True
     if len(sys.argv)==4:
-        options["ring_size_filter"]=[int(x) for x in sys.argv[3][1:]]
+        options["ring_size_filter"]=int(sys.argv[3][1:])
     return options
 
 def updateParams():
@@ -162,11 +157,13 @@ def plot_triangle_network(data,show_x,show_m,atom_label,tri_label,fig,ax):
     # Plot x atoms
     if show_x:
         x_crds=crds[unit_x.flatten()]
-        ax.scatter(x_crds[:,0],x_crds[:,1], facecolor="red", edgecolor="black", alpha=0.8, s=10, zorder=2)
+        #ax.scatter(x_crds[:,0],x_crds[:,1], facecolor="red", edgecolor="black", alpha=1.0, s=50, zorder=2)
+        ax.scatter(x_crds[:,0],x_crds[:,1], facecolor="red", edgecolor="red", alpha=1, s=10, zorder=2)
     # Plot m atoms
     if show_m:
         m_crds=crds[unit_m]
-        ax.scatter(m_crds[:,0],m_crds[:,1], facecolor="yellow", edgecolor="black", alpha=0.8, s=10, zorder=2)
+        #ax.scatter(m_crds[:,0],m_crds[:,1], facecolor="yellow", edgecolor="black", alpha=1.0, s=50, zorder=2)
+        ax.scatter(m_crds[:,0],m_crds[:,1], facecolor="yellow", edgecolor="yellow", alpha=1, s=10, zorder=2)
 
     # Make labels
     if atom_label:
@@ -181,11 +178,13 @@ def plot_triangle_network(data,show_x,show_m,atom_label,tri_label,fig,ax):
 
     # Set axes limits
     limLb=np.amax([np.amin(crds),np.amax(crds)])*1.1
+    #limLb=6.4095262
+    #limLb=10
     limUb=-limLb
     ax.set_xlim(limLb,limUb)
     ax.set_ylim(limLb,limUb)
 
-def plot_ring_network(data,fig,ax,colour_style,size_filter,ring_label):
+def plot_ring_network(data,fig,ax,colour_style,size_filter):
 
     # Unpack dictionary
     crds=data.get("crds")
@@ -198,12 +197,14 @@ def plot_ring_network(data,fig,ax,colour_style,size_filter,ring_label):
 
     # Generate patch drawing commands and colours
     polygon_cmds=generate_polygon_commands(3,np.max(ring_sizes));
-    if colour_style!=2: ring_colours=generate_colours(ring_sizes,colour_style)
-    else:
+    if colour_style==0: ring_colours=generate_colours(ring_sizes,colour_style)
+    elif colour_style==1: ring_colours=generate_colours(ring_edges,colour_style)
+    elif colour_style==2:
         if size_filter is not None:
             for i,s in enumerate(ring_sizes):
-                if s not in size_filter: ring_clusters[i]=-1
+                if s!=size_filter: ring_clusters[i]=-1
         ring_colours=generate_colours(ring_clusters,colour_style)
+    elif colour_style==3: ring_colours=generate_colours(ring_sizes,colour_style)
 
     # rings=rings[::-1]
     # ring_sizes=ring_sizes[::-1]
@@ -217,13 +218,10 @@ def plot_ring_network(data,fig,ax,colour_style,size_filter,ring_label):
             ring_crds=np.append(ring_crds, [crds[0]], axis=0)
         # depth=np.average(np.array([depth_cueing[a] for a in ring]))
             path=Path(ring_crds, polygon_cmds[ring_sizes[i]-3])
-            patch = patches.PathPatch(path, facecolor=ring_colours[i], lw=1.0, alpha=1.0, zorder=0)
+            patch = patches.PathPatch(path, facecolor=ring_colours[i], lw=0.6, alpha=1.0, zorder=0)
             # patch = patches.PathPatch(path, facecolor="white", lw=1.0, alpha=1.0, zorder=0)
-            if ring_sizes[i] in size_filter:
-                ax.add_patch(patch)
-                if ring_label:
-                    plt.text(np.average(ring_crds[:-1,0]),np.average(ring_crds[:-1,1]),ring_sizes[i])
-        #plt.text(ring_crds[0,0],ring_crds[0,1],i)
+            ax.add_patch(patch)
+        #    plt.text(ring_crds[0,0],ring_crds[0,1],i)
     elif dimensionality==3:
         # Add depth cueing
         z=crds[:,2]
@@ -240,15 +238,17 @@ def plot_ring_network(data,fig,ax,colour_style,size_filter,ring_label):
             ax.add_patch(patch)
         pass
 
-    # if(label):
-    #     for i, c in enumerate(crds):
-    #         plt.text(c[0],c[1],i)
+     #if(label):
+     #    for i, c in enumerate(crds):
+     #        plt.text(c[0],c[1],i)
     #
     # Set axes limits
     limLb=np.amax([np.amin(crds),np.amax(crds)])*1.1
+    limLb=-15
     limUb=-limLb
     ax.set_xlim(limLb,limUb)
     ax.set_ylim(limLb,limUb)
+    ax.set_xlim(limLb,limUb)
     return
 
 def plot_boundary(data,fix,ax):
@@ -278,6 +278,7 @@ def generate_colours(ring_codes, colour_set=0):
     colormap_oranges=plt.cm.get_cmap("YlOrBr")
     colormap_purples=plt.cm.get_cmap("PuRd")
     colormap_pinks=plt.cm.get_cmap("RdPu")
+    colormap_rainbow=plt.cm.get_cmap("gist_rainbow")
     colormaps=[colormap_greens,colormap_blues,colormap_reds,colormap_oranges,colormap_purples,colormap_pinks]
 
     green=colormap_greens(100)
@@ -287,28 +288,21 @@ def generate_colours(ring_codes, colour_set=0):
     orange=colormap_oranges(100)
     purple=colormap_purples(100)
     pink=colormap_pinks(80)
-   
-    norm_lims=(3,12) 
+        
     map_lower = cm.get_cmap('Blues_r', 128)
     map_upper = cm.get_cmap('Reds', 128)
-    map_mean = cm.get_cmap("Greys")
-    map_lower = ListedColormap(map_lower(np.arange(30, 100)))
-    map_upper = ListedColormap(map_upper(np.arange(30, 100)))
-    norm_lower = Normalize(vmin=norm_lims[0], vmax=6)
-    norm_upper = Normalize(vmin=6, vmax=norm_lims[1])
-    colour_mean = map_mean(50)
     map_mean=cm.get_cmap("Greys")
-    size_colours = []
-    for i in range(100):
-        if i < 3:
-            size_colours.append("white")
-        elif i < 6:
-            size_colours.append(map_lower(norm_lower(i)))
-        elif i == 6:
-            size_colours.append(colour_mean)
-        else:
-            size_colours.append(map_upper(norm_upper(i)))
-    colour_set=3
+    map_lower=ListedColormap(map_lower(np.arange(30,100)))
+    map_upper=ListedColormap(map_upper(np.arange(30,100)))
+
+    norm_lower=Normalize(vmin=3,vmax=6)
+    norm_upper=Normalize(vmin=6,vmax=12)
+    colour_mean=map_mean(50)
+     #colour_mean='ivory'
+     # map = np.vstack((map_upper(np.linspace(0, 1, 128)),map_lower(np.linspace(0, 1, 128))))
+     # colormap = ListedColormap(map, name='custom')
+
+
     if colour_set==0:
         colourList=[green,blue,grey,red,orange,purple,pink]
         for i in range(n_rings):
@@ -322,24 +316,37 @@ def generate_colours(ring_codes, colour_set=0):
     elif colour_set==2:
         colourList=[]
         np.random.seed(seed=0)
-        for i in range(np.max(ring_codes)):
-            rand1=np.random.randint(low=0,high=6)
-            rand2=np.random.randint(low=50,high=200)
-            colourList.append(colormaps[rand1](rand2))
+        for i in range(np.max(ring_codes)+1):
+            lb=(i%6)*40
+            ub=(i%6+1)*40
+            rand=np.random.randint(low=lb,high=ub)
+            colourList.append(colormap_rainbow(rand))
+        #     rand1=np.random.randint(low=0,high=6)
+        #     rand2=np.random.randint(low=50,high=200)
+        #     colourList.append(colormaps[rand1](rand2))
         colourList.append(grey)
         for code in ring_codes:
             colours.append(colourList[code])
-    elif colour_set==3:
+    elif colour_set==3:  
+        colourList=[]
+        for i in range(30):
+            if i < 3:
+                colourList.append("white")
+            elif np.abs(i-6)<1e-6:
+                colourList.append(colour_mean)
+            elif i<6:
+                colourList.append(map_lower(norm_lower(i)))
+            else:
+                colourList.append(map_upper(norm_upper(i)))
         for code in ring_codes:
-            colours.append(size_colours[code])
+            colours.append(colourList[code])
+
     return colours
-
-
 
 
 def savePlot(prefix,fmt="pdf"):
     filename="{0}.{1}".format(prefix,fmt)
-    plt.savefig(filename, dpi=400, bbox_inches="tight")
+    plt.savefig(filename, dpi=800, bbox_inches="tight")
 
 if __name__=="__main__":
     main()
